@@ -63,9 +63,9 @@ Partial Class Main
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label_Status = New System.Windows.Forms.Label()
-        Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.Label_Panel = New System.Windows.Forms.Label()
         Me.LoaderTimer = New System.Windows.Forms.Timer(Me.components)
+        Me.Label_Panel = New System.Windows.Forms.Label()
+        Me.Panel1 = New System.Windows.Forms.Panel()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.GroupBox4.SuspendLayout()
@@ -111,6 +111,7 @@ Partial Class Main
         '
         'GroupBox4
         '
+        Me.GroupBox4.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.GroupBox4.Controls.Add(Me.Button2)
         Me.GroupBox4.Controls.Add(Me.ComboBox4)
         Me.GroupBox4.Controls.Add(Me.ComboBox3)
@@ -128,6 +129,8 @@ Partial Class Main
         '
         'Button2
         '
+        Me.Button2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Button2.Location = New System.Drawing.Point(305, 245)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(145, 24)
@@ -137,6 +140,7 @@ Partial Class Main
         '
         'ComboBox4
         '
+        Me.ComboBox4.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.ComboBox4.FormattingEnabled = True
         Me.ComboBox4.Location = New System.Drawing.Point(280, 174)
         Me.ComboBox4.Name = "ComboBox4"
@@ -145,6 +149,7 @@ Partial Class Main
         '
         'ComboBox3
         '
+        Me.ComboBox3.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.ComboBox3.FormattingEnabled = True
         Me.ComboBox3.Location = New System.Drawing.Point(280, 105)
         Me.ComboBox3.Name = "ComboBox3"
@@ -153,6 +158,7 @@ Partial Class Main
         '
         'ComboBox2
         '
+        Me.ComboBox2.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.ComboBox2.FormattingEnabled = True
         Me.ComboBox2.Location = New System.Drawing.Point(280, 72)
         Me.ComboBox2.Name = "ComboBox2"
@@ -161,6 +167,7 @@ Partial Class Main
         '
         'Label15
         '
+        Me.Label15.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.Label15.AutoSize = True
         Me.Label15.Location = New System.Drawing.Point(217, 177)
         Me.Label15.Name = "Label15"
@@ -170,6 +177,7 @@ Partial Class Main
         '
         'Label14
         '
+        Me.Label14.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.Label14.AutoSize = True
         Me.Label14.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label14.Location = New System.Drawing.Point(209, 153)
@@ -180,6 +188,7 @@ Partial Class Main
         '
         'Label13
         '
+        Me.Label13.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.Label13.AutoSize = True
         Me.Label13.Location = New System.Drawing.Point(217, 108)
         Me.Label13.Name = "Label13"
@@ -189,6 +198,7 @@ Partial Class Main
         '
         'Label12
         '
+        Me.Label12.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.Label12.AutoSize = True
         Me.Label12.Location = New System.Drawing.Point(217, 75)
         Me.Label12.Name = "Label12"
@@ -198,6 +208,7 @@ Partial Class Main
         '
         'Label11
         '
+        Me.Label11.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.Label11.AutoSize = True
         Me.Label11.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label11.Location = New System.Drawing.Point(209, 51)
@@ -416,6 +427,7 @@ Partial Class Main
         '
         'GroupBox3
         '
+        Me.GroupBox3.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.GroupBox3.Controls.Add(Me.Button1)
         Me.GroupBox3.Controls.Add(Me.TextBox2)
         Me.GroupBox3.Controls.Add(Me.Label9)
@@ -500,13 +512,10 @@ Partial Class Main
         Me.Label_Status.TabIndex = 5
         Me.Label_Status.Text = "Esperando..."
         '
-        'Panel1
+        'LoaderTimer
         '
-        Me.Panel1.Controls.Add(Me.Label_Panel)
-        Me.Panel1.Location = New System.Drawing.Point(793, 449)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(795, 467)
-        Me.Panel1.TabIndex = 6
+        Me.LoaderTimer.Enabled = True
+        Me.LoaderTimer.Interval = 500
         '
         'Label_Panel
         '
@@ -518,10 +527,13 @@ Partial Class Main
         Me.Label_Panel.Text = "Loading..."
         Me.Label_Panel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'LoaderTimer
+        'Panel1
         '
-        Me.LoaderTimer.Enabled = True
-        Me.LoaderTimer.Interval = 500
+        Me.Panel1.Controls.Add(Me.Label_Panel)
+        Me.Panel1.Location = New System.Drawing.Point(793, 449)
+        Me.Panel1.Name = "Panel1"
+        Me.Panel1.Size = New System.Drawing.Size(795, 467)
+        Me.Panel1.TabIndex = 6
         '
         'Main
         '
@@ -595,8 +607,6 @@ Partial Class Main
     Friend WithEvents Label9 As Label
     Friend WithEvents Button1 As Button
     Friend WithEvents ComboBox1 As ComboBox
-    Friend WithEvents Panel1 As Panel
-    Friend WithEvents Label_Panel As Label
     Friend WithEvents LoaderTimer As Timer
     Friend WithEvents Label10 As Label
     Friend WithEvents GroupBox4 As GroupBox
@@ -609,4 +619,6 @@ Partial Class Main
     Friend WithEvents ComboBox3 As ComboBox
     Friend WithEvents ComboBox2 As ComboBox
     Friend WithEvents Button2 As Button
+    Friend WithEvents Label_Panel As Label
+    Friend WithEvents Panel1 As Panel
 End Class

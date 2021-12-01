@@ -129,10 +129,10 @@ Module Payloads
             AddToLog("Uninstall@Payloads", "Error" & ex.Message, True)
         End Try
     End Sub
-    Sub Update()
+    Sub Update(Optional ByVal args As String = Nothing)
         Try
             AddToLog("Update@Payloads", "Starting Updater.exe...", True)
-            Process.Start(DIRCommons & "\BorocitoUpdater.exe")
+            Process.Start(DIRCommons & "\BorocitoUpdater.exe", args)
             End
         Catch ex As Exception
             AddToLog("Update@Payloads", "Error" & ex.Message, True)

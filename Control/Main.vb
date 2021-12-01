@@ -5,6 +5,13 @@
         TabPage5.Enabled = False
         Panel1.Dock = DockStyle.Fill
     End Sub
+    Private Sub Main_HelpRequested(sender As Object, hlpevent As HelpEventArgs) Handles Me.HelpRequested
+        If MessageBox.Show("Borocito CLI y Borocito CMD fueron creados por Zhenboro." & vbCrLf & "¿Desea visitar el sitio oficial?", "Borocito Series", MessageBoxButtons.YesNo, MessageBoxIcon.Information) = DialogResult.Yes Then
+            Process.Start("https://github.com/Zhenboro/Borocito")
+            Threading.Thread.Sleep(1500)
+            Process.Start("https://github.com/Zhenboro")
+        End If
+    End Sub
     Private Sub LoaderTimer_Tick(sender As Object, e As EventArgs) Handles LoaderTimer.Tick
         LoadIt()
     End Sub

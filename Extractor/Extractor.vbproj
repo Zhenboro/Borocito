@@ -6,9 +6,9 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0AD44CB6-1454-4B9E-8305-848845EBB04E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>Extractor.My.MyApplication</StartupObject>
-    <RootNamespace>Extractor</RootNamespace>
-    <AssemblyName>Extractor</AssemblyName>
+    <StartupObject>Borocito_Extractor.My.MyApplication</StartupObject>
+    <RootNamespace>Borocito_Extractor</RootNamespace>
+    <AssemblyName>BorocitoExtractor</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
@@ -22,7 +22,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>Extractor.xml</DocumentationFile>
+    <DocumentationFile>BorocitoExtractor.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -32,7 +32,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>Extractor.xml</DocumentationFile>
+    <DocumentationFile>BorocitoExtractor.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -121,10 +121,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Updater.exe" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Resources\Borocito.exe" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Updater.exe" />
+    <None Include="Resources\BorocitoUpdater.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

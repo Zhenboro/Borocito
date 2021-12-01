@@ -11,7 +11,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyTitle("")>
 <Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("Zhenboro")>
-<Assembly: AssemblyProduct("BorocitoUpdater")>
+<Assembly: AssemblyProduct("BoroUpdater")>
 <Assembly: AssemblyCopyright("Copyright © 2021 Zhenboro.")>
 <Assembly: AssemblyTrademark("Zhenboro")>
 
