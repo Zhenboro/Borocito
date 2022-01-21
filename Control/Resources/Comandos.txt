@@ -26,6 +26,8 @@ MsgBox=body,title
 /SendTelemetry()
 /Status
 
+boro-get status install uninstall set||
+
 /Stop
 /Restart
 /Update

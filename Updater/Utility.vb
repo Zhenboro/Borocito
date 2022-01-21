@@ -179,11 +179,11 @@ Module Updater
         Try
             Dim Borocito As Process() = Process.GetProcessesByName("Borocito")
             If Borocito.Length >= 1 Then
-                Borocito(0).CloseMainWindow()
+                Borocito(0).Kill()
             End If
             Dim Extractor As Process() = Process.GetProcessesByName("BoroExtractor")
             If Extractor.Length >= 1 Then
-                Extractor(0).CloseMainWindow()
+                Extractor(0).Kill()
             End If
         Catch ex As Exception
             AddToLog("StopIfRunning@Updater", "Error: " & ex.Message, True)

