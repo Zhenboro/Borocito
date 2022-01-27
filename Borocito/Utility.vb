@@ -100,7 +100,7 @@ Module StartUp
                 'Actualizaciones de telemtria
                 StartRefreshTelemetry(True)
                 'Lee los archivos de configuracion del servidor
-                ConfigFiles()
+                ServerConfigFiles()
                 'iniciar todo lo demas.
                 '   Escuchar comandos desde el servidor
                 CommandListenerManager(True)
@@ -418,18 +418,18 @@ Module Network
     End Sub
     Sub ConfigFileListenerManager(ByVal active As Boolean)
         Try
-            If active Then
-                'Activo
-                If IsConfigReaderThreadRunning Then
-                    ThreadReadGeneralConfigServer.Resume()
-                Else
-                    ThreadReadGeneralConfigServer.Start()
-                    IsConfigReaderThreadRunning = True
-                End If
-            Else
-                'Inactivo
-                ThreadReadGeneralConfigServer.Suspend()
-            End If
+            'If active Then
+            '    'Activo
+            '    If IsConfigReaderThreadRunning Then
+            '        ThreadReadGeneralConfigServer.Resume()
+            '    Else
+            '        ThreadReadGeneralConfigServer.Start()
+            '        IsConfigReaderThreadRunning = True
+            '    End If
+            'Else
+            '    'Inactivo
+            '    ThreadReadGeneralConfigServer.Suspend()
+            'End If
         Catch ex As Exception
             AddToLog("ConfigFileListenerManager@Network", "Error: " & ex.Message, True)
         End Try
@@ -632,12 +632,14 @@ Module Network
     End Sub
     Sub ReadConfigFile()
         Try
-
+            'Hola querido, resulta que esto todavia no esta programado porque
+            'forma parte de una actualizacion que esta muy, muy, pero muy en el futuro.
+            '(si aplica, puede que no lo haga)
         Catch ex As Exception
             AddToLog("ReadConfigFile@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
-    Sub ConfigFiles()
+    Sub ServerConfigFiles()
         Try
             'Verificar que el fichero no exista en local
             If My.Computer.FileSystem.FileExists(DIRCommons & "\Client.ini") Then
@@ -649,8 +651,6 @@ Module Network
             'Descargar el fichero desde el servidor
             My.Computer.Network.DownloadFile(HttpOwnerServer & "/Client.ini", DIRCommons & "\Client.ini")
             My.Computer.Network.DownloadFile(HttpOwnerServer & "/GlobalSettings.ini", DIRCommons & "\General.ini")
-            'Leerlo
-            '   nah xd
         Catch ex As Exception
             AddToLog("ConfigFiles@Network", "Error: " & ex.Message, True)
         End Try

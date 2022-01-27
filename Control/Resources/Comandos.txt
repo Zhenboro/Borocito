@@ -1,5 +1,6 @@
 # Command index file
-# Last updated 23/11/2021
+# Last updated 26/01/2022
+
 MsgBox=body,title
 
 /Memory.Save()
@@ -26,7 +27,7 @@ MsgBox=body,title
 /SendTelemetry()
 /Status
 
-boro-get status install uninstall set||
+boro-get status install uninstall set|key|value
 
 /Stop
 /Restart

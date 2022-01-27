@@ -127,6 +127,7 @@ End Module
 Module StartUp
     Sub Init()
         Try
+            regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\Control", True)
             'Ver si es la primera vez
             If AlreadyExist() Then
                 'Carga los datos
@@ -145,10 +146,13 @@ Module StartUp
             IndexUsersToPanel()
             'Obtener lista telemetria
             IndexTelemetryToPanel()
-            'Obtener la configuracion de cliente
+            'Obtener los archivos de configuracion del servidor
             GetClientConfig()
+            GetGlobalConfig()
             'Aplicando variables
-            Main.Label2.Text = "Conectado a: " & OwnerServer.Remove(0, OwnerServer.LastIndexOf("/") + 1)
+            Main.Label2.Text = "Conectado a: " & OwnerServer
+            Main.Label3.Text = My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " for " & GetIniValue("Assembly", "Assembly", DIRCommons & "\ClientConfig.ini") & " v" & My.Application.Info.Version.ToString & " (" & GetIniValue("Assembly", "Version", DIRCommons & "\ClientConfig.ini") & ")"
+            Main.TextBox2.Text = OwnerServer
             Main.Panel1.Visible = False
         Catch ex As Exception
             AddToLog("Init@StartUp", "Error: " & ex.Message, True)
@@ -271,14 +275,22 @@ Module Network
                 My.Computer.FileSystem.DeleteFile(LocalFilePath)
             End If
             My.Computer.Network.DownloadFile(RemoteFilePath, LocalFilePath)
-            Main.ComboBox2.Text = GetIniValue("Assembly", "Assembly", LocalFilePath)
-            Main.ComboBox2.Items.Add(GetIniValue("Assembly", "Assembly", LocalFilePath))
-            Main.ComboBox3.Text = GetIniValue("Assembly", "Version", LocalFilePath)
-            Main.ComboBox3.Items.Add(GetIniValue("Assembly", "Version", LocalFilePath))
-            Main.ComboBox4.Text = GetIniValue("Updates", "Binaries", LocalFilePath)
-            Main.ComboBox4.Items.Add(GetIniValue("Updates", "Binaries", LocalFilePath))
+            Main.RichTextBox5.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
         Catch ex As Exception
             AddToLog("GetClientConfig@Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub GetGlobalConfig()
+        Try
+            Dim LocalFilePath As String = DIRCommons & "\GlobalSettings.ini"
+            Dim RemoteFilePath As String = HttpOwnerServer & "/GlobalSettings.ini"
+            If My.Computer.FileSystem.FileExists(LocalFilePath) Then
+                My.Computer.FileSystem.DeleteFile(LocalFilePath)
+            End If
+            My.Computer.Network.DownloadFile(RemoteFilePath, LocalFilePath)
+            Main.RichTextBox4.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
+        Catch ex As Exception
+            AddToLog("GetGlobalConfig@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module

