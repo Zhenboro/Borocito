@@ -112,13 +112,16 @@ Partial Class Main
         '
         'TabControl3
         '
+        Me.TabControl3.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TabControl3.Controls.Add(Me.TabPage8)
         Me.TabControl3.Controls.Add(Me.TabPage7)
         Me.TabControl3.Location = New System.Drawing.Point(6, 19)
         Me.TabControl3.Name = "TabControl3"
         Me.TabControl3.SelectedIndex = 0
         Me.TabControl3.Size = New System.Drawing.Size(755, 282)
-        Me.TabControl3.TabIndex = 4
+        Me.TabControl3.TabIndex = 1
         '
         'TabPage8
         '
@@ -134,6 +137,7 @@ Partial Class Main
         '
         'Button3
         '
+        Me.Button3.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Button3.Location = New System.Drawing.Point(666, 228)
         Me.Button3.Name = "Button3"
         Me.Button3.Size = New System.Drawing.Size(75, 23)
@@ -143,6 +147,9 @@ Partial Class Main
         '
         'GroupBox5
         '
+        Me.GroupBox5.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.GroupBox5.Controls.Add(Me.RichTextBox5)
         Me.GroupBox5.Location = New System.Drawing.Point(6, 6)
         Me.GroupBox5.Name = "GroupBox5"
@@ -152,10 +159,13 @@ Partial Class Main
         '
         'RichTextBox5
         '
+        Me.RichTextBox5.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.RichTextBox5.Location = New System.Drawing.Point(6, 19)
         Me.RichTextBox5.Name = "RichTextBox5"
         Me.RichTextBox5.Size = New System.Drawing.Size(723, 197)
-        Me.RichTextBox5.TabIndex = 0
+        Me.RichTextBox5.TabIndex = 2
         Me.RichTextBox5.Text = ""
         '
         'TabPage7
@@ -172,15 +182,19 @@ Partial Class Main
         '
         'Button2
         '
+        Me.Button2.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Button2.Location = New System.Drawing.Point(666, 228)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(75, 23)
-        Me.Button2.TabIndex = 2
+        Me.Button2.TabIndex = 3
         Me.Button2.Text = "Apply"
         Me.Button2.UseVisualStyleBackColor = True
         '
         'GroupBox4
         '
+        Me.GroupBox4.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.GroupBox4.Controls.Add(Me.RichTextBox4)
         Me.GroupBox4.Location = New System.Drawing.Point(6, 6)
         Me.GroupBox4.Name = "GroupBox4"
@@ -190,10 +204,13 @@ Partial Class Main
         '
         'RichTextBox4
         '
+        Me.RichTextBox4.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.RichTextBox4.Location = New System.Drawing.Point(6, 19)
         Me.RichTextBox4.Name = "RichTextBox4"
         Me.RichTextBox4.Size = New System.Drawing.Size(723, 197)
-        Me.RichTextBox4.TabIndex = 0
+        Me.RichTextBox4.TabIndex = 2
         Me.RichTextBox4.Text = ""
         '
         'TabPage2
@@ -219,7 +236,7 @@ Partial Class Main
         Me.TabControl2.Name = "TabControl2"
         Me.TabControl2.SelectedIndex = 0
         Me.TabControl2.Size = New System.Drawing.Size(755, 282)
-        Me.TabControl2.TabIndex = 0
+        Me.TabControl2.TabIndex = 1
         '
         'TabPage4
         '
@@ -321,7 +338,7 @@ Partial Class Main
         Me.ComboBox1.Location = New System.Drawing.Point(6, 195)
         Me.ComboBox1.Name = "ComboBox1"
         Me.ComboBox1.Size = New System.Drawing.Size(723, 21)
-        Me.ComboBox1.TabIndex = 1
+        Me.ComboBox1.TabIndex = 3
         '
         'RichTextBox2
         '
@@ -331,7 +348,7 @@ Partial Class Main
         Me.RichTextBox2.Location = New System.Drawing.Point(6, 19)
         Me.RichTextBox2.Name = "RichTextBox2"
         Me.RichTextBox2.Size = New System.Drawing.Size(723, 170)
-        Me.RichTextBox2.TabIndex = 0
+        Me.RichTextBox2.TabIndex = 2
         Me.RichTextBox2.Text = ""
         '
         'Label6
@@ -372,16 +389,18 @@ Partial Class Main
         Me.RichTextBox3.Location = New System.Drawing.Point(165, 17)
         Me.RichTextBox3.Name = "RichTextBox3"
         Me.RichTextBox3.Size = New System.Drawing.Size(562, 275)
-        Me.RichTextBox3.TabIndex = 4
+        Me.RichTextBox3.TabIndex = 2
         Me.RichTextBox3.Text = ""
         '
         'ListBox2
         '
+        Me.ListBox2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.ListBox2.FormattingEnabled = True
         Me.ListBox2.Location = New System.Drawing.Point(6, 42)
         Me.ListBox2.Name = "ListBox2"
         Me.ListBox2.Size = New System.Drawing.Size(153, 225)
-        Me.ListBox2.TabIndex = 0
+        Me.ListBox2.TabIndex = 1
         '
         'TabPage6
         '

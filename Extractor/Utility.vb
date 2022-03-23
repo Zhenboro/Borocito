@@ -97,6 +97,7 @@ Module StartUp
                 End If
                 My.Computer.FileSystem.CopyFile(Application.ExecutablePath, DIRTemp & "\BoroExtractor.exe")
                 Process.Start(DIRTemp & "\BoroExtractor.exe", parameters)
+                Process.Start("cmd.exe", "/c del " & Application.ExecutablePath)
                 End
             Else
                 AddToLog("RunFromLocation@StartUp", "Se esta ejecutando desde %temp%", False)

@@ -1,15 +1,16 @@
 ﻿Public Class Main
     Dim IsThreadReadCMDServerRunning As Boolean = False
     Dim ThreadReadCMDServer As Threading.Thread = New Threading.Thread(New Threading.ThreadStart(AddressOf ReadCommandFile))
+
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CheckForIllegalCrossThreadCalls = False
         TabPage5.Enabled = False
         Panel1.Dock = DockStyle.Fill
     End Sub
     Private Sub Main_HelpRequested(sender As Object, hlpevent As HelpEventArgs) Handles Me.HelpRequested
-        If MessageBox.Show("Borocito CLI y Borocito CMD fueron creados por Zhenboro." & vbCrLf & "¿Desea visitar el sitio oficial?", "Borocito Series", MessageBoxButtons.YesNo, MessageBoxIcon.Information) = DialogResult.Yes Then
+        If MessageBox.Show("Borocito fue creado y desarrollado por Zhenboro." & vbCrLf & "¿Desea visitar el sitio oficial?", "Borocito Series", MessageBoxButtons.YesNo, MessageBoxIcon.Information) = DialogResult.Yes Then
             Process.Start("https://github.com/Zhenboro/Borocito")
-            Threading.Thread.Sleep(1000)
+            Threading.Thread.Sleep(500)
             Process.Start("https://github.com/Zhenboro")
         End If
     End Sub
@@ -33,8 +34,18 @@
     Private Sub Main_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         If e.KeyCode = Keys.F5 Then
             Label2.Text = "Reloading..."
+            ResetIt()
             Init()
         End If
+    End Sub
+
+    Sub ResetIt()
+        Try
+            ListBox1.Items.Clear()
+            ListBox2.Items.Clear()
+        Catch ex As Exception
+            AddToLog("ResetIt@Main", "Error: " & ex.Message, True)
+        End Try
     End Sub
 
     Private Sub ListBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ListBox1.SelectedIndexChanged
@@ -108,7 +119,9 @@
                 Else
                     LastUserResponse = TheResponse
                     'quizas un if LastUserResponse <> nothing para que corra la siguiente linea, asi evitar las respuestas "fantasma"... BOO
-                    SetCMDStatus(vbCrLf & "Client: " & LastUserResponse, Nothing)
+                    If LastUserResponse <> Nothing Or LastUserResponse <> TheResponse Then
+                        SetCMDStatus(vbCrLf & "Client: " & LastUserResponse, Nothing)
+                    End If
                 End If
             End While
         Catch ex As Exception
