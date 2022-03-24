@@ -1,7 +1,7 @@
 # Command index file
-# Last updated 26/01/2022
+# Last updated 23/03/2022
 
-MsgBox=body,title
+MsgBox=body,option,title
 
 /Memory.Save()
 /Memory.Load()
@@ -29,8 +29,10 @@ MsgBox=body,title
 
 boro-get status install uninstall set|key|value
 
+/Pause=ms_time
 /Stop
 /Restart
 /Update
+/ForceUpdate
 /Reset
 /Uninstall

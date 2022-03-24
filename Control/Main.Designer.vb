@@ -49,8 +49,12 @@ Partial Class Main
         Me.Label6 = New System.Windows.Forms.Label()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.TabPage3 = New System.Windows.Forms.TabPage()
-        Me.RichTextBox3 = New System.Windows.Forms.RichTextBox()
+        Me.TabControl4 = New System.Windows.Forms.TabControl()
+        Me.TabPage9 = New System.Windows.Forms.TabPage()
         Me.ListBox2 = New System.Windows.Forms.ListBox()
+        Me.RichTextBox3 = New System.Windows.Forms.RichTextBox()
+        Me.TabPage10 = New System.Windows.Forms.TabPage()
+        Me.ListBox3 = New System.Windows.Forms.ListBox()
         Me.TabPage6 = New System.Windows.Forms.TabPage()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.Button1 = New System.Windows.Forms.Button()
@@ -78,6 +82,9 @@ Partial Class Main
         Me.TabPage5.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.TabPage3.SuspendLayout()
+        Me.TabControl4.SuspendLayout()
+        Me.TabPage9.SuspendLayout()
+        Me.TabPage10.SuspendLayout()
         Me.TabPage6.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -372,8 +379,7 @@ Partial Class Main
         '
         'TabPage3
         '
-        Me.TabPage3.Controls.Add(Me.RichTextBox3)
-        Me.TabPage3.Controls.Add(Me.ListBox2)
+        Me.TabPage3.Controls.Add(Me.TabControl4)
         Me.TabPage3.Location = New System.Drawing.Point(4, 22)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Size = New System.Drawing.Size(767, 307)
@@ -381,26 +387,67 @@ Partial Class Main
         Me.TabPage3.Text = "Telemetry"
         Me.TabPage3.UseVisualStyleBackColor = True
         '
-        'RichTextBox3
+        'TabControl4
         '
-        Me.RichTextBox3.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.RichTextBox3.Location = New System.Drawing.Point(165, 17)
-        Me.RichTextBox3.Name = "RichTextBox3"
-        Me.RichTextBox3.Size = New System.Drawing.Size(562, 275)
-        Me.RichTextBox3.TabIndex = 2
-        Me.RichTextBox3.Text = ""
+        Me.TabControl4.Controls.Add(Me.TabPage9)
+        Me.TabControl4.Controls.Add(Me.TabPage10)
+        Me.TabControl4.Location = New System.Drawing.Point(6, 19)
+        Me.TabControl4.Name = "TabControl4"
+        Me.TabControl4.SelectedIndex = 0
+        Me.TabControl4.Size = New System.Drawing.Size(755, 282)
+        Me.TabControl4.TabIndex = 1
+        '
+        'TabPage9
+        '
+        Me.TabPage9.Controls.Add(Me.ListBox2)
+        Me.TabPage9.Controls.Add(Me.RichTextBox3)
+        Me.TabPage9.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage9.Name = "TabPage9"
+        Me.TabPage9.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage9.Size = New System.Drawing.Size(747, 256)
+        Me.TabPage9.TabIndex = 0
+        Me.TabPage9.Text = "Telemetria"
+        Me.TabPage9.UseVisualStyleBackColor = True
         '
         'ListBox2
         '
         Me.ListBox2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.ListBox2.FormattingEnabled = True
-        Me.ListBox2.Location = New System.Drawing.Point(6, 42)
+        Me.ListBox2.Location = New System.Drawing.Point(6, 9)
         Me.ListBox2.Name = "ListBox2"
-        Me.ListBox2.Size = New System.Drawing.Size(153, 225)
-        Me.ListBox2.TabIndex = 1
+        Me.ListBox2.Size = New System.Drawing.Size(153, 238)
+        Me.ListBox2.TabIndex = 2
+        '
+        'RichTextBox3
+        '
+        Me.RichTextBox3.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.RichTextBox3.Location = New System.Drawing.Point(165, 6)
+        Me.RichTextBox3.Name = "RichTextBox3"
+        Me.RichTextBox3.Size = New System.Drawing.Size(576, 244)
+        Me.RichTextBox3.TabIndex = 3
+        Me.RichTextBox3.Text = ""
+        '
+        'TabPage10
+        '
+        Me.TabPage10.Controls.Add(Me.ListBox3)
+        Me.TabPage10.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage10.Name = "TabPage10"
+        Me.TabPage10.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage10.Size = New System.Drawing.Size(747, 256)
+        Me.TabPage10.TabIndex = 1
+        Me.TabPage10.Text = "Archivos"
+        Me.TabPage10.UseVisualStyleBackColor = True
+        '
+        'ListBox3
+        '
+        Me.ListBox3.FormattingEnabled = True
+        Me.ListBox3.Location = New System.Drawing.Point(6, 9)
+        Me.ListBox3.Name = "ListBox3"
+        Me.ListBox3.Size = New System.Drawing.Size(735, 238)
+        Me.ListBox3.TabIndex = 2
         '
         'TabPage6
         '
@@ -558,6 +605,9 @@ Partial Class Main
         Me.TabPage5.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
         Me.TabPage3.ResumeLayout(False)
+        Me.TabControl4.ResumeLayout(False)
+        Me.TabPage9.ResumeLayout(False)
+        Me.TabPage10.ResumeLayout(False)
         Me.TabPage6.ResumeLayout(False)
         Me.GroupBox3.ResumeLayout(False)
         Me.GroupBox3.PerformLayout()
@@ -609,4 +659,8 @@ Partial Class Main
     Friend WithEvents RichTextBox5 As RichTextBox
     Friend WithEvents Button2 As Button
     Friend WithEvents Button3 As Button
+    Friend WithEvents TabControl4 As TabControl
+    Friend WithEvents TabPage9 As TabPage
+    Friend WithEvents TabPage10 As TabPage
+    Friend WithEvents ListBox3 As ListBox
 End Class

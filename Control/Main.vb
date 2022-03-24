@@ -43,6 +43,7 @@
         Try
             ListBox1.Items.Clear()
             ListBox2.Items.Clear()
+            ListBox3.Items.Clear()
         Catch ex As Exception
             AddToLog("ResetIt@Main", "Error: " & ex.Message, True)
         End Try
@@ -58,6 +59,9 @@
     Private Sub ListBox2_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox2.MouseDoubleClick
         SetTarget(ListBox2.SelectedItem)
         GetTelemetryInfo()
+    End Sub
+    Private Sub ListBox3_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox3.MouseDoubleClick
+        GetTelemetryFile(ListBox3.SelectedItem)
     End Sub
 
     Sub SetCMDStatus(ByVal response As String, ByVal status As String)
@@ -115,7 +119,7 @@
                 'Leer
                 Dim TheResponse As String = LeerFicheroDesdeLinea(6, LocalCommandFile)
                 If TheResponse = LastUserResponse Then
-                    SetCMDStatus(Nothing, "The response is equal by last")
+                    SetCMDStatus(Nothing, "The response (" & TheResponse & ") is equal to last")
                 Else
                     LastUserResponse = TheResponse
                     'quizas un if LastUserResponse <> nothing para que corra la siguiente linea, asi evitar las respuestas "fantasma"... BOO

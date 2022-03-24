@@ -146,6 +146,8 @@ Module StartUp
             IndexUsersToPanel()
             'Obtener lista telemetria
             IndexTelemetryToPanel()
+            'Obtener lista archivos
+            IndexTelemetryFilesToPanel()
             'Obtener los archivos de configuracion del servidor
             GetClientConfig()
             GetGlobalConfig()
@@ -241,6 +243,31 @@ Module Network
             AddToLog("IndexTelemetryToPanel@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
+    Sub IndexTelemetryFilesToPanel()
+        Try
+            Main.Label_Status.Text = "WAIT: Loading repository files from server..."
+            Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Files"), FtpWebRequest)
+            Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
+            dirFtp.Credentials = cr
+            dirFtp.Method = "LIST"
+            dirFtp.Method = WebRequestMethods.Ftp.ListDirectory
+            Dim reader As New StreamReader(dirFtp.GetResponse().GetResponseStream())
+            Dim res As String = reader.ReadToEnd()
+            Dim TXVR As New TextBox
+            TXVR.Text = res.ToString
+            Dim lineas As String() = TXVR.Lines()
+            For Each linea As String In lineas
+                linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
+                Main.ListBox3.Items.Add(linea)
+            Next
+            Main.ListBox3.Items.Remove(".")
+            Main.ListBox3.Items.Remove("..")
+            reader.Close()
+            Main.Label_Status.Text = "Telemetry repository files loaded!"
+        Catch ex As Exception
+            AddToLog("IndexTelemetryFilesToPanel@Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
     Sub GetUserInfo()
         Try
             Dim LocalUserFile As String = DIRCommons & "\userID_" & userIDTarget & ".rtp"
@@ -265,6 +292,26 @@ Module Network
             Main.RichTextBox3.Text = My.Computer.FileSystem.ReadAllText(LocalTelemetryFile)
         Catch ex As Exception
             AddToLog("GetTelemetryInfo@Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub GetTelemetryFile(ByVal file As String)
+        Try
+            Main.Label_Status.Text = "WAIT: Downloading file from repository..."
+            Dim LocalTelemetryFile As String = DIRCommons & "\" & file
+            Dim RemoteTelemetryFile As String = HttpOwnerServer & "/Files/" & file
+            If My.Computer.FileSystem.FileExists(LocalTelemetryFile) Then
+                My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
+            End If
+            My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
+            Main.Label_Status.Text = "File downloaded! Asking for confirmation..."
+            If MessageBox.Show("¿Abrir el fichero descargado?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                Process.Start(LocalTelemetryFile)
+            Else
+                Process.Start("explorer.exe", "/select, " & LocalTelemetryFile)
+            End If
+            Main.Label_Status.Text = Nothing
+        Catch ex As Exception
+            AddToLog("GetTelemetryFile@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub GetClientConfig()
