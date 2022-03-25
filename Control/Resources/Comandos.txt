@@ -1,5 +1,5 @@
 # Command index file
-# Last updated 23/03/2022
+# Last updated 24/03/2022
 
 MsgBox=body,option,title
 
@@ -22,12 +22,14 @@ MsgBox=body,option,title
 /Payloads.Upload.File=file_path,optional_php_file_upload
 /Payloads.SendTheKeys=executable_name_or_path,content
 /Payloads.TakeScreenshot()
+/Payloads.Inputs=true_false
+/Payloads.PostNotify=TipTimeOut,TipTitle,TipText,TipIcon,TipIconPath
 
 /Heartbeat
 /SendTelemetry()
 /Status
 
-boro-get status install uninstall set|key|value
+boro-get status install uninstall reset set|key|value <packet runIt? parameters___>
 
 /Pause=ms_time
 /Stop

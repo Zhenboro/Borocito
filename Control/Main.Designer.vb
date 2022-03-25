@@ -54,6 +54,7 @@ Partial Class Main
         Me.ListBox2 = New System.Windows.Forms.ListBox()
         Me.RichTextBox3 = New System.Windows.Forms.RichTextBox()
         Me.TabPage10 = New System.Windows.Forms.TabPage()
+        Me.CheckBox1 = New System.Windows.Forms.CheckBox()
         Me.ListBox3 = New System.Windows.Forms.ListBox()
         Me.TabPage6 = New System.Windows.Forms.TabPage()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
@@ -68,6 +69,10 @@ Partial Class Main
         Me.LoaderTimer = New System.Windows.Forms.Timer(Me.components)
         Me.Label_Loading_Panel = New System.Windows.Forms.Label()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.ContextMenuStripTelemetry_Files_ListBox1 = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.RecargarToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItem1 = New System.Windows.Forms.ToolStripSeparator()
+        Me.EliminarToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabControl3.SuspendLayout()
@@ -89,6 +94,7 @@ Partial Class Main
         Me.GroupBox3.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
+        Me.ContextMenuStripTelemetry_Files_ListBox1.SuspendLayout()
         Me.SuspendLayout()
         '
         'TabControl1
@@ -389,6 +395,9 @@ Partial Class Main
         '
         'TabControl4
         '
+        Me.TabControl4.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TabControl4.Controls.Add(Me.TabPage9)
         Me.TabControl4.Controls.Add(Me.TabPage10)
         Me.TabControl4.Location = New System.Drawing.Point(6, 19)
@@ -432,6 +441,7 @@ Partial Class Main
         '
         'TabPage10
         '
+        Me.TabPage10.Controls.Add(Me.CheckBox1)
         Me.TabPage10.Controls.Add(Me.ListBox3)
         Me.TabPage10.Location = New System.Drawing.Point(4, 22)
         Me.TabPage10.Name = "TabPage10"
@@ -441,8 +451,23 @@ Partial Class Main
         Me.TabPage10.Text = "Archivos"
         Me.TabPage10.UseVisualStyleBackColor = True
         '
+        'CheckBox1
+        '
+        Me.CheckBox1.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.CheckBox1.AutoSize = True
+        Me.CheckBox1.Location = New System.Drawing.Point(670, 230)
+        Me.CheckBox1.Name = "CheckBox1"
+        Me.CheckBox1.Size = New System.Drawing.Size(71, 17)
+        Me.CheckBox1.TabIndex = 3
+        Me.CheckBox1.Text = "Usar FTP"
+        Me.CheckBox1.UseVisualStyleBackColor = True
+        '
         'ListBox3
         '
+        Me.ListBox3.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.ListBox3.ContextMenuStrip = Me.ContextMenuStripTelemetry_Files_ListBox1
         Me.ListBox3.FormattingEnabled = True
         Me.ListBox3.Location = New System.Drawing.Point(6, 9)
         Me.ListBox3.Name = "ListBox3"
@@ -466,16 +491,16 @@ Partial Class Main
         Me.GroupBox3.Controls.Add(Me.Button1)
         Me.GroupBox3.Controls.Add(Me.TextBox2)
         Me.GroupBox3.Controls.Add(Me.Label9)
-        Me.GroupBox3.Location = New System.Drawing.Point(263, 93)
+        Me.GroupBox3.Location = New System.Drawing.Point(217, 58)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(240, 120)
+        Me.GroupBox3.Size = New System.Drawing.Size(333, 190)
         Me.GroupBox3.TabIndex = 0
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Injector"
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(83, 81)
+        Me.Button1.Location = New System.Drawing.Point(129, 138)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(75, 23)
         Me.Button1.TabIndex = 2
@@ -484,15 +509,16 @@ Partial Class Main
         '
         'TextBox2
         '
-        Me.TextBox2.Location = New System.Drawing.Point(15, 55)
+        Me.TextBox2.Location = New System.Drawing.Point(10, 66)
+        Me.TextBox2.Multiline = True
         Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(211, 20)
+        Me.TextBox2.Size = New System.Drawing.Size(312, 46)
         Me.TextBox2.TabIndex = 1
         '
         'Label9
         '
         Me.Label9.AutoSize = True
-        Me.Label9.Location = New System.Drawing.Point(6, 39)
+        Me.Label9.Location = New System.Drawing.Point(143, 50)
         Me.Label9.Name = "Label9"
         Me.Label9.Size = New System.Drawing.Size(46, 13)
         Me.Label9.TabIndex = 0
@@ -541,6 +567,7 @@ Partial Class Main
         '
         Me.Label_Status.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Label_Status.ForeColor = System.Drawing.Color.DimGray
         Me.Label_Status.Location = New System.Drawing.Point(12, 449)
         Me.Label_Status.Name = "Label_Status"
         Me.Label_Status.Size = New System.Drawing.Size(775, 13)
@@ -569,6 +596,29 @@ Partial Class Main
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(795, 467)
         Me.Panel1.TabIndex = 6
+        '
+        'ContextMenuStripTelemetry_Files_ListBox1
+        '
+        Me.ContextMenuStripTelemetry_Files_ListBox1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RecargarToolStripMenuItem, Me.ToolStripMenuItem1, Me.EliminarToolStripMenuItem})
+        Me.ContextMenuStripTelemetry_Files_ListBox1.Name = "ContextMenuStripTelemetry_Files_ListBox1"
+        Me.ContextMenuStripTelemetry_Files_ListBox1.Size = New System.Drawing.Size(181, 76)
+        '
+        'RecargarToolStripMenuItem
+        '
+        Me.RecargarToolStripMenuItem.Name = "RecargarToolStripMenuItem"
+        Me.RecargarToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.RecargarToolStripMenuItem.Text = "Recargar"
+        '
+        'ToolStripMenuItem1
+        '
+        Me.ToolStripMenuItem1.Name = "ToolStripMenuItem1"
+        Me.ToolStripMenuItem1.Size = New System.Drawing.Size(177, 6)
+        '
+        'EliminarToolStripMenuItem
+        '
+        Me.EliminarToolStripMenuItem.Name = "EliminarToolStripMenuItem"
+        Me.EliminarToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.EliminarToolStripMenuItem.Text = "Eliminar"
         '
         'Main
         '
@@ -608,11 +658,13 @@ Partial Class Main
         Me.TabControl4.ResumeLayout(False)
         Me.TabPage9.ResumeLayout(False)
         Me.TabPage10.ResumeLayout(False)
+        Me.TabPage10.PerformLayout()
         Me.TabPage6.ResumeLayout(False)
         Me.GroupBox3.ResumeLayout(False)
         Me.GroupBox3.PerformLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel1.ResumeLayout(False)
+        Me.ContextMenuStripTelemetry_Files_ListBox1.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -663,4 +715,9 @@ Partial Class Main
     Friend WithEvents TabPage9 As TabPage
     Friend WithEvents TabPage10 As TabPage
     Friend WithEvents ListBox3 As ListBox
+    Friend WithEvents CheckBox1 As CheckBox
+    Friend WithEvents ContextMenuStripTelemetry_Files_ListBox1 As ContextMenuStrip
+    Friend WithEvents RecargarToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ToolStripMenuItem1 As ToolStripSeparator
+    Friend WithEvents EliminarToolStripMenuItem As ToolStripMenuItem
 End Class

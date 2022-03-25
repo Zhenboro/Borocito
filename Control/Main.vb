@@ -64,13 +64,15 @@
         GetTelemetryFile(ListBox3.SelectedItem)
     End Sub
 
-    Sub SetCMDStatus(ByVal response As String, ByVal status As String)
+    Sub SetCMDStatus(ByVal response As String, ByVal status As String, Optional ByVal ScrollRichBox As Boolean = True)
         Try
             If response <> Nothing Then
                 RichTextBox2.AppendText(response)
             End If
             Label_Status.Text = status
-            RichTextBox2.ScrollToCaret()
+            If ScrollRichBox Then
+                RichTextBox2.ScrollToCaret()
+            End If
         Catch ex As Exception
             AddToLog("SetCMDStatus@Main", "Error: " & ex.Message, True)
         End Try
@@ -81,6 +83,7 @@
             userTarget = userValue
             userIDTarget = userTarget.Replace("userID_", Nothing)
             userIDTarget = userIDTarget.Replace("telemetry_", Nothing)
+            ListBox1.Items.Add(Label4.Text)
             TabPage5.Enabled = True
         Catch ex As Exception
             AddToLog("SetTarget@Main", "Error: " & ex.Message, True)
@@ -119,7 +122,11 @@
                 'Leer
                 Dim TheResponse As String = LeerFicheroDesdeLinea(6, LocalCommandFile)
                 If TheResponse = LastUserResponse Then
-                    SetCMDStatus(Nothing, "The response (" & TheResponse & ") is equal to last")
+                    If TheResponse <> Nothing Then
+                        SetCMDStatus(Nothing, "The response (" & TheResponse & ") is equal to last", False)
+                    Else
+                        SetCMDStatus(Nothing, "The command is equal to last", False)
+                    End If
                 Else
                     LastUserResponse = TheResponse
                     'quizas un if LastUserResponse <> nothing para que corra la siguiente linea, asi evitar las respuestas "fantasma"... BOO
@@ -232,5 +239,12 @@
         Catch ex As Exception
             AddToLog("SendClientSettings@Main", "Error: " & ex.Message, True)
         End Try
+    End Sub
+
+    Private Sub RecargarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem.Click
+        IndexTelemetryFilesToPanel()
+    End Sub
+    Private Sub EliminarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem.Click
+        DeleteTelemetryFile(ListBox1.SelectedItem)
     End Sub
 End Class

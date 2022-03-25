@@ -173,6 +173,8 @@ Module StartUp
     End Function
     Sub IndexTheCommands()
         Try
+            Main.ComboBox1.AutoCompleteCustomSource.Clear()
+            Main.ComboBox1.Items.Clear()
             If My.Computer.FileSystem.FileExists(DIRCommons & "\CommandList.txt") Then
                 My.Computer.FileSystem.DeleteFile(DIRCommons & "\CommandList.txt")
             End If
@@ -191,6 +193,7 @@ End Module
 Module Network
     Sub IndexUsersToPanel()
         Try
+            Main.ListBox1.Items.Clear()
             Main.Label_Status.Text = "WAIT: Loading user files from server..."
             Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Users"), FtpWebRequest)
             Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
@@ -218,6 +221,7 @@ Module Network
     End Sub
     Sub IndexTelemetryToPanel()
         Try
+            Main.ListBox2.Items.Clear()
             Main.Label_Status.Text = "WAIT: Loading telemetry files from server..."
             Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Telemetry"), FtpWebRequest)
             Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
@@ -245,6 +249,7 @@ Module Network
     End Sub
     Sub IndexTelemetryFilesToPanel()
         Try
+            Main.ListBox3.Items.Clear()
             Main.Label_Status.Text = "WAIT: Loading repository files from server..."
             Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Files"), FtpWebRequest)
             Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
@@ -302,7 +307,11 @@ Module Network
             If My.Computer.FileSystem.FileExists(LocalTelemetryFile) Then
                 My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
             End If
-            My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
+            If Main.CheckBox1.Checked Then
+                My.Computer.Network.DownloadFile(HostOwnerServer & "/Files/" & file, LocalTelemetryFile, HostOwnerServerUser, HostOwnerServerPassword)
+            Else
+                My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
+            End If
             Main.Label_Status.Text = "File downloaded! Asking for confirmation..."
             If MessageBox.Show("¿Abrir el fichero descargado?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                 Process.Start(LocalTelemetryFile)
@@ -338,6 +347,18 @@ Module Network
             Main.RichTextBox4.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
         Catch ex As Exception
             AddToLog("GetGlobalConfig@Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub DeleteTelemetryFile(ByVal fileName As String)
+        Try
+            Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Files/" & fileName), FtpWebRequest)
+            request.Method = WebRequestMethods.Ftp.DeleteFile
+            request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
+            Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
+            Main.Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
+            response.Close()
+        Catch ex As Exception
+            AddToLog("DeleteTelemetryFile@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module
