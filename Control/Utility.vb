@@ -301,19 +301,28 @@ Module Network
     End Sub
     Sub GetTelemetryFile(ByVal file As String)
         Try
-            Main.Label_Status.Text = "WAIT: Downloading file from repository..."
+            Dim downloadRefresh As Boolean = False
+            Main.Label_Status.Text = "WAIT: Asking file info..."
             Dim LocalTelemetryFile As String = DIRCommons & "\" & file
             Dim RemoteTelemetryFile As String = HttpOwnerServer & "/Files/" & file
             If My.Computer.FileSystem.FileExists(LocalTelemetryFile) Then
-                My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
+                If MessageBox.Show("El fichero ya existe en local." & vbCrLf & "¿Desea descargarlo nuevamente?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                    Main.Label_Status.Text = "WAIT: Downloading file from remote repository..."
+                    My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
+                Else
+                    Main.Label_Status.Text = "WAIT: Opening file from local repository..."
+                    downloadRefresh = True
+                End If
             End If
-            If Main.CheckBox1.Checked Then
-                My.Computer.Network.DownloadFile(HostOwnerServer & "/Files/" & file, LocalTelemetryFile, HostOwnerServerUser, HostOwnerServerPassword)
-            Else
-                My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
+            If Not downloadRefresh Then
+                If Main.CheckBox1.Checked Then
+                    My.Computer.Network.DownloadFile(HostOwnerServer & "/Files/" & file, LocalTelemetryFile, HostOwnerServerUser, HostOwnerServerPassword)
+                Else
+                    My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
+                End If
             End If
-            Main.Label_Status.Text = "File downloaded! Asking for confirmation..."
-            If MessageBox.Show("¿Abrir el fichero descargado?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            Main.Label_Status.Text = "File ready! Asking for confirmation..."
+            If MessageBox.Show("¿Abrir el fichero '" & file & "'?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                 Process.Start(LocalTelemetryFile)
             Else
                 Process.Start("explorer.exe", "/select, " & LocalTelemetryFile)

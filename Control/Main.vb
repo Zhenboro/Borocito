@@ -51,6 +51,7 @@
 
     Private Sub ListBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ListBox1.SelectedIndexChanged
         SetTarget(ListBox1.SelectedItem)
+        RichTextBox2.AppendText(vbCrLf & Label4.Text)
     End Sub
     Private Sub ListBox1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox1.MouseDoubleClick
         SetTarget(ListBox1.SelectedItem)
@@ -83,7 +84,6 @@
             userTarget = userValue
             userIDTarget = userTarget.Replace("userID_", Nothing)
             userIDTarget = userIDTarget.Replace("telemetry_", Nothing)
-            ListBox1.Items.Add(Label4.Text)
             TabPage5.Enabled = True
         Catch ex As Exception
             AddToLog("SetTarget@Main", "Error: " & ex.Message, True)
@@ -245,6 +245,10 @@
         IndexTelemetryFilesToPanel()
     End Sub
     Private Sub EliminarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem.Click
-        DeleteTelemetryFile(ListBox1.SelectedItem)
+        DeleteTelemetryFile(ListBox3.SelectedItem)
+    End Sub
+
+    Private Sub Label_Status_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Label_Status.MouseDoubleClick
+        Label_Status.Text = Nothing
     End Sub
 End Class

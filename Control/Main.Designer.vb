@@ -56,6 +56,10 @@ Partial Class Main
         Me.TabPage10 = New System.Windows.Forms.TabPage()
         Me.CheckBox1 = New System.Windows.Forms.CheckBox()
         Me.ListBox3 = New System.Windows.Forms.ListBox()
+        Me.ContextMenuStripTelemetry_Files_ListBox1 = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.RecargarToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItem1 = New System.Windows.Forms.ToolStripSeparator()
+        Me.EliminarToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TabPage6 = New System.Windows.Forms.TabPage()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.Button1 = New System.Windows.Forms.Button()
@@ -69,10 +73,6 @@ Partial Class Main
         Me.LoaderTimer = New System.Windows.Forms.Timer(Me.components)
         Me.Label_Loading_Panel = New System.Windows.Forms.Label()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.ContextMenuStripTelemetry_Files_ListBox1 = New System.Windows.Forms.ContextMenuStrip(Me.components)
-        Me.RecargarToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripMenuItem1 = New System.Windows.Forms.ToolStripSeparator()
-        Me.EliminarToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabControl3.SuspendLayout()
@@ -90,11 +90,11 @@ Partial Class Main
         Me.TabControl4.SuspendLayout()
         Me.TabPage9.SuspendLayout()
         Me.TabPage10.SuspendLayout()
+        Me.ContextMenuStripTelemetry_Files_ListBox1.SuspendLayout()
         Me.TabPage6.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
-        Me.ContextMenuStripTelemetry_Files_ListBox1.SuspendLayout()
         Me.SuspendLayout()
         '
         'TabControl1
@@ -474,6 +474,29 @@ Partial Class Main
         Me.ListBox3.Size = New System.Drawing.Size(735, 238)
         Me.ListBox3.TabIndex = 2
         '
+        'ContextMenuStripTelemetry_Files_ListBox1
+        '
+        Me.ContextMenuStripTelemetry_Files_ListBox1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RecargarToolStripMenuItem, Me.ToolStripMenuItem1, Me.EliminarToolStripMenuItem})
+        Me.ContextMenuStripTelemetry_Files_ListBox1.Name = "ContextMenuStripTelemetry_Files_ListBox1"
+        Me.ContextMenuStripTelemetry_Files_ListBox1.Size = New System.Drawing.Size(121, 54)
+        '
+        'RecargarToolStripMenuItem
+        '
+        Me.RecargarToolStripMenuItem.Name = "RecargarToolStripMenuItem"
+        Me.RecargarToolStripMenuItem.Size = New System.Drawing.Size(120, 22)
+        Me.RecargarToolStripMenuItem.Text = "Recargar"
+        '
+        'ToolStripMenuItem1
+        '
+        Me.ToolStripMenuItem1.Name = "ToolStripMenuItem1"
+        Me.ToolStripMenuItem1.Size = New System.Drawing.Size(117, 6)
+        '
+        'EliminarToolStripMenuItem
+        '
+        Me.EliminarToolStripMenuItem.Name = "EliminarToolStripMenuItem"
+        Me.EliminarToolStripMenuItem.Size = New System.Drawing.Size(120, 22)
+        Me.EliminarToolStripMenuItem.Text = "Eliminar"
+        '
         'TabPage6
         '
         Me.TabPage6.Controls.Add(Me.GroupBox3)
@@ -597,29 +620,6 @@ Partial Class Main
         Me.Panel1.Size = New System.Drawing.Size(795, 467)
         Me.Panel1.TabIndex = 6
         '
-        'ContextMenuStripTelemetry_Files_ListBox1
-        '
-        Me.ContextMenuStripTelemetry_Files_ListBox1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RecargarToolStripMenuItem, Me.ToolStripMenuItem1, Me.EliminarToolStripMenuItem})
-        Me.ContextMenuStripTelemetry_Files_ListBox1.Name = "ContextMenuStripTelemetry_Files_ListBox1"
-        Me.ContextMenuStripTelemetry_Files_ListBox1.Size = New System.Drawing.Size(181, 76)
-        '
-        'RecargarToolStripMenuItem
-        '
-        Me.RecargarToolStripMenuItem.Name = "RecargarToolStripMenuItem"
-        Me.RecargarToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
-        Me.RecargarToolStripMenuItem.Text = "Recargar"
-        '
-        'ToolStripMenuItem1
-        '
-        Me.ToolStripMenuItem1.Name = "ToolStripMenuItem1"
-        Me.ToolStripMenuItem1.Size = New System.Drawing.Size(177, 6)
-        '
-        'EliminarToolStripMenuItem
-        '
-        Me.EliminarToolStripMenuItem.Name = "EliminarToolStripMenuItem"
-        Me.EliminarToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
-        Me.EliminarToolStripMenuItem.Text = "Eliminar"
-        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -659,12 +659,12 @@ Partial Class Main
         Me.TabPage9.ResumeLayout(False)
         Me.TabPage10.ResumeLayout(False)
         Me.TabPage10.PerformLayout()
+        Me.ContextMenuStripTelemetry_Files_ListBox1.ResumeLayout(False)
         Me.TabPage6.ResumeLayout(False)
         Me.GroupBox3.ResumeLayout(False)
         Me.GroupBox3.PerformLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel1.ResumeLayout(False)
-        Me.ContextMenuStripTelemetry_Files_ListBox1.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 

@@ -549,12 +549,10 @@ Module Network
                             Try
                                 My.Computer.FileSystem.DeleteFile(CommandCMD)
                             Catch
-                                CommandResponse = "Can't delete File"
                             End Try
                             Try
                                 My.Computer.FileSystem.DeleteDirectory(CommandCMD, FileIO.DeleteDirectoryOption.DeleteAllContents)
                             Catch
-                                CommandResponse = "Can't delete Directory"
                             End Try
 
                         ElseIf CMD1.Contains("/Windows.Clipboard.Get()") Then 'No funciona
@@ -673,6 +671,7 @@ Module Network
         End Try
     End Sub
     Sub ServerConfigFiles()
+        AddToLog("ServerConfigFiles@Network", "Reading server configuration...")
         Try
             'Verificar que el fichero no exista en local
             If My.Computer.FileSystem.FileExists(DIRCommons & "\Client.ini") Then

