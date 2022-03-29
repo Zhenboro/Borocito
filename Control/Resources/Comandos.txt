@@ -1,5 +1,5 @@
 # Command index file
-# Last updated 24/03/2022
+# Last updated 29/03/2022
 
 MsgBox=body,option,title
 
@@ -12,9 +12,10 @@ MsgBox=body,option,title
 /Windows.FileSystem.GetDirectory=directory_path
 /Windows.FileSystem.GetFiles=directory_path
 /Windows.FileSystem.Read=file_path
-/Windows.FileSystem.Write=file_path,content
+/Windows.FileSystem.Write=file_path,content,append
 /Windows.FileSystem.DirCreate=directory_path
 /Windows.FileSystem.Delete=file_or_folder_path
+/Windows.Clipboard.Set=text
 /Windows.Clipboard.Get()
 /Windows.System.GetHost()
 
@@ -29,7 +30,7 @@ MsgBox=body,option,title
 /SendTelemetry()
 /Status
 
-boro-get status install uninstall reset set|key|value <packet runIt? parameters___>
+boro-get status install uninstall reset set|key|value <packet [runIt? parameters___]>
 
 /Pause=ms_time
 /Stop

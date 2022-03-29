@@ -125,9 +125,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Updater.exe" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\BorocitoUpdater.exe" />
   </ItemGroup>
   <ItemGroup>
