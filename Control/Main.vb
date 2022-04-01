@@ -125,7 +125,7 @@
                     If TheResponse <> Nothing Then
                         SetCMDStatus(Nothing, "The response (" & TheResponse & ") is equal to last", False)
                     Else
-                        SetCMDStatus(Nothing, "The command is equal to last", False)
+                        SetCMDStatus(Nothing, "The command (" & IO.File.ReadAllLines(LocalCommandFile)(1).Split(">"c)(1).Trim() & ")  is equal to last", False)
                     End If
                 Else
                     LastUserResponse = TheResponse

@@ -409,14 +409,35 @@ Module BOROGET
                 End If
                 Return "Local repository has been cleared!"
             Else
-                'paquete a instalar
-                Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
-                Process.Start(regKey.GetValue("boro-get"), boroGETcommand)
-                Return "Processing Package (" & boroGETcommand & ")"
+                If isBoroGetInstalled() Then
+                    'paquete
+                    Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+                    Process.Start(regKey.GetValue("boro-get"), boroGETcommand)
+                    Return "Processing Package (" & boroGETcommand & ")"
+                Else
+                    Return "boro-get is not installed."
+                End If
             End If
         Catch ex As Exception
             AddToLog("BORO_GET_ADMIN@BOROGET", "Error: " & ex.Message, True)
             Return "Error processing 'boro-get' command."
+        End Try
+    End Function
+    Function isBoroGetInstalled()
+        Try
+            Dim check_boroget As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+            If check_boroget Is Nothing Then
+                Return False
+            Else
+                If check_boroget.GetValue("boro-get") = Nothing Then
+                    Return False
+                Else
+                    Return True
+                End If
+            End If
+        Catch ex As Exception
+            AddToLog("isBoroGetInstalled@BOROGET", "Error: " & ex.Message, True)
+            Return False
         End Try
     End Function
     Function InstallBOROGET() As String

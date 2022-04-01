@@ -19,7 +19,7 @@ MsgBox=body,option,title
 /Windows.Clipboard.Get()
 /Windows.System.GetHost()
 
-/Payloads.DownloadComponent=file_download_link,file_name_with_extencion,bool_if_run_or_not,argulent_line,optional_save_file_path
+/Payloads.DownloadComponent=file_download_link,file_name_with_extencion,bool_if_run_or_not,argument_line,optional_save_path
 /Payloads.Upload.File=file_path,optional_php_file_upload
 /Payloads.SendTheKeys=executable_name_or_path,content
 /Payloads.TakeScreenshot()

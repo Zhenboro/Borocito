@@ -1,0 +1,13 @@
+# Boro-Get broRescue Repo file
+[GENERAL]
+Author=Zhenboro
+From=http://github.com/Zhenboro
+[ASSEMBLY]
+Name=broRescue
+Executable=broRescue.exe
+Version=0.1.0.0
+Web=http://github.com/Zhenboro/Borocito
+[INSTALLER]
+Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broRescue.zip
+Installer=NULL
+InstallFolder=%temp%
