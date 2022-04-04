@@ -1,5 +1,6 @@
 ﻿Public Class Main
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Me.Hide()
         AddToLog("Main", "Extractor iniciado!", True)
         parameters = Command()
         ReadParameters()
@@ -7,6 +8,7 @@
     End Sub
 
     Sub ReadParameters()
+        Me.Hide()
         Try
             If My.Application.CommandLineArgs.Count > 0 Then
                 For i As Integer = 0 To My.Application.CommandLineArgs.Count - 1

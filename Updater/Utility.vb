@@ -47,6 +47,7 @@ Module Utility
 End Module
 Module StartUp
     Sub Init()
+        Threading.Thread.Sleep(5000)
         Try
             'Inicia desde otra ubicacion
             RunFromLocation()
@@ -86,6 +87,16 @@ Module StartUp
             End
         Catch ex As Exception
             AddToLog("InitBorocito@StartUp", "Error: " & ex.Message, True)
+            End
+        End Try
+    End Sub
+    Sub InitExtractor()
+        Try
+            AddToLog("InitExtractor@StartUp", "Iniciando Extractor...", False)
+            Process.Start(DIRCommons & "\BorocitoExtractor.exe")
+            End
+        Catch ex As Exception
+            AddToLog("InitExtractor@StartUp", "Error: " & ex.Message, True)
             End
         End Try
     End Sub
@@ -156,35 +167,63 @@ Module Updater
         End Try
     End Sub
     Private Sub UpdateDownloader_DownloadFileCompleted(sender As Object, e As AsyncCompletedEventArgs) Handles UpdateDownloader.DownloadFileCompleted
-        AddToLog("UpdateDownloader_DownloadFileCompleted@Updater", "Descarga completada", False)
-        Unzip()
+        Try
+            AddToLog("UpdateDownloader_DownloadFileCompleted@Updater", "Descarga completada", False)
+            Unzip()
+        Catch ex As Exception
+            AddToLog("UpdateDownloader_DownloadFileCompleted@Updater", "Error: " & ex.Message, True)
+            'Iniciar Borocito
+            InitBorocito()
+        End Try
     End Sub
     Sub Unzip()
         Try
             AddToLog("Unzip@Updater", "Descomprimiendo...", False)
             StopIfRunning()
-            If My.Computer.FileSystem.DirectoryExists(DIRCommons) Then
-                My.Computer.FileSystem.DeleteDirectory(DIRCommons, FileIO.DeleteDirectoryOption.DeleteAllContents)
+            If DeleteOldVersions() Then
+                ZipFile.ExtractToDirectory(BinaryZipFile, DIRCommons)
             End If
-            My.Computer.FileSystem.CreateDirectory(DIRCommons)
-            ZipFile.ExtractToDirectory(BinaryZipFile, DIRCommons)
             'Iniciar Borocito
             InitBorocito()
         Catch ex As Exception
             AddToLog("Unzip@Updater", "Error: " & ex.Message, True)
+            'Inicia el extractor
+            InitExtractor()
             End
         End Try
     End Sub
+    Function DeleteOldVersions() As Boolean
+        Try
+            AddToLog("DeleteOldVersions@Updater", "Cleaning...", False)
+            If My.Computer.FileSystem.FileExists(DIRCommons & "\Borocito.exe") Then
+                My.Computer.FileSystem.DeleteFile(DIRCommons & "\Borocito.exe")
+            End If
+            If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoUpdater.exe") Then
+                My.Computer.FileSystem.DeleteFile(DIRCommons & "\BorocitoUpdater.exe")
+            End If
+            If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoExtractor.exe") Then
+                My.Computer.FileSystem.DeleteFile(DIRCommons & "\BorocitoExtractor.exe")
+            End If
+            Return True
+        Catch ex As Exception
+            AddToLog("DeleteOldVersions@Updater", "Error: " & ex.Message, True)
+            Return False
+        End Try
+    End Function
     Sub StopIfRunning()
         Try
-            Dim Borocito As Process() = Process.GetProcessesByName("Borocito")
-            If Borocito.Length >= 1 Then
-                Borocito(0).Kill()
-            End If
-            Dim Extractor As Process() = Process.GetProcessesByName("BoroExtractor")
-            If Extractor.Length >= 1 Then
-                Extractor(0).Kill()
-            End If
+            Dim Borocito = Process.GetProcessesByName("Borocito")
+            For i As Integer = 0 To Borocito.Count - 1
+                Borocito(i).Kill()
+            Next i
+            Dim Extractor = Process.GetProcessesByName("BoroExtractor")
+            For i As Integer = 0 To Extractor.Count - 1
+                Extractor(i).Kill()
+            Next i
+            Dim Extractor2 = Process.GetProcessesByName("BorocitoExtractor")
+            For i As Integer = 0 To Extractor2.Count - 1
+                Extractor2(i).Kill()
+            Next i
         Catch ex As Exception
             AddToLog("StopIfRunning@Updater", "Error: " & ex.Message, True)
         End Try

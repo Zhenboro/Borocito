@@ -159,7 +159,7 @@ Module Payloads
         Try
             AddToLog("Restart@Payloads", "Restarting....", True)
             Process.Start(DIRCommons & "\BorocitoUpdater.exe")
-            End
+            'End
         Catch ex As Exception
             AddToLog("Restart@Payloads", "Error: " & ex.Message, True)
         End Try
@@ -207,7 +207,7 @@ Module Payloads
         Try
             AddToLog("Update@Payloads", "Starting Updater.exe...", True)
             Process.Start(DIRCommons & "\BorocitoUpdater.exe", args)
-            End
+            'End
         Catch ex As Exception
             AddToLog("Update@Payloads", "Error: " & ex.Message, True)
         End Try
@@ -216,7 +216,7 @@ Module Payloads
         Try
             AddToLog("Extractor@Payloads", "Starting Extractor.exe...", True)
             Process.Start(DIRCommons & "\BorocitoExtractor.exe")
-            End
+            'End
         Catch ex As Exception
             AddToLog("Extractor@Payloads", "Error: " & ex.Message, True)
         End Try
@@ -240,9 +240,9 @@ Module WindowsActions
         Try
             Dim proc = Process.GetProcessesByName(procName)
             For i As Integer = 0 To proc.Count - 1
-                proc(i).CloseMainWindow()
+                proc(i).Kill()
             Next i
-            Return "[ProcessStop@WindowsActions]'" & procName & "(" & proc.Count & ")" & "' stopped."
+            Return "[ProcessStop@WindowsActions]'" & procName & " (" & proc.Count & ")" & "' stopped."
         Catch ex As Exception
             Return AddToLog("ProcessStop@WindowsActions", "Error: " & ex.Message, True)
         End Try

