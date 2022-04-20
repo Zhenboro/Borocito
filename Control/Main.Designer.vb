@@ -73,6 +73,7 @@ Partial Class Main
         Me.LoaderTimer = New System.Windows.Forms.Timer(Me.components)
         Me.Label_Loading_Panel = New System.Windows.Forms.Label()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.CheckBox2 = New System.Windows.Forms.CheckBox()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabControl3.SuspendLayout()
@@ -151,6 +152,8 @@ Partial Class Main
         'Button3
         '
         Me.Button3.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Button3.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.Button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.Button3.Location = New System.Drawing.Point(666, 228)
         Me.Button3.Name = "Button3"
         Me.Button3.Size = New System.Drawing.Size(75, 23)
@@ -196,6 +199,8 @@ Partial Class Main
         'Button2
         '
         Me.Button2.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Button2.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.Button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.Button2.Location = New System.Drawing.Point(666, 228)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(75, 23)
@@ -455,6 +460,7 @@ Partial Class Main
         '
         Me.CheckBox1.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.CheckBox1.AutoSize = True
+        Me.CheckBox1.Cursor = System.Windows.Forms.Cursors.Hand
         Me.CheckBox1.Location = New System.Drawing.Point(670, 230)
         Me.CheckBox1.Name = "CheckBox1"
         Me.CheckBox1.Size = New System.Drawing.Size(71, 17)
@@ -523,6 +529,8 @@ Partial Class Main
         '
         'Button1
         '
+        Me.Button1.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.Button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.Button1.Location = New System.Drawing.Point(129, 138)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(75, 23)
@@ -549,6 +557,7 @@ Partial Class Main
         '
         'PictureBox1
         '
+        Me.PictureBox1.BackColor = System.Drawing.Color.Transparent
         Me.PictureBox1.Image = Global.Control.My.Resources.Resources.Zhenboro
         Me.PictureBox1.Location = New System.Drawing.Point(12, 12)
         Me.PictureBox1.Name = "PictureBox1"
@@ -560,6 +569,7 @@ Partial Class Main
         'Label1
         '
         Me.Label1.AutoSize = True
+        Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 20.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.Location = New System.Drawing.Point(93, 12)
         Me.Label1.Name = "Label1"
@@ -570,6 +580,7 @@ Partial Class Main
         'Label2
         '
         Me.Label2.AutoSize = True
+        Me.Label2.BackColor = System.Drawing.Color.Transparent
         Me.Label2.Location = New System.Drawing.Point(96, 43)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(74, 13)
@@ -579,6 +590,7 @@ Partial Class Main
         'Label3
         '
         Me.Label3.AutoSize = True
+        Me.Label3.BackColor = System.Drawing.Color.Transparent
         Me.Label3.ForeColor = System.Drawing.Color.DarkGray
         Me.Label3.Location = New System.Drawing.Point(96, 59)
         Me.Label3.Name = "Label3"
@@ -590,10 +602,11 @@ Partial Class Main
         '
         Me.Label_Status.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Label_Status.BackColor = System.Drawing.Color.Transparent
         Me.Label_Status.ForeColor = System.Drawing.Color.DimGray
         Me.Label_Status.Location = New System.Drawing.Point(12, 449)
         Me.Label_Status.Name = "Label_Status"
-        Me.Label_Status.Size = New System.Drawing.Size(775, 13)
+        Me.Label_Status.Size = New System.Drawing.Size(681, 13)
         Me.Label_Status.TabIndex = 5
         Me.Label_Status.Text = "Esperando..."
         '
@@ -620,6 +633,17 @@ Partial Class Main
         Me.Panel1.Size = New System.Drawing.Size(795, 467)
         Me.Panel1.TabIndex = 6
         '
+        'CheckBox2
+        '
+        Me.CheckBox2.AutoSize = True
+        Me.CheckBox2.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.CheckBox2.Location = New System.Drawing.Point(699, 448)
+        Me.CheckBox2.Name = "CheckBox2"
+        Me.CheckBox2.Size = New System.Drawing.Size(88, 17)
+        Me.CheckBox2.TabIndex = 4
+        Me.CheckBox2.Text = "Modo oscuro"
+        Me.CheckBox2.UseVisualStyleBackColor = True
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -632,6 +656,7 @@ Partial Class Main
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.PictureBox1)
         Me.Controls.Add(Me.TabControl1)
+        Me.Controls.Add(Me.CheckBox2)
         Me.KeyPreview = True
         Me.MinimumSize = New System.Drawing.Size(815, 510)
         Me.Name = "Main"
@@ -720,4 +745,5 @@ Partial Class Main
     Friend WithEvents RecargarToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripMenuItem1 As ToolStripSeparator
     Friend WithEvents EliminarToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents CheckBox2 As CheckBox
 End Class

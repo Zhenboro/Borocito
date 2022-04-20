@@ -125,10 +125,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Borocito.exe" />
+    <None Include="Resources\BorocitoUpdater.exe" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\BorocitoUpdater.exe" />
+    <None Include="Resources\Borocito.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

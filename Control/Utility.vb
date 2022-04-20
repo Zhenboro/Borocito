@@ -16,6 +16,9 @@ Module GlobalUses
     Public userIDTarget As String
     Public regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\Control", True)
     Public OwnerServer As String
+    Public isThemeActive As Boolean = False
+    Public CommandRefreshDelay As Integer = 10000
+    Public isMultiSelectMode As Boolean = False
 End Module
 Module Utility
     Public tlmContent As String
@@ -107,6 +110,8 @@ Module Settings
             HostOwnerServer = regKey.GetValue("HostOwnerServer")
             HostOwnerServerUser = regKey.GetValue("HostOwnerServerUser")
             HostOwnerServerPassword = regKey.GetValue("HostOwnerServerPassword")
+            isThemeActive = regKey.GetValue("isThemeActive")
+            CommandRefreshDelay = regKey.GetValue("CommandRefreshDelay")
         Catch ex As Exception
             AddToLog("LoadRegedit@Settings", "Error: " & ex.Message, True)
         End Try
@@ -118,10 +123,12 @@ Module Settings
             regKey.SetValue("HostOwnerServer", HostOwnerServer, RegistryValueKind.String)
             regKey.SetValue("HostOwnerServerUser", HostOwnerServerUser, RegistryValueKind.String)
             regKey.SetValue("HostOwnerServerPassword", HostOwnerServerPassword, RegistryValueKind.String)
-            LoadRegedit()
+            regKey.SetValue("isThemeActive", isThemeActive, RegistryValueKind.String)
+            regKey.SetValue("CommandRefreshDelay", CommandRefreshDelay, RegistryValueKind.String)
         Catch ex As Exception
             AddToLog("Init@Settings", "Error: " & ex.Message, True)
         End Try
+        LoadRegedit()
     End Sub
 End Module
 Module StartUp
