@@ -1,3 +1,4 @@
+
 # Borocito
 
 [Ver documentación (Borocito.odt)](https://github.com/Zhenboro/Borocito/blob/main/Borocito.odt)
@@ -9,6 +10,8 @@ Basado. Basado en [CWS](https://github.com/Zhenboro/CWS). un software a la esper
 Código proporcionado por los mórbidos pensamientos de nosotros... los informáticos.
 
 ## Using it
+
+### Mounting the server  
 First, you must mount the server. In releases you can see a .zip called "Server-Side", this compressed contains the files and folders that you must upload to an FTP server so that BorocitoCLI can connect to them and thus be used.  
 Inside the .zip, you will find the following files and folders:  
  - Boro-Get/  
@@ -97,4 +100,39 @@ These files where you can leave my URL of my server are:
  - Client.ini  
  - GlobalSettings.ini  
 
-**And do not worry. I can't steal your victims. Since the server being injected is yours, it must not be mine.**
+**And do not worry. I can't steal your victims. Since the server being injected is yours, it must not be mine.**  
+
+
+### First steps with the control panel
+You must start the control panel. For this is the executable borocitocmd.exe. Initial and start unboxing.  
+When you start, show the main form, and naturally, being the first instance, you will ask for certain data.  
+
+Window 1: "Ingrese la direccion del servidor"
+In this field, you must enter the raw link from the Borocito HTTP directory. An example is ´chemic-jug.000webhostapp.com/Borocito´.  
+The directory link (from your server) where the borocyte server-side files are. No protocol (without HTTP, HTTPS, FTP, etc)  
+
+Windows 2: "Ingrese el direccion host del servidor"
+The host address is the complete FTP route of the borocito directory (from your server). It looks like this:  ´ftp://files.000webhost.com/public_html/Borocito´  
+Basically, if you put that URL in the browser, you should ask for a user and password to access the FTP server. When you start session, you should be already located in the Borocito Server-side folder.  
+
+Windows 3: "Ingrese el usuario del servidor"
+Username to start session on the FTP server.  
+
+Windows 4: "Ingrese la contraseña del servidor"
+Password to start session on the FTP server.  
+
+If everything is fine, you should be able to see the file "Settings" in the box below. If not, you may have failed to enter a field.  
+
+### Making the distributable one
+To infect a computer, it is necessary to create the executable that infected the target computer.  
+
+Inside the control panel, you must go to the "Inject" tab, there is a textBox that puts your server address, and there is also a "Inject!" Button.
+You just have to prevent "Inject!" And a window will appear there, there you must choose the binary "borocytoextractor.exe", then another window will open, it is in this where you should choose the name and location of the distributable.  
+
+### Infecting
+Computer you have access, as you start the binary you have saved in the previous section. In theory, delay around 15 seconds in which Borocitocli is executed successfully.  
+
+### Controlling
+Once someone infected, you can perform some activities with the borocito control panel.  
+I'm not going to teach you how, because there are really many things and I'm lazy to write this.  
+
