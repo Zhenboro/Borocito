@@ -61,8 +61,7 @@
         GetUserInfo()
     End Sub
     Private Sub ListBox2_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox2.MouseDoubleClick
-        SetTarget(ListBox2.SelectedItem)
-        GetTelemetryInfo()
+        GetTelemetryInfo(ListBox2.SelectedItem)
     End Sub
     Private Sub ListBox3_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox3.MouseDoubleClick
         GetTelemetryFile(ListBox3.SelectedItem)
@@ -257,14 +256,12 @@
             AddToLog("SendClientSettings@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
-
     Private Sub RecargarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem.Click
         IndexTelemetryFilesToPanel()
     End Sub
     Private Sub EliminarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem.Click
         DeleteTelemetryFile(ListBox3.SelectedItem)
     End Sub
-
     Private Sub Label_Status_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Label_Status.MouseDoubleClick
         Label_Status.Text = Nothing
     End Sub
@@ -356,7 +353,6 @@
         isThemeActive = CheckBox2.Checked
         SaveRegedit()
     End Sub
-
     Private Sub ListBox1_KeyDown(sender As Object, e As KeyEventArgs) Handles ListBox1.KeyDown
         If e.KeyCode = Keys.ShiftKey Then
             If isMultiSelectMode Then

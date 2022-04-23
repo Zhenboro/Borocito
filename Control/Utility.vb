@@ -87,7 +87,7 @@ Module Settings
                 OwnerServer = OwnerServerInput
                 HttpOwnerServer = "http://" & OwnerServer
             End If
-            Dim HostOwnerServerInput = InputBox("Ingrese el direccion host del servidor", "Servidor", "ftp://" & OwnerServerInput)
+            Dim HostOwnerServerInput = InputBox("Ingrese la direccion host del servidor", "Servidor", "ftp://" & OwnerServerInput)
             If HostOwnerServerInput <> Nothing Then
                 HostOwnerServer = HostOwnerServerInput
             End If
@@ -293,10 +293,10 @@ Module Network
             AddToLog("GetUserInfo@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
-    Sub GetTelemetryInfo()
+    Sub GetTelemetryInfo(ByVal fileName As String)
         Try
-            Dim LocalTelemetryFile As String = DIRCommons & "\telemetry_" & userIDTarget & ".tlm"
-            Dim RemoteTelemetryFile As String = HttpOwnerServer & "/Telemetry/telemetry_" & userIDTarget & ".tlm"
+            Dim LocalTelemetryFile As String = DIRCommons & "\" & fileName & ".tlm"
+            Dim RemoteTelemetryFile As String = HttpOwnerServer & "/Telemetry/" & fileName & ".tlm"
             If My.Computer.FileSystem.FileExists(LocalTelemetryFile) Then
                 My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
             End If

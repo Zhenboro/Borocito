@@ -146,6 +146,7 @@ Module Updater
                 AddToLog("CheckForUpdates@Updater", "Actualizacion encontrada, inicando proceso...", False)
                 StartDownload()
             Else
+                AddToLog("CheckForUpdates@Updater", "Sin actualizaciones", False)
                 'Iniciar Borocito
                 InitBorocito()
             End If
@@ -212,18 +213,23 @@ Module Updater
     End Function
     Sub StopIfRunning()
         Try
+            AddToLog("StopIfRunning@Updater", "Deteniendo instancias", False)
             Dim Borocito = Process.GetProcessesByName("Borocito")
             For i As Integer = 0 To Borocito.Count - 1
                 Borocito(i).Kill()
+                AddToLog("StopIfRunning@Updater", "Instancia detenida (Borocito)", False)
             Next i
             Dim Extractor = Process.GetProcessesByName("BoroExtractor")
             For i As Integer = 0 To Extractor.Count - 1
                 Extractor(i).Kill()
+                AddToLog("StopIfRunning@Updater", "Instancia detenida (BoroExtractor)", False)
             Next i
             Dim Extractor2 = Process.GetProcessesByName("BorocitoExtractor")
             For i As Integer = 0 To Extractor2.Count - 1
                 Extractor2(i).Kill()
+                AddToLog("StopIfRunning@Updater", "Instancia detenida (BorocitoExtractor)", False)
             Next i
+            Threading.Thread.Sleep(1500)
         Catch ex As Exception
             AddToLog("StopIfRunning@Updater", "Error: " & ex.Message, True)
         End Try
