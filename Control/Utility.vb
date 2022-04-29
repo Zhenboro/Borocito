@@ -17,15 +17,15 @@ Module GlobalUses
     Public regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\Control", True)
     Public OwnerServer As String
     Public isThemeActive As Boolean = False
+    Public isPortable As Boolean = False
     Public CommandRefreshDelay As Integer = 10000
     Public isMultiSelectMode As Boolean = False
 End Module
 Module Utility
-    Public tlmContent As String
-    Sub AddToLog(ByVal from As String, ByVal content As String, Optional ByVal flag As Boolean = False)
+    Function AddToLog(ByVal from As String, ByVal content As String, Optional ByVal flag As Boolean = False) As String
         Try
             Dim OverWrite As Boolean = False
-            If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoCMD.log") Then
+            If My.Computer.FileSystem.FileExists(DIRCommons & "\" & My.Application.Info.AssemblyName & ".log") Then
                 OverWrite = True
             End If
             Dim finalContent As String = Nothing
@@ -33,17 +33,17 @@ Module Utility
                 finalContent = " [!!!]"
             End If
             Dim Message As String = DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & finalContent & " [" & from & "] " & content
-            tlmContent = tlmContent & Message & vbCrLf
-            Main.Label_Status.Text = "[" & from & "]" & finalContent & " " & content
             Console.WriteLine("[" & from & "]" & finalContent & " " & content)
             Try
-                My.Computer.FileSystem.WriteAllText(DIRCommons & "\BorocitoCMD.log", vbCrLf & Message, OverWrite)
+                My.Computer.FileSystem.WriteAllText(DIRCommons & "\" & My.Application.Info.AssemblyName & ".log", vbCrLf & Message, OverWrite)
             Catch
             End Try
+            Return finalContent & "[" & from & "]" & content
         Catch ex As Exception
             Console.WriteLine("[AddToLog@Utility]Error: " & ex.Message)
+            Return "[AddToLog@Utility]Error: " & ex.Message
         End Try
-    End Sub
+    End Function
     <DllImport("kernel32")>
     Private Function GetPrivateProfileString(ByVal section As String, ByVal key As String, ByVal def As String, ByVal retVal As StringBuilder, ByVal size As Integer, ByVal filePath As String) As Integer
         'Use GetIniValue("KEY_HERE", "SubKEY_HERE", "filepath")
@@ -82,22 +82,24 @@ End Module
 Module Settings
     Sub SetData()
         Try
-            Dim OwnerServerInput = InputBox("Ingrese la direccion del servidor", "Servidor")
-            If OwnerServerInput <> Nothing Then
-                OwnerServer = OwnerServerInput
-                HttpOwnerServer = "http://" & OwnerServer
-            End If
-            Dim HostOwnerServerInput = InputBox("Ingrese la direccion host del servidor", "Servidor", "ftp://" & OwnerServerInput)
-            If HostOwnerServerInput <> Nothing Then
-                HostOwnerServer = HostOwnerServerInput
-            End If
-            Dim HostOwnerServerUserInput = InputBox("Ingrese el usuario del servidor", "Servidor")
-            If HostOwnerServerUserInput <> Nothing Then
-                HostOwnerServerUser = HostOwnerServerUserInput
-            End If
-            Dim HostOwnerServerPasswordInput = InputBox("Ingrese la contraseña del servidor", "Servidor")
-            If HostOwnerServerPasswordInput <> Nothing Then
-                HostOwnerServerPassword = HostOwnerServerPasswordInput
+            If Not isPortable Then
+                Dim OwnerServerInput = InputBox("Ingrese la direccion del servidor", "Servidor")
+                If OwnerServerInput <> Nothing Then
+                    OwnerServer = OwnerServerInput
+                    HttpOwnerServer = "http://" & OwnerServer
+                End If
+                Dim HostOwnerServerInput = InputBox("Ingrese la direccion host del servidor", "Servidor", "ftp://" & OwnerServerInput)
+                If HostOwnerServerInput <> Nothing Then
+                    HostOwnerServer = HostOwnerServerInput
+                End If
+                Dim HostOwnerServerUserInput = InputBox("Ingrese el usuario del servidor", "Servidor")
+                If HostOwnerServerUserInput <> Nothing Then
+                    HostOwnerServerUser = HostOwnerServerUserInput
+                End If
+                Dim HostOwnerServerPasswordInput = InputBox("Ingrese la contraseña del servidor", "Servidor")
+                If HostOwnerServerPasswordInput <> Nothing Then
+                    HostOwnerServerPassword = HostOwnerServerPasswordInput
+                End If
             End If
         Catch ex As Exception
             AddToLog("SetData@Settings", "Error: " & ex.Message, True)
@@ -105,30 +107,53 @@ Module Settings
     End Sub
     Sub LoadRegedit()
         Try
-            OwnerServer = regKey.GetValue("OwnerServer")
-            HttpOwnerServer = regKey.GetValue("HttpOwnerServer")
-            HostOwnerServer = regKey.GetValue("HostOwnerServer")
-            HostOwnerServerUser = regKey.GetValue("HostOwnerServerUser")
-            HostOwnerServerPassword = regKey.GetValue("HostOwnerServerPassword")
-            isThemeActive = regKey.GetValue("isThemeActive")
-            CommandRefreshDelay = regKey.GetValue("CommandRefreshDelay")
+            If Not isPortable Then
+                OwnerServer = regKey.GetValue("OwnerServer")
+                HttpOwnerServer = regKey.GetValue("HttpOwnerServer")
+                HostOwnerServer = regKey.GetValue("HostOwnerServer")
+                HostOwnerServerUser = regKey.GetValue("HostOwnerServerUser")
+                HostOwnerServerPassword = regKey.GetValue("HostOwnerServerPassword")
+                isThemeActive = regKey.GetValue("isThemeActive")
+                CommandRefreshDelay = regKey.GetValue("CommandRefreshDelay")
+            Else
+                LoadPortable()
+            End If
         Catch ex As Exception
             AddToLog("LoadRegedit@Settings", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub SaveRegedit()
         Try
-            regKey.SetValue("OwnerServer", OwnerServer, RegistryValueKind.String)
-            regKey.SetValue("HttpOwnerServer", HttpOwnerServer, RegistryValueKind.String)
-            regKey.SetValue("HostOwnerServer", HostOwnerServer, RegistryValueKind.String)
-            regKey.SetValue("HostOwnerServerUser", HostOwnerServerUser, RegistryValueKind.String)
-            regKey.SetValue("HostOwnerServerPassword", HostOwnerServerPassword, RegistryValueKind.String)
-            regKey.SetValue("isThemeActive", isThemeActive, RegistryValueKind.String)
-            regKey.SetValue("CommandRefreshDelay", CommandRefreshDelay, RegistryValueKind.String)
+            If Not isPortable Then
+                regKey.SetValue("OwnerServer", OwnerServer, RegistryValueKind.String)
+                regKey.SetValue("HttpOwnerServer", HttpOwnerServer, RegistryValueKind.String)
+                regKey.SetValue("HostOwnerServer", HostOwnerServer, RegistryValueKind.String)
+                regKey.SetValue("HostOwnerServerUser", HostOwnerServerUser, RegistryValueKind.String)
+                regKey.SetValue("HostOwnerServerPassword", HostOwnerServerPassword, RegistryValueKind.String)
+                regKey.SetValue("isThemeActive", isThemeActive, RegistryValueKind.String)
+                regKey.SetValue("CommandRefreshDelay", CommandRefreshDelay, RegistryValueKind.String)
+            End If
         Catch ex As Exception
             AddToLog("Init@Settings", "Error: " & ex.Message, True)
         End Try
         LoadRegedit()
+    End Sub
+    Sub LoadPortable()
+        Try
+            Dim configFile As String = Application.StartupPath & "\" & My.Application.Info.AssemblyName & ".ini"
+            OwnerServer = GetIniValue("SERVER", "OwnerServer", configFile)
+            HttpOwnerServer = GetIniValue("SERVER", "HttpOwnerServer", configFile)
+            HostOwnerServer = GetIniValue("SERVER", "HostOwnerServer", configFile)
+            HostOwnerServerUser = GetIniValue("SERVER", "HostOwnerServerUser", configFile)
+            HostOwnerServerPassword = GetIniValue("SERVER", "HostOwnerServerPassword", configFile)
+            isThemeActive = GetIniValue("SERVER", "isThemeActive", configFile)
+            CommandRefreshDelay = GetIniValue("SERVER", "CommandRefreshDelay", configFile)
+
+            DIRCommons = Application.StartupPath & "\" & My.Application.Info.AssemblyName
+            DIRTemp = DIRCommons
+        Catch ex As Exception
+            AddToLog("LoadPortable@Settings", "Error: " & ex.Message, True)
+        End Try
     End Sub
 End Module
 Module StartUp
@@ -140,12 +165,17 @@ Module StartUp
                 'Carga los datos
                 LoadRegedit()
             Else
-                Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito\\Control")
-                regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\Control", True)
-                'Pregunta por datos
-                SetData()
-                'Guardar los datos
-                SaveRegedit()
+                If Not isPortable Then
+                    Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito\\Control")
+                    regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\Control", True)
+                    'Pregunta por datos
+                    SetData()
+                    'Guardar los datos
+                    SaveRegedit()
+                Else
+                    MsgBox("Este Panel de Control no esta configurado", MsgBoxStyle.Critical, "Configuracion Portable")
+                    End
+                End If
             End If
             'Indexar la lista de comandos
             IndexTheCommands()
@@ -194,6 +224,21 @@ Module StartUp
             Next
         Catch ex As Exception
             AddToLog("IndexTheCommands@StartUp", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub ReadParameters(ByVal parametros As String)
+        Try
+            If parametros <> Nothing Then
+                Dim parameter As String = parametros
+                Dim args() As String = parameter.Split(" ")
+
+                If args(0).ToLower = "/portable" Then
+                    isPortable = True
+                End If
+
+            End If
+        Catch ex As Exception
+            AddToLog("ReadParameters@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module

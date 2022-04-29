@@ -1,0 +1,13 @@
+# Boro-Get broReedit Repo file
+[GENERAL]
+Author=Zhenboro
+From=http://github.com/Zhenboro
+[ASSEMBLY]
+Name=broReedit
+Executable=broReedit.exe
+Version=1.0.0.0
+Web=https://github.com/Zhenboro/borocito-components
+[INSTALLER]
+Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broReedit.zip
+Installer=NULL
+InstallFolder=%temp%

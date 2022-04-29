@@ -6,7 +6,7 @@ From=http://github.com/Zhenboro
 Name=broKiloger
 Executable=broKiloger.exe
 Version=0.1.0.0
-Web=http://github.com/Zhenboro/Borocito
+Web=https://github.com/Zhenboro/borocito-components
 [INSTALLER]
 Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broKiloger.zip
 Installer=NULL

