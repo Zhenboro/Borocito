@@ -23,6 +23,7 @@ Partial Class Main
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Main))
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
         Me.TabControl3 = New System.Windows.Forms.TabControl()
@@ -41,6 +42,10 @@ Partial Class Main
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.RichTextBox1 = New System.Windows.Forms.RichTextBox()
         Me.ListBox1 = New System.Windows.Forms.ListBox()
+        Me.ContextMenuStripUsers_User_ListBox1 = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.EliminarToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItem2 = New System.Windows.Forms.ToolStripSeparator()
+        Me.RecargarToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
@@ -85,6 +90,7 @@ Partial Class Main
         Me.TabControl2.SuspendLayout()
         Me.TabPage4.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
+        Me.ContextMenuStripUsers_User_ListBox1.SuspendLayout()
         Me.TabPage5.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.TabPage3.SuspendLayout()
@@ -307,11 +313,35 @@ Partial Class Main
         '
         Me.ListBox1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.ListBox1.ContextMenuStrip = Me.ContextMenuStripUsers_User_ListBox1
         Me.ListBox1.FormattingEnabled = True
         Me.ListBox1.Location = New System.Drawing.Point(6, 32)
         Me.ListBox1.Name = "ListBox1"
         Me.ListBox1.Size = New System.Drawing.Size(161, 173)
         Me.ListBox1.TabIndex = 2
+        '
+        'ContextMenuStripUsers_User_ListBox1
+        '
+        Me.ContextMenuStripUsers_User_ListBox1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.EliminarToolStripMenuItem1, Me.ToolStripMenuItem2, Me.RecargarToolStripMenuItem1})
+        Me.ContextMenuStripUsers_User_ListBox1.Name = "ContextMenuStripUsers_User_ListBox1"
+        Me.ContextMenuStripUsers_User_ListBox1.Size = New System.Drawing.Size(121, 54)
+        '
+        'EliminarToolStripMenuItem1
+        '
+        Me.EliminarToolStripMenuItem1.Name = "EliminarToolStripMenuItem1"
+        Me.EliminarToolStripMenuItem1.Size = New System.Drawing.Size(120, 22)
+        Me.EliminarToolStripMenuItem1.Text = "Eliminar"
+        '
+        'ToolStripMenuItem2
+        '
+        Me.ToolStripMenuItem2.Name = "ToolStripMenuItem2"
+        Me.ToolStripMenuItem2.Size = New System.Drawing.Size(117, 6)
+        '
+        'RecargarToolStripMenuItem1
+        '
+        Me.RecargarToolStripMenuItem1.Name = "RecargarToolStripMenuItem1"
+        Me.RecargarToolStripMenuItem1.Size = New System.Drawing.Size(120, 22)
+        Me.RecargarToolStripMenuItem1.Text = "Recargar"
         '
         'Label5
         '
@@ -545,6 +575,7 @@ Partial Class Main
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.Size = New System.Drawing.Size(312, 46)
         Me.TextBox2.TabIndex = 1
+        Me.TextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'Label9
         '
@@ -558,7 +589,7 @@ Partial Class Main
         'PictureBox1
         '
         Me.PictureBox1.BackColor = System.Drawing.Color.Transparent
-        Me.PictureBox1.Image = Global.Control.My.Resources.Resources.Zhenboro
+        Me.PictureBox1.Image = Global.Control.My.Resources.Resources.Borocito
         Me.PictureBox1.Location = New System.Drawing.Point(12, 12)
         Me.PictureBox1.Name = "PictureBox1"
         Me.PictureBox1.Size = New System.Drawing.Size(75, 75)
@@ -618,6 +649,9 @@ Partial Class Main
         'Label_Loading_Panel
         '
         Me.Label_Loading_Panel.Anchor = System.Windows.Forms.AnchorStyles.None
+        Me.Label_Loading_Panel.BackColor = System.Drawing.Color.Transparent
+        Me.Label_Loading_Panel.Font = New System.Drawing.Font("Consolas", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label_Loading_Panel.ForeColor = System.Drawing.Color.Silver
         Me.Label_Loading_Panel.Location = New System.Drawing.Point(58, 62)
         Me.Label_Loading_Panel.Name = "Label_Loading_Panel"
         Me.Label_Loading_Panel.Size = New System.Drawing.Size(679, 343)
@@ -627,7 +661,9 @@ Partial Class Main
         '
         'Panel1
         '
+        Me.Panel1.BackColor = System.Drawing.Color.DimGray
         Me.Panel1.Controls.Add(Me.Label_Loading_Panel)
+        Me.Panel1.ForeColor = System.Drawing.Color.White
         Me.Panel1.Location = New System.Drawing.Point(793, 449)
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(795, 467)
@@ -657,6 +693,7 @@ Partial Class Main
         Me.Controls.Add(Me.PictureBox1)
         Me.Controls.Add(Me.TabControl1)
         Me.Controls.Add(Me.CheckBox2)
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.KeyPreview = True
         Me.MinimumSize = New System.Drawing.Size(815, 510)
         Me.Name = "Main"
@@ -676,6 +713,7 @@ Partial Class Main
         Me.TabPage4.PerformLayout()
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
+        Me.ContextMenuStripUsers_User_ListBox1.ResumeLayout(False)
         Me.TabPage5.ResumeLayout(False)
         Me.TabPage5.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
@@ -746,4 +784,8 @@ Partial Class Main
     Friend WithEvents ToolStripMenuItem1 As ToolStripSeparator
     Friend WithEvents EliminarToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents CheckBox2 As CheckBox
+    Friend WithEvents ContextMenuStripUsers_User_ListBox1 As ContextMenuStrip
+    Friend WithEvents EliminarToolStripMenuItem1 As ToolStripMenuItem
+    Friend WithEvents ToolStripMenuItem2 As ToolStripSeparator
+    Friend WithEvents RecargarToolStripMenuItem1 As ToolStripMenuItem
 End Class

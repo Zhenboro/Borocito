@@ -61,7 +61,33 @@ Namespace My.Resources
         End Property
         
         '''<summary>
-        '''  Busca una cadena traducida similar a .
+        '''  Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Borocito() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Borocito", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Busca una cadena traducida similar a # Command index file
+        '''# Last updated 29/03/2022
+        '''
+        '''MsgBox=body,option,title
+        '''
+        '''/Memory.Save()
+        '''/Memory.Load()
+        '''
+        '''/Windows.Process.Start=executable_path_or_name,argument_line
+        '''/Windows.Process.Stop=executable_name
+        '''/Windows.Process.Get()
+        '''/Windows.FileSystem.GetDirectory=directory_path
+        '''/Windows.FileSystem.GetFiles=directory_path
+        '''/Windows.FileSystem.Read=file_path
+        '''/Windows.FileSystem.Write=file_path,content,append
+        '''/Windows.FileSystem.DirCreate=directory_path
+        '''/Windows.FileSystem.Delete=file_or_folder_path [resto de la cadena truncado]&quot;;.
         '''</summary>
         Friend ReadOnly Property Comandos() As String
             Get

@@ -75,6 +75,53 @@
     Private Sub ListBox3_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox3.MouseDoubleClick
         GetTelemetryFile(ListBox3.SelectedItem)
     End Sub
+    Private Sub RecargarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem.Click
+        IndexTelemetryFilesToPanel()
+    End Sub
+    Private Sub EliminarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem.Click
+        DeleteTelemetryFile(ListBox3.SelectedItem)
+    End Sub
+    Private Sub Label_Status_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Label_Status.MouseDoubleClick
+        Label_Status.Text = Nothing
+        LastUserResponse = Nothing
+    End Sub
+    Private Sub RecargarToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem1.Click
+        IndexUsersToPanel()
+    End Sub
+    Private Sub EliminarToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem1.Click
+        If MessageBox.Show("Esta accion eliminara todos los archivos relacionados a este usuario." & vbCrLf & "¿Eliminar el usuario" & ListBox1.SelectedItem & "?", "Eliminar usuario", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            DeleteUserFile(ListBox1.SelectedItem)
+        End If
+    End Sub
+    Private Sub CheckBox2_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox2.CheckedChanged
+        ThemeManager(CheckBox2.Checked)
+        isThemeActive = CheckBox2.Checked
+        SaveRegedit()
+    End Sub
+    Private Sub ListBox1_KeyDown(sender As Object, e As KeyEventArgs) Handles ListBox1.KeyDown
+        If e.KeyCode = Keys.ShiftKey Then
+            If isMultiSelectMode Then
+                ListBox1.SelectionMode = SelectionMode.One
+                isMultiSelectMode = False
+            Else
+                ListBox1.SelectionMode = SelectionMode.MultiSimple
+                isMultiSelectMode = True
+            End If
+        End If
+    End Sub
+    Private Sub ComboBox1_TextChanged(sender As Object, e As EventArgs) Handles ComboBox1.TextChanged
+        If ComboBox1.Text.ToLower Like "*@multichannel*" Then
+            RichTextBox2.AppendText(vbCrLf & "Multi channel activated!" & vbCrLf)
+            isMonoChannel = False
+            ComboBox1.Text = Nothing
+        ElseIf ComboBox1.Text.ToLower Like "*@monochannel*" Then
+            RichTextBox2.AppendText(vbCrLf & "Mono channel activated!" & vbCrLf)
+            isMonoChannel = True
+            ComboBox1.Text = Nothing
+        ElseIf ComboBox1.Text.ToLower Like "*@exit*" Then
+            End
+        End If
+    End Sub
 
     Sub SetCMDStatus(ByVal response As String, ByVal status As String, Optional ByVal ScrollRichBox As Boolean = True)
         Try
@@ -133,8 +180,8 @@
             End If
         End If
     End Sub
+    Dim LastUserResponse As String = Nothing
     Sub ReadCommandFile()
-        Dim LastUserResponse As String = Nothing
         While True
             Try
                 Dim LocalCommandFile As String = DIRCommons & "\[" & userIDTarget & "]Command.str"
@@ -196,6 +243,7 @@
             If Not isMultiSelectMode Then
                 RichTextBox2.AppendText(vbCrLf & "Server: Command Sended! (" & command & ")")
             End If
+            LastUserResponse = Nothing
             RichTextBox2.ScrollToCaret()
         Catch ex As Exception
             AddToLog("SendCommandFile@Main", "Error: " & ex.Message, True)
@@ -277,15 +325,6 @@
         Catch ex As Exception
             AddToLog("SendClientSettings@Main", "Error: " & ex.Message, True)
         End Try
-    End Sub
-    Private Sub RecargarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem.Click
-        IndexTelemetryFilesToPanel()
-    End Sub
-    Private Sub EliminarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem.Click
-        DeleteTelemetryFile(ListBox3.SelectedItem)
-    End Sub
-    Private Sub Label_Status_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Label_Status.MouseDoubleClick
-        Label_Status.Text = Nothing
     End Sub
 
     Sub ThemeManager(ByVal applyTheme As Boolean)
@@ -369,35 +408,5 @@
         Catch ex As Exception
             AddToLog("ThemeManager@Main", "Error: " & ex.Message, True)
         End Try
-    End Sub
-    Private Sub CheckBox2_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox2.CheckedChanged
-        ThemeManager(CheckBox2.Checked)
-        isThemeActive = CheckBox2.Checked
-        SaveRegedit()
-    End Sub
-    Private Sub ListBox1_KeyDown(sender As Object, e As KeyEventArgs) Handles ListBox1.KeyDown
-        If e.KeyCode = Keys.ShiftKey Then
-            If isMultiSelectMode Then
-                ListBox1.SelectionMode = SelectionMode.One
-                isMultiSelectMode = False
-            Else
-                ListBox1.SelectionMode = SelectionMode.MultiSimple
-                isMultiSelectMode = True
-            End If
-        End If
-    End Sub
-
-    Private Sub ComboBox1_TextChanged(sender As Object, e As EventArgs) Handles ComboBox1.TextChanged
-        If ComboBox1.Text.ToLower Like "*@multichannel*" Then
-            RichTextBox2.AppendText(vbCrLf & "Multi channel activated!" & vbCrLf)
-            isMonoChannel = False
-            ComboBox1.Text = Nothing
-        ElseIf ComboBox1.Text.ToLower Like "*@monochannel*" Then
-            RichTextBox2.AppendText(vbCrLf & "Mono channel activated!" & vbCrLf)
-            isMonoChannel = True
-            ComboBox1.Text = Nothing
-        ElseIf ComboBox1.Text.ToLower Like "*@exit*" Then
-            End
-        End If
     End Sub
 End Class

