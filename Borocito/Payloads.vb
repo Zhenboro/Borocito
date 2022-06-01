@@ -229,9 +229,10 @@ Module Payloads
             Dim myParam As New CodeDom.Compiler.CompilerParameters
             myParam.GenerateExecutable = False 'No quiero ejecutable
             myParam.GenerateInMemory = True 'Lo quiero en memoria
-            'myParam.OutputAssembly = "" 'Si quiero generar un simbolo
+            'myParam.OutputAssembly = "" 'Por si quiero generar un simbolo
             'myParam.ReferencedAssemblies.Add("") 'No quiero referencias a a DLLs o librerias.
-            Dim myResult As Compiler.CompilerResults = myCompilador.CompileAssemblyFromSource(myParam, My.Computer.FileSystem.ReadAllText(MyCommandProcessor))
+            Dim contenidoProcesador As String = My.Computer.FileSystem.ReadAllText(MyCommandProcessor)
+            Dim myResult As Compiler.CompilerResults = myCompilador.CompileAssemblyFromSource(myParam, contenidoProcesador)
             myProcessor = myResult.CompiledAssembly
 
             'Creo la instancia de la clase

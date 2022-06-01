@@ -28,7 +28,7 @@
             Init()
             CheckBox2.Checked = isThemeActive
         Catch ex As Exception
-            AddToLog("LoadIt@Main", "Error: " & ex.Message, True)
+            Label_Status.Text = AddToLog("LoadIt@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -49,7 +49,7 @@
             ListBox2.Items.Clear()
             ListBox3.Items.Clear()
         Catch ex As Exception
-            AddToLog("ResetIt@Main", "Error: " & ex.Message, True)
+            Label_Status.Text = AddToLog("ResetIt@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -67,13 +67,19 @@
     End Sub
     Private Sub ListBox1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox1.MouseDoubleClick
         SetTarget(ListBox1.SelectedItem)
-        GetUserInfo()
+        Dim threadGetUserInfo As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf GetUserInfo))
+        threadGetUserInfo.Start()
+        'GetUserInfo()
     End Sub
     Private Sub ListBox2_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox2.MouseDoubleClick
-        GetTelemetryInfo(ListBox2.SelectedItem)
+        Dim threadGetTelemetryInfo As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf GetTelemetryInfo))
+        threadGetTelemetryInfo.Start(ListBox2.SelectedItem)
+        'GetTelemetryInfo(ListBox2.SelectedItem)
     End Sub
     Private Sub ListBox3_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox3.MouseDoubleClick
-        GetTelemetryFile(ListBox3.SelectedItem)
+        Dim threadGetTelemetryFile As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf GetTelemetryFile))
+        threadGetTelemetryFile.Start(ListBox3.SelectedItem)
+        'GetTelemetryFile(ListBox3.SelectedItem)
     End Sub
     Private Sub RecargarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem.Click
         IndexTelemetryFilesToPanel()
@@ -133,7 +139,7 @@
                 RichTextBox2.ScrollToCaret()
             End If
         Catch ex As Exception
-            AddToLog("SetCMDStatus@Main", "Error: " & ex.Message, True)
+            Label_Status.Text = AddToLog("SetCMDStatus@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub SetTarget(ByVal userValue As String)
@@ -149,7 +155,7 @@
                 TabPage5.Enabled = True
             End If
         Catch ex As Exception
-            AddToLog("SetTarget@Main", "Error: " & ex.Message, True)
+            Label_Status.Text = AddToLog("SetTarget@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -213,7 +219,7 @@
                     End If
                 End If
             Catch ex As Exception
-                AddToLog("ReadCommandFile@Network", "Error: " & ex.Message, True)
+                Label_Status.Text = AddToLog("ReadCommandFile@Network", "Error: " & ex.Message, True)
             End Try
         End While
     End Sub
@@ -246,7 +252,7 @@
             LastUserResponse = Nothing
             RichTextBox2.ScrollToCaret()
         Catch ex As Exception
-            AddToLog("SendCommandFile@Main", "Error: " & ex.Message, True)
+            Label_Status.Text = AddToLog("SendCommandFile@Main", "Error: " & ex.Message, True)
         End Try
         isCommandFileBusy = False
     End Sub
@@ -309,7 +315,7 @@
             My.Computer.Network.UploadFile(LocalFilePath, RemoteFilePath, HostOwnerServerUser, HostOwnerServerPassword)
             MsgBox("Global Settings aplicado.", MsgBoxStyle.Information, "Configuracion Servidor")
         Catch ex As Exception
-            AddToLog("SendGlobalSettings@Main", "Error: " & ex.Message, True)
+            Label_Status.Text = AddToLog("SendGlobalSettings@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
@@ -323,7 +329,7 @@
             My.Computer.Network.UploadFile(LocalFilePath, RemoteFilePath, HostOwnerServerUser, HostOwnerServerPassword)
             MsgBox("Client Settings aplicado.", MsgBoxStyle.Information, "Configuracion Servidor")
         Catch ex As Exception
-            AddToLog("SendClientSettings@Main", "Error: " & ex.Message, True)
+            Label_Status.Text = AddToLog("SendClientSettings@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -409,4 +415,66 @@
             AddToLog("ThemeManager@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
+
+#Region "LocalThings"
+    Sub GetTelemetryInfo(ByVal fileName As String)
+        Try
+            Dim LocalTelemetryFile As String = DIRCommons & "\telemetry_" & fileName & ".tlm"
+            Dim RemoteTelemetryFile As String = HttpOwnerServer & "/Telemetry/telemetry_" & fileName & ".tlm"
+            If My.Computer.FileSystem.FileExists(LocalTelemetryFile) Then
+                My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
+            End If
+            My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
+            RichTextBox3.Text = My.Computer.FileSystem.ReadAllText(LocalTelemetryFile)
+        Catch ex As Exception
+            Label_Status.Text = AddToLog("GetTelemetryInfo@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub GetTelemetryFile(ByVal file As String)
+        Try
+            Dim downloadRefresh As Boolean = False
+            Label_Status.Text = "WAIT: Asking file info..."
+            Dim LocalTelemetryFile As String = DIRCommons & "\" & file
+            Dim RemoteTelemetryFile As String = HttpOwnerServer & "/Files/" & file
+            If My.Computer.FileSystem.FileExists(LocalTelemetryFile) Then
+                If MessageBox.Show("El fichero ya existe en local." & vbCrLf & "¿Desea descargarlo nuevamente?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                    Label_Status.Text = "WAIT: Downloading file from remote repository..."
+                    My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
+                Else
+                    Label_Status.Text = "WAIT: Opening file from local repository..."
+                    downloadRefresh = True
+                End If
+            End If
+            If Not downloadRefresh Then
+                If CheckBox1.Checked Then
+                    My.Computer.Network.DownloadFile(HostOwnerServer & "/Files/" & file, LocalTelemetryFile, HostOwnerServerUser, HostOwnerServerPassword)
+                Else
+                    My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
+                End If
+            End If
+            Label_Status.Text = "File ready! Asking for confirmation..."
+            If MessageBox.Show("¿Abrir el fichero '" & file & "'?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                Process.Start(LocalTelemetryFile)
+            Else
+                Process.Start("explorer.exe", "/select, " & LocalTelemetryFile)
+            End If
+            Label_Status.Text = Nothing
+        Catch ex As Exception
+            Label_Status.Text = AddToLog("GetTelemetryFile@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub GetUserInfo()
+        Try
+            Dim LocalUserFile As String = DIRCommons & "\userID_" & userIDTarget & ".rtp"
+            Dim RemoteUserFile As String = HttpOwnerServer & "/Users/userID_" & userIDTarget & ".rtp"
+            If My.Computer.FileSystem.FileExists(LocalUserFile) Then
+                My.Computer.FileSystem.DeleteFile(LocalUserFile)
+            End If
+            My.Computer.Network.DownloadFile(RemoteUserFile, LocalUserFile)
+            RichTextBox1.Text = My.Computer.FileSystem.ReadAllText(LocalUserFile)
+        Catch ex As Exception
+            Label_Status.Text = AddToLog("GetUserInfo@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+#End Region
 End Class

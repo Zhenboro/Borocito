@@ -11,7 +11,7 @@ Module GlobalUses
     Public HttpOwnerServer As String
     Public compileVersion As String = My.Application.Info.Version.ToString &
         " (" & Application.ProductVersion & ") " &
-        "[17/05/2022 00:11]" 'Indicacion exacta de la ultima compilacion
+        "[31/05/2022 14:44]" 'Indicacion exacta de la ultima compilacion
 End Module '<--- ACTUALIZAR DATOS
 Module Utility
     Public tlmContent As String
@@ -70,7 +70,7 @@ Module Memory
     Public regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
     Public OwnerServer As String
     Public UID As String
-    Public MyCommandProcessor As String
+    Public MyCommandProcessor As String = DIRCommons & "\CommandProcessor.cmp"
     Sub SaveRegedit()
         Try
             AddToLog("SaveRegedit@Memory", "Saving data...", False)
@@ -720,7 +720,9 @@ Module Network
                 Return "Default command processor changed to 'boro-get'"
             ElseIf command.ToLower Like "*<set cmd own*" Then
                 Dim args() As String = command.Split(" ")
-                MyCommandProcessor = args(3)
+                If args.Count > 3 Then
+                    MyCommandProcessor = args(3)
+                End If
                 cmdSetType = 4
                 Return "Default command processor changed to 'own' in '" & MyCommandProcessor & "'"
             Else

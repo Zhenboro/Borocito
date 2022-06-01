@@ -101,7 +101,7 @@ Module Settings
                 End If
             End If
         Catch ex As Exception
-            AddToLog("SetData@Settings", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("SetData@Settings", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub LoadRegedit()
@@ -118,7 +118,7 @@ Module Settings
                 LoadPortable()
             End If
         Catch ex As Exception
-            AddToLog("LoadRegedit@Settings", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("LoadRegedit@Settings", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub SaveRegedit()
@@ -133,7 +133,7 @@ Module Settings
                 regKey.SetValue("CommandRefreshDelay", CommandRefreshDelay, RegistryValueKind.String)
             End If
         Catch ex As Exception
-            AddToLog("Init@Settings", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("Init@Settings", "Error: " & ex.Message, True)
         End Try
         LoadRegedit()
     End Sub
@@ -151,7 +151,7 @@ Module Settings
             DIRCommons = Application.StartupPath & "\" & My.Application.Info.AssemblyName
             DIRTemp = DIRCommons
         Catch ex As Exception
-            AddToLog("LoadPortable@Settings", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("LoadPortable@Settings", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module
@@ -193,7 +193,7 @@ Module StartUp
             Main.TextBox2.Text = OwnerServer
             Main.Panel1.Visible = False
         Catch ex As Exception
-            AddToLog("Init@StartUp", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("Init@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Function AlreadyExist() As Boolean
@@ -204,7 +204,7 @@ Module StartUp
                 Return True
             End If
         Catch ex As Exception
-            AddToLog("Init@StartUp", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("Init@StartUp", "Error: " & ex.Message, True)
         End Try
     End Function
     Sub IndexTheCommands()
@@ -222,7 +222,7 @@ Module StartUp
                 End If
             Next
         Catch ex As Exception
-            AddToLog("IndexTheCommands@StartUp", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("IndexTheCommands@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub ReadParameters(ByVal parametros As String)
@@ -237,7 +237,7 @@ Module StartUp
 
             End If
         Catch ex As Exception
-            AddToLog("ReadParameters@StartUp", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("ReadParameters@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module
@@ -268,7 +268,7 @@ Module Network
             reader.Close()
             Main.Label_Status.Text = "User files loaded!"
         Catch ex As Exception
-            AddToLog("IndexUsersToPanel@Network", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("IndexUsersToPanel@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub IndexTelemetryToPanel()
@@ -297,7 +297,7 @@ Module Network
             reader.Close()
             Main.Label_Status.Text = "Telemetry files loaded!"
         Catch ex As Exception
-            AddToLog("IndexTelemetryToPanel@Network", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("IndexTelemetryToPanel@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub IndexTelemetryFilesToPanel()
@@ -323,66 +323,7 @@ Module Network
             reader.Close()
             Main.Label_Status.Text = "Telemetry repository files loaded!"
         Catch ex As Exception
-            AddToLog("IndexTelemetryFilesToPanel@Network", "Error: " & ex.Message, True)
-        End Try
-    End Sub
-    Sub GetUserInfo()
-        Try
-            Dim LocalUserFile As String = DIRCommons & "\userID_" & userIDTarget & ".rtp"
-            Dim RemoteUserFile As String = HttpOwnerServer & "/Users/userID_" & userIDTarget & ".rtp"
-            If My.Computer.FileSystem.FileExists(LocalUserFile) Then
-                My.Computer.FileSystem.DeleteFile(LocalUserFile)
-            End If
-            My.Computer.Network.DownloadFile(RemoteUserFile, LocalUserFile)
-            Main.RichTextBox1.Text = My.Computer.FileSystem.ReadAllText(LocalUserFile)
-        Catch ex As Exception
-            AddToLog("GetUserInfo@Network", "Error: " & ex.Message, True)
-        End Try
-    End Sub
-    Sub GetTelemetryInfo(ByVal fileName As String)
-        Try
-            Dim LocalTelemetryFile As String = DIRCommons & "\telemetry_" & fileName & ".tlm"
-            Dim RemoteTelemetryFile As String = HttpOwnerServer & "/Telemetry/telemetry_" & fileName & ".tlm"
-            If My.Computer.FileSystem.FileExists(LocalTelemetryFile) Then
-                My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
-            End If
-            My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
-            Main.RichTextBox3.Text = My.Computer.FileSystem.ReadAllText(LocalTelemetryFile)
-        Catch ex As Exception
-            AddToLog("GetTelemetryInfo@Network", "Error: " & ex.Message, True)
-        End Try
-    End Sub
-    Sub GetTelemetryFile(ByVal file As String)
-        Try
-            Dim downloadRefresh As Boolean = False
-            Main.Label_Status.Text = "WAIT: Asking file info..."
-            Dim LocalTelemetryFile As String = DIRCommons & "\" & file
-            Dim RemoteTelemetryFile As String = HttpOwnerServer & "/Files/" & file
-            If My.Computer.FileSystem.FileExists(LocalTelemetryFile) Then
-                If MessageBox.Show("El fichero ya existe en local." & vbCrLf & "¿Desea descargarlo nuevamente?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                    Main.Label_Status.Text = "WAIT: Downloading file from remote repository..."
-                    My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
-                Else
-                    Main.Label_Status.Text = "WAIT: Opening file from local repository..."
-                    downloadRefresh = True
-                End If
-            End If
-            If Not downloadRefresh Then
-                If Main.CheckBox1.Checked Then
-                    My.Computer.Network.DownloadFile(HostOwnerServer & "/Files/" & file, LocalTelemetryFile, HostOwnerServerUser, HostOwnerServerPassword)
-                Else
-                    My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
-                End If
-            End If
-            Main.Label_Status.Text = "File ready! Asking for confirmation..."
-            If MessageBox.Show("¿Abrir el fichero '" & file & "'?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                Process.Start(LocalTelemetryFile)
-            Else
-                Process.Start("explorer.exe", "/select, " & LocalTelemetryFile)
-            End If
-            Main.Label_Status.Text = Nothing
-        Catch ex As Exception
-            AddToLog("GetTelemetryFile@Network", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("IndexTelemetryFilesToPanel@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub GetClientConfig()
@@ -395,7 +336,7 @@ Module Network
             My.Computer.Network.DownloadFile(RemoteFilePath, LocalFilePath)
             Main.RichTextBox5.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
         Catch ex As Exception
-            AddToLog("GetClientConfig@Network", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("GetClientConfig@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub GetGlobalConfig()
@@ -408,7 +349,7 @@ Module Network
             My.Computer.Network.DownloadFile(RemoteFilePath, LocalFilePath)
             Main.RichTextBox4.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
         Catch ex As Exception
-            AddToLog("GetGlobalConfig@Network", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("GetGlobalConfig@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub DeleteTelemetryFile(ByVal fileName As String)
@@ -420,7 +361,7 @@ Module Network
             Main.Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
             response.Close()
         Catch ex As Exception
-            AddToLog("DeleteTelemetryFile@Network", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("DeleteTelemetryFile@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub DeleteUserFile(ByVal user As String)
@@ -434,7 +375,7 @@ Module Network
                 Main.Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
                 response.Close()
             Catch ex As Exception
-                AddToLog("DeleteUserFile(UserFile)@Network", "Error: " & ex.Message, True)
+                Main.Label_Status.Text = AddToLog("DeleteUserFile(UserFile)@Network", "Error: " & ex.Message, True)
             End Try
             Try
                 Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Users/Commands/[" & user & "]Command.str"), FtpWebRequest)
@@ -444,7 +385,7 @@ Module Network
                 Main.Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
                 response.Close()
             Catch ex As Exception
-                AddToLog("DeleteUserFile(CommandFile)@Network", "Error: " & ex.Message, True)
+                Main.Label_Status.Text = AddToLog("DeleteUserFile(CommandFile)@Network", "Error: " & ex.Message, True)
             End Try
             Try
                 Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Telemetry/telemetry_" & user & ".tlm"), FtpWebRequest)
@@ -454,10 +395,10 @@ Module Network
                 Main.Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
                 response.Close()
             Catch ex As Exception
-                AddToLog("DeleteUserFile(TelemetryFile)@Network", "Error: " & ex.Message, True)
+                Main.Label_Status.Text = AddToLog("DeleteUserFile(TelemetryFile)@Network", "Error: " & ex.Message, True)
             End Try
         Catch ex As Exception
-            AddToLog("DeleteUserFile@Network", "Error: " & ex.Message, True)
+            Main.Label_Status.Text = AddToLog("DeleteUserFile@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module
