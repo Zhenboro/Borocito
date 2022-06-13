@@ -79,6 +79,12 @@ Partial Class Main
         Me.Label_Loading_Panel = New System.Windows.Forms.Label()
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.CheckBox2 = New System.Windows.Forms.CheckBox()
+        Me.ContextMenuPrincipal = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.RecargarTodoToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItem3 = New System.Windows.Forms.ToolStripSeparator()
+        Me.ConfiguracionToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItem4 = New System.Windows.Forms.ToolStripSeparator()
+        Me.SalirToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabControl3.SuspendLayout()
@@ -102,6 +108,7 @@ Partial Class Main
         Me.GroupBox3.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
+        Me.ContextMenuPrincipal.SuspendLayout()
         Me.SuspendLayout()
         '
         'TabControl1
@@ -589,6 +596,7 @@ Partial Class Main
         'PictureBox1
         '
         Me.PictureBox1.BackColor = System.Drawing.Color.Transparent
+        Me.PictureBox1.ContextMenuStrip = Me.ContextMenuPrincipal
         Me.PictureBox1.Image = Global.Control.My.Resources.Resources.Borocito
         Me.PictureBox1.Location = New System.Drawing.Point(12, 12)
         Me.PictureBox1.Name = "PictureBox1"
@@ -680,6 +688,41 @@ Partial Class Main
         Me.CheckBox2.Text = "Modo oscuro"
         Me.CheckBox2.UseVisualStyleBackColor = True
         '
+        'ContextMenuPrincipal
+        '
+        Me.ContextMenuPrincipal.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RecargarTodoToolStripMenuItem, Me.ToolStripMenuItem3, Me.ConfiguracionToolStripMenuItem, Me.ToolStripMenuItem4, Me.SalirToolStripMenuItem})
+        Me.ContextMenuPrincipal.Name = "ContextMenuPrincipal"
+        Me.ContextMenuPrincipal.Size = New System.Drawing.Size(151, 82)
+        '
+        'RecargarTodoToolStripMenuItem
+        '
+        Me.RecargarTodoToolStripMenuItem.Name = "RecargarTodoToolStripMenuItem"
+        Me.RecargarTodoToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
+        Me.RecargarTodoToolStripMenuItem.Text = "Recargar todo"
+        '
+        'ToolStripMenuItem3
+        '
+        Me.ToolStripMenuItem3.Name = "ToolStripMenuItem3"
+        Me.ToolStripMenuItem3.Size = New System.Drawing.Size(147, 6)
+        '
+        'ConfiguracionToolStripMenuItem
+        '
+        Me.ConfiguracionToolStripMenuItem.Enabled = False
+        Me.ConfiguracionToolStripMenuItem.Name = "ConfiguracionToolStripMenuItem"
+        Me.ConfiguracionToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
+        Me.ConfiguracionToolStripMenuItem.Text = "Configuracion"
+        '
+        'ToolStripMenuItem4
+        '
+        Me.ToolStripMenuItem4.Name = "ToolStripMenuItem4"
+        Me.ToolStripMenuItem4.Size = New System.Drawing.Size(147, 6)
+        '
+        'SalirToolStripMenuItem
+        '
+        Me.SalirToolStripMenuItem.Name = "SalirToolStripMenuItem"
+        Me.SalirToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
+        Me.SalirToolStripMenuItem.Text = "Salir"
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -728,6 +771,7 @@ Partial Class Main
         Me.GroupBox3.PerformLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel1.ResumeLayout(False)
+        Me.ContextMenuPrincipal.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -788,4 +832,10 @@ Partial Class Main
     Friend WithEvents EliminarToolStripMenuItem1 As ToolStripMenuItem
     Friend WithEvents ToolStripMenuItem2 As ToolStripSeparator
     Friend WithEvents RecargarToolStripMenuItem1 As ToolStripMenuItem
+    Friend WithEvents ContextMenuPrincipal As ContextMenuStrip
+    Friend WithEvents RecargarTodoToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ToolStripMenuItem3 As ToolStripSeparator
+    Friend WithEvents ConfiguracionToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ToolStripMenuItem4 As ToolStripSeparator
+    Friend WithEvents SalirToolStripMenuItem As ToolStripMenuItem
 End Class

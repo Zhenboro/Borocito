@@ -179,11 +179,11 @@ Module StartUp
             'Indexar la lista de comandos
             IndexTheCommands()
             'Obtener lista usuarios
-            IndexUsersToPanel()
+            Main.IndexUsersToPanel()
             'Obtener lista telemetria
-            IndexTelemetryToPanel()
+            Main.IndexTelemetryToPanel()
             'Obtener lista archivos
-            IndexTelemetryFilesToPanel()
+            Main.IndexTelemetryFilesToPanel()
             'Obtener los archivos de configuracion del servidor
             GetClientConfig()
             GetGlobalConfig()
@@ -242,90 +242,6 @@ Module StartUp
     End Sub
 End Module
 Module Network
-    Sub IndexUsersToPanel()
-        Try
-            Main.ListBox1.Items.Clear()
-            Main.Label_Status.Text = "WAIT: Loading user files from server..."
-            Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Users"), FtpWebRequest)
-            Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
-            dirFtp.Credentials = cr
-            dirFtp.Method = "LIST"
-            dirFtp.Method = WebRequestMethods.Ftp.ListDirectory
-            Dim reader As New StreamReader(dirFtp.GetResponse().GetResponseStream())
-            Dim res As String = reader.ReadToEnd()
-            Dim TXVR As New TextBox
-            TXVR.Text = res.ToString
-            Dim lineas As String() = TXVR.Lines()
-            For Each linea As String In lineas
-                linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
-                linea = linea.Replace(".rtp", Nothing)
-                linea = linea.Replace("userID_", Nothing)
-                Main.ListBox1.Items.Add(linea)
-            Next
-            Main.ListBox1.Items.Remove(".")
-            Main.ListBox1.Items.Remove("..")
-            Main.ListBox1.Items.Remove("Commands")
-            reader.Close()
-            Main.Label_Status.Text = "User files loaded!"
-        Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("IndexUsersToPanel@Network", "Error: " & ex.Message, True)
-        End Try
-    End Sub
-    Sub IndexTelemetryToPanel()
-        Try
-            Main.ListBox2.Items.Clear()
-            Main.Label_Status.Text = "WAIT: Loading telemetry files from server..."
-            Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Telemetry"), FtpWebRequest)
-            Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
-            dirFtp.Credentials = cr
-            dirFtp.Method = "LIST"
-            dirFtp.Method = WebRequestMethods.Ftp.ListDirectory
-            Dim reader As New StreamReader(dirFtp.GetResponse().GetResponseStream())
-            Dim res As String = reader.ReadToEnd()
-            Dim TXVR As New TextBox
-            TXVR.Text = res.ToString
-            Dim lineas As String() = TXVR.Lines()
-            For Each linea As String In lineas
-                linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
-                linea = linea.Replace(".tlm", Nothing)
-                linea = linea.Replace("telemetry_", Nothing)
-                Main.ListBox2.Items.Add(linea)
-            Next
-            Main.ListBox2.Items.Remove(".")
-            Main.ListBox2.Items.Remove("..")
-            Main.ListBox2.Items.Remove("tlmRefresh.php")
-            reader.Close()
-            Main.Label_Status.Text = "Telemetry files loaded!"
-        Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("IndexTelemetryToPanel@Network", "Error: " & ex.Message, True)
-        End Try
-    End Sub
-    Sub IndexTelemetryFilesToPanel()
-        Try
-            Main.ListBox3.Items.Clear()
-            Main.Label_Status.Text = "WAIT: Loading repository files from server..."
-            Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Files"), FtpWebRequest)
-            Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
-            dirFtp.Credentials = cr
-            dirFtp.Method = "LIST"
-            dirFtp.Method = WebRequestMethods.Ftp.ListDirectory
-            Dim reader As New StreamReader(dirFtp.GetResponse().GetResponseStream())
-            Dim res As String = reader.ReadToEnd()
-            Dim TXVR As New TextBox
-            TXVR.Text = res.ToString
-            Dim lineas As String() = TXVR.Lines()
-            For Each linea As String In lineas
-                linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
-                Main.ListBox3.Items.Add(linea)
-            Next
-            Main.ListBox3.Items.Remove(".")
-            Main.ListBox3.Items.Remove("..")
-            reader.Close()
-            Main.Label_Status.Text = "Telemetry repository files loaded!"
-        Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("IndexTelemetryFilesToPanel@Network", "Error: " & ex.Message, True)
-        End Try
-    End Sub
     Sub GetClientConfig()
         Try
             Dim LocalFilePath As String = DIRCommons & "\ClientConfig.ini"
@@ -350,55 +266,6 @@ Module Network
             Main.RichTextBox4.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
         Catch ex As Exception
             Main.Label_Status.Text = AddToLog("GetGlobalConfig@Network", "Error: " & ex.Message, True)
-        End Try
-    End Sub
-    Sub DeleteTelemetryFile(ByVal fileName As String)
-        Try
-            Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Files/" & fileName), FtpWebRequest)
-            request.Method = WebRequestMethods.Ftp.DeleteFile
-            request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
-            Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
-            Main.Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
-            response.Close()
-        Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("DeleteTelemetryFile@Network", "Error: " & ex.Message, True)
-        End Try
-    End Sub
-    Sub DeleteUserFile(ByVal user As String)
-        user = user.Replace("userID_", Nothing)
-        Try
-            Try
-                Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Users/userID_" & user & ".rtp"), FtpWebRequest)
-                request.Method = WebRequestMethods.Ftp.DeleteFile
-                request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
-                Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
-                Main.Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
-                response.Close()
-            Catch ex As Exception
-                Main.Label_Status.Text = AddToLog("DeleteUserFile(UserFile)@Network", "Error: " & ex.Message, True)
-            End Try
-            Try
-                Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Users/Commands/[" & user & "]Command.str"), FtpWebRequest)
-                request.Method = WebRequestMethods.Ftp.DeleteFile
-                request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
-                Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
-                Main.Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
-                response.Close()
-            Catch ex As Exception
-                Main.Label_Status.Text = AddToLog("DeleteUserFile(CommandFile)@Network", "Error: " & ex.Message, True)
-            End Try
-            Try
-                Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Telemetry/telemetry_" & user & ".tlm"), FtpWebRequest)
-                request.Method = WebRequestMethods.Ftp.DeleteFile
-                request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
-                Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
-                Main.Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
-                response.Close()
-            Catch ex As Exception
-                Main.Label_Status.Text = AddToLog("DeleteUserFile(TelemetryFile)@Network", "Error: " & ex.Message, True)
-            End Try
-        Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("DeleteUserFile@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module

