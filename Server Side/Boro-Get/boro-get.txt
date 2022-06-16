@@ -1,0 +1,6 @@
+# boro-get by Zhenboro for Borocito
+[ASSEMBLY]
+Name=boro-get
+Version=1.1.0.0
+[CONFIG]
+RepoList=http://chemic-jug.000webhostapp.com/Borocito/Boro-Get/RepoList.ini
