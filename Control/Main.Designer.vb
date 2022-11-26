@@ -71,6 +71,12 @@ Partial Class Main
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.Label9 = New System.Windows.Forms.Label()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.ContextMenuPrincipal = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.RecargarTodoToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItem3 = New System.Windows.Forms.ToolStripSeparator()
+        Me.ConfiguracionToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItem4 = New System.Windows.Forms.ToolStripSeparator()
+        Me.SalirToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Label3 = New System.Windows.Forms.Label()
@@ -79,12 +85,6 @@ Partial Class Main
         Me.Label_Loading_Panel = New System.Windows.Forms.Label()
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.CheckBox2 = New System.Windows.Forms.CheckBox()
-        Me.ContextMenuPrincipal = New System.Windows.Forms.ContextMenuStrip(Me.components)
-        Me.RecargarTodoToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripMenuItem3 = New System.Windows.Forms.ToolStripSeparator()
-        Me.ConfiguracionToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripMenuItem4 = New System.Windows.Forms.ToolStripSeparator()
-        Me.SalirToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabControl3.SuspendLayout()
@@ -107,8 +107,8 @@ Partial Class Main
         Me.TabPage6.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel1.SuspendLayout()
         Me.ContextMenuPrincipal.SuspendLayout()
+        Me.Panel1.SuspendLayout()
         Me.SuspendLayout()
         '
         'TabControl1
@@ -312,7 +312,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.RichTextBox1.Location = New System.Drawing.Point(173, 32)
         Me.RichTextBox1.Name = "RichTextBox1"
-        Me.RichTextBox1.Size = New System.Drawing.Size(562, 184)
+        Me.RichTextBox1.Size = New System.Drawing.Size(556, 184)
         Me.RichTextBox1.TabIndex = 3
         Me.RichTextBox1.Text = ""
         '
@@ -605,6 +605,41 @@ Partial Class Main
         Me.PictureBox1.TabIndex = 1
         Me.PictureBox1.TabStop = False
         '
+        'ContextMenuPrincipal
+        '
+        Me.ContextMenuPrincipal.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RecargarTodoToolStripMenuItem, Me.ToolStripMenuItem3, Me.ConfiguracionToolStripMenuItem, Me.ToolStripMenuItem4, Me.SalirToolStripMenuItem})
+        Me.ContextMenuPrincipal.Name = "ContextMenuPrincipal"
+        Me.ContextMenuPrincipal.Size = New System.Drawing.Size(151, 82)
+        '
+        'RecargarTodoToolStripMenuItem
+        '
+        Me.RecargarTodoToolStripMenuItem.Name = "RecargarTodoToolStripMenuItem"
+        Me.RecargarTodoToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
+        Me.RecargarTodoToolStripMenuItem.Text = "Recargar todo"
+        '
+        'ToolStripMenuItem3
+        '
+        Me.ToolStripMenuItem3.Name = "ToolStripMenuItem3"
+        Me.ToolStripMenuItem3.Size = New System.Drawing.Size(147, 6)
+        '
+        'ConfiguracionToolStripMenuItem
+        '
+        Me.ConfiguracionToolStripMenuItem.Enabled = False
+        Me.ConfiguracionToolStripMenuItem.Name = "ConfiguracionToolStripMenuItem"
+        Me.ConfiguracionToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
+        Me.ConfiguracionToolStripMenuItem.Text = "Configuracion"
+        '
+        'ToolStripMenuItem4
+        '
+        Me.ToolStripMenuItem4.Name = "ToolStripMenuItem4"
+        Me.ToolStripMenuItem4.Size = New System.Drawing.Size(147, 6)
+        '
+        'SalirToolStripMenuItem
+        '
+        Me.SalirToolStripMenuItem.Name = "SalirToolStripMenuItem"
+        Me.SalirToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
+        Me.SalirToolStripMenuItem.Text = "Salir"
+        '
         'Label1
         '
         Me.Label1.AutoSize = True
@@ -679,6 +714,7 @@ Partial Class Main
         '
         'CheckBox2
         '
+        Me.CheckBox2.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.CheckBox2.AutoSize = True
         Me.CheckBox2.Cursor = System.Windows.Forms.Cursors.Hand
         Me.CheckBox2.Location = New System.Drawing.Point(699, 448)
@@ -687,41 +723,6 @@ Partial Class Main
         Me.CheckBox2.TabIndex = 4
         Me.CheckBox2.Text = "Modo oscuro"
         Me.CheckBox2.UseVisualStyleBackColor = True
-        '
-        'ContextMenuPrincipal
-        '
-        Me.ContextMenuPrincipal.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RecargarTodoToolStripMenuItem, Me.ToolStripMenuItem3, Me.ConfiguracionToolStripMenuItem, Me.ToolStripMenuItem4, Me.SalirToolStripMenuItem})
-        Me.ContextMenuPrincipal.Name = "ContextMenuPrincipal"
-        Me.ContextMenuPrincipal.Size = New System.Drawing.Size(151, 82)
-        '
-        'RecargarTodoToolStripMenuItem
-        '
-        Me.RecargarTodoToolStripMenuItem.Name = "RecargarTodoToolStripMenuItem"
-        Me.RecargarTodoToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
-        Me.RecargarTodoToolStripMenuItem.Text = "Recargar todo"
-        '
-        'ToolStripMenuItem3
-        '
-        Me.ToolStripMenuItem3.Name = "ToolStripMenuItem3"
-        Me.ToolStripMenuItem3.Size = New System.Drawing.Size(147, 6)
-        '
-        'ConfiguracionToolStripMenuItem
-        '
-        Me.ConfiguracionToolStripMenuItem.Enabled = False
-        Me.ConfiguracionToolStripMenuItem.Name = "ConfiguracionToolStripMenuItem"
-        Me.ConfiguracionToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
-        Me.ConfiguracionToolStripMenuItem.Text = "Configuracion"
-        '
-        'ToolStripMenuItem4
-        '
-        Me.ToolStripMenuItem4.Name = "ToolStripMenuItem4"
-        Me.ToolStripMenuItem4.Size = New System.Drawing.Size(147, 6)
-        '
-        'SalirToolStripMenuItem
-        '
-        Me.SalirToolStripMenuItem.Name = "SalirToolStripMenuItem"
-        Me.SalirToolStripMenuItem.Size = New System.Drawing.Size(150, 22)
-        Me.SalirToolStripMenuItem.Text = "Salir"
         '
         'Main
         '
@@ -770,8 +771,8 @@ Partial Class Main
         Me.GroupBox3.ResumeLayout(False)
         Me.GroupBox3.PerformLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel1.ResumeLayout(False)
         Me.ContextMenuPrincipal.ResumeLayout(False)
+        Me.Panel1.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 

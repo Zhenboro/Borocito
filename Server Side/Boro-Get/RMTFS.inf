@@ -3,7 +3,7 @@
 Author=Zhenboro
 From=http://github.com/Zhenboro
 [ASSEMBLY]
-Name=RMTFS
+Name=RMTMIC_Client
 Executable=RMTFS_Client.exe
 Version=1.0.0.0
 Web=http://github.com/Zhenboro/RMTFS

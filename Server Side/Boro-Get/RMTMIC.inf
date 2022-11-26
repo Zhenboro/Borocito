@@ -1,0 +1,13 @@
+# Boro-Get RMTMIC Repo file
+[GENERAL]
+Author=Zhenboro
+From=http://github.com/Zhenboro
+[ASSEMBLY]
+Name=RMTMIC_Client
+Executable=RMTMIC_Client.exe
+Version=1.0.0.0
+Web=https://github.com/Zhenboro/RMTMIC
+[INSTALLER]
+Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/RMTMIC_Client.zip
+Installer=NULL
+InstallFolder=%temp%

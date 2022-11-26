@@ -142,7 +142,9 @@ Public Class Main
     Sub SetCMDStatus(ByVal response As String, ByVal status As String, Optional ByVal ScrollRichBox As Boolean = True)
         Try
             If response <> Nothing Then
+                RichTextBox2.SelectionColor = Color.Lime
                 RichTextBox2.AppendText(response)
+                RichTextBox2.SelectionColor = Color.LimeGreen
             End If
             Label_Status.Text = status
             If ScrollRichBox Then

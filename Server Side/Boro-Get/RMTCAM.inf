@@ -1,0 +1,13 @@
+# Boro-Get RMTCAM Repo file
+[GENERAL]
+Author=Zhenboro
+From=http://github.com/Zhenboro
+[ASSEMBLY]
+Name=RMTCAM_Client
+Executable=RMTCAM_Client.exe
+Version=1.0.0.0
+Web=https://github.com/Zhenboro/RMTCAM
+[INSTALLER]
+Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/RMTCAM_Client.zip
+Installer=NULL
+InstallFolder=%temp%

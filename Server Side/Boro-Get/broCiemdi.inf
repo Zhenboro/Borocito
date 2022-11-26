@@ -1,0 +1,13 @@
+# Boro-Get broCiemdi Repo file
+[GENERAL]
+Author=Zhenboro
+From=http://github.com/Zhenboro
+[ASSEMBLY]
+Name=broCiemdi
+Executable=broCiemdi.exe
+Version=0.1.0.0
+Web=https://github.com/Zhenboro/borocito-components
+[INSTALLER]
+Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broCiemdi.zip
+Installer=NULL
+InstallFolder=%temp%

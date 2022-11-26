@@ -3,7 +3,7 @@
 Author=Zhenboro
 From=http://github.com/Zhenboro
 [ASSEMBLY]
-Name=RMTDSK
+Name=RMTDSK_Client
 Executable=RMTDSK_Client.exe
 Version=1.1.0.0
 Web=http://github.com/Zhenboro/RMTDSK
