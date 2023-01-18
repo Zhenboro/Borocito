@@ -31,7 +31,7 @@
             Else
                 AddToLog("SessionEvent", "Something happend!", True)
             End If
-            SendTelemetry()
+            Network.Telemetry.SendTelemetry()
         Catch ex As Exception
             AddToLog("SessionEvent@Init", "Error: " & ex.Message, True)
         End Try
