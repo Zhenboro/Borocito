@@ -1,6 +1,5 @@
 ﻿Public Class Main
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        AddToLog("Main", "Updater iniciado!", True)
         parameters = Command()
         ReadParameters()
         Init()

@@ -12,7 +12,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("Zhenboro")>
 <Assembly: AssemblyProduct("BoroUpdater")>
-<Assembly: AssemblyCopyright("Copyright © 2022 Zhenboro.")>
+<Assembly: AssemblyCopyright("Copyright © 2023 Zhenboro.")>
 <Assembly: AssemblyTrademark("Zhenboro")>
 
 <Assembly: ComVisible(False)>
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' mediante el carácter '*', como se muestra a continuación:
 ' <Assembly: AssemblyVersion("1.0.*")>
 
-<Assembly: AssemblyVersion("0.2.2.0")>
-<Assembly: AssemblyFileVersion("09.05.20.22")>
+<Assembly: AssemblyVersion("0.2.3.0")>
+<Assembly: AssemblyFileVersion("22.01.20.23")>

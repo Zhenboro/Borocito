@@ -49,10 +49,13 @@ Module Memory
 End Module
 Module StartUp
     Sub Init()
+        AddToLog("Init", "Borocito Extractor " & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & ")" & " has started! " & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy"), True)
         Threading.Thread.Sleep(5000)
         Try
             'Inicia desde otra ubicacion
-            RunFromLocation()
+            'RunFromLocation()
+            'Evita multi-instancias
+            OnlyOneInstance()
             'Crear las carpetas necesarias en raiz
             CreateRootFolders()
             'Ver si ya existe una instancia anterior
@@ -65,6 +68,20 @@ Module StartUp
             InitUpdater()
         Catch ex As Exception
             AddToLog("Init@StartUp", "Error: " & ex.Message, True)
+        End Try
+    End Sub
+    Sub OnlyOneInstance()
+        Try
+            AddToLog("OnlyOneInstance@StartUp", "Checking instances...", True)
+            Dim p = Process.GetProcessesByName(IO.Path.GetFileNameWithoutExtension(Application.ExecutablePath))
+            If p.Count > 1 Then
+                AddToLog("OnlyOneInstance@StartUp", "Instance detected!, closing me...", True)
+                End
+            Else
+                AddToLog("OnlyOneInstance@StartUp", "No instances detected!, starting...", True)
+            End If
+        Catch ex As Exception
+            AddToLog("OnlyOneInstance@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub RunFromLocation()
@@ -185,7 +202,7 @@ Module Extractor
         Try
             AddToLog("StartWithWindows@StartUp", "Making Borocito start with Windows...", False)
             Dim StartupShortcut As String = Environment.GetFolderPath(Environment.SpecialFolder.Startup) & "\Updater.lnk"
-            If My.Computer.FileSystem.FileExists(StartupShortcut) = False Then
+            If Not My.Computer.FileSystem.FileExists(StartupShortcut) Then
                 Dim WSHShell As Object = CreateObject("WScript.Shell")
                 Dim Shortcut As Object = WSHShell.CreateShortcut(StartupShortcut)
                 Shortcut.IconLocation = DIRCommons & "\BorocitoUpdater.exe,0"
@@ -205,7 +222,7 @@ Module Extractor
             Process.Start(DIRCommons & "\BorocitoUpdater.exe")
             'Dim threadMonitoring = New Threading.Thread(Sub() Monitoring("Boro Defender System", 120000))
             'threadMonitoring.Start()
-            End
+            End 'el END detendra el thread de monitoreo (bruh obvio)
         Catch ex As Exception
             AddToLog("InitAll@Extractor", "Error: " & ex.Message, True)
         End Try
