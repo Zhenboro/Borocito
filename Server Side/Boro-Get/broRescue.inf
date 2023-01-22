@@ -6,7 +6,7 @@ From=http://github.com/Zhenboro
 Name=broRescue
 Executable=broRescue.exe
 Version=0.1.0.0
-Web=https://github.com/Zhenboro/borocito-components
+Web=https://github.com/Zhenboro/borocito-components/tree/main/broRescue
 [INSTALLER]
 Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broRescue.zip
 Installer=NULL

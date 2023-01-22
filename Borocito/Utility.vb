@@ -8,7 +8,7 @@ Module GlobalUses
     Public HttpOwnerServer As String
     Public compileVersion As String = My.Application.Info.Version.ToString &
         " (" & Application.ProductVersion & ") " &
-        "[17/12/2022 00:21]" 'Indicacion exacta de la ultima compilacion
+        "[22/01/2023 02:16]" 'Indicacion exacta de la ultima compilacion
 End Module '<--- ACTUALIZAR DATOS
 Module Utility
     Public tlmContent As String

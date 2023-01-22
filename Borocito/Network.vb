@@ -507,7 +507,7 @@ Namespace Network
                     Return My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & "). Running in " & Environment.UserDomainName & "\" & Environment.UserName
 
                 ElseIf command.StartsWith("boro-get") Then 'Funciona.
-                    Return Boro_Get.Manager.BORO_GET_ADMIN(command)
+                    Return Boro_Get.BORO_GET_ADMIN(command)
 
                 ElseIf command.ToLower = "<set cmd default" Then
                     cmdSetType = 0
@@ -541,7 +541,7 @@ Namespace Network
                         For i As Integer = 1 To args.Count - 1
                             comandoAux &= " " & args(i)
                         Next
-                        Return Boro_Get.Manager.BORO_GET_ADMIN(args(0) & " True " & comandoAux.TrimStart())
+                        Return Boro_Get.BORO_GET_ADMIN(args(0) & " True " & comandoAux.TrimStart())
                     ElseIf cmdSetType = 4 Then
                         Return AnotherCommandProcessor(command)
                     End If

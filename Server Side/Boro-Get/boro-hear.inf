@@ -6,7 +6,7 @@ From=http://github.com/Zhenboro
 Name=boro-hear
 Executable=boro-hear.exe
 Version=0.1.0.0
-Web=https://github.com/Zhenboro/borocito-components
+Web=https://github.com/Zhenboro/borocito-components/tree/main/boro-hear
 [INSTALLER]
 Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/boro-hear.zip
 Installer=NULL
