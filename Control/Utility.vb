@@ -101,7 +101,7 @@ Module Settings
                 End If
             End If
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("SetData@Settings", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("SetData@Settings", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub LoadRegedit()
@@ -118,7 +118,7 @@ Module Settings
                 LoadPortable()
             End If
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("LoadRegedit@Settings", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("LoadRegedit@Settings", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub SaveRegedit()
@@ -133,7 +133,7 @@ Module Settings
                 regKey.SetValue("CommandRefreshDelay", CommandRefreshDelay, RegistryValueKind.String)
             End If
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("Init@Settings", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("Init@Settings", "Error: " & ex.Message, True)
         End Try
         LoadRegedit()
     End Sub
@@ -151,7 +151,7 @@ Module Settings
             DIRCommons = Application.StartupPath & "\" & My.Application.Info.AssemblyName
             DIRTemp = DIRCommons
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("LoadPortable@Settings", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("LoadPortable@Settings", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module
@@ -185,15 +185,15 @@ Module StartUp
             'Obtener lista archivos
             Main.IndexTelemetryFilesToPanel()
             'Obtener los archivos de configuracion del servidor
-            GetClientConfig()
-            GetGlobalConfig()
+            GetGlobalsConfig()
+            GetBoroGetConfig()
             'Aplicando variables
-            Main.Label2.Text = "Conectado a: " & OwnerServer
-            Main.Label3.Text = My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " for " & GetIniValue("Assembly", "Assembly", DIRCommons & "\ClientConfig.ini") & " v" & My.Application.Info.Version.ToString & " (" & GetIniValue("Assembly", "Version", DIRCommons & "\ClientConfig.ini") & ")"
-            Main.TextBox2.Text = OwnerServer
-            Main.Panel1.Visible = False
+            Main.Connected_Label.Text = "Conectado a: " & OwnerServer
+            Main.Version_Label.Text = My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " for " & GetIniValue("Assembly", "Name", DIRCommons & "\Globals.ini") & " v" & My.Application.Info.Version.ToString & " (" & GetIniValue("Assembly", "Version", DIRCommons & "\Globals.ini") & ")"
+            Main.Main_Inject_TextBox.Text = OwnerServer
+            Main.Busy_Panel.Visible = False
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("Init@StartUp", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("Init@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Function AlreadyExist() As Boolean
@@ -204,25 +204,26 @@ Module StartUp
                 Return True
             End If
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("Init@StartUp", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("Init@StartUp", "Error: " & ex.Message, True)
+            Return False
         End Try
     End Function
     Sub IndexTheCommands()
         Try
-            Main.ComboBox1.AutoCompleteCustomSource.Clear()
-            Main.ComboBox1.Items.Clear()
+            Main.Main_Users_Command_ComboBox.AutoCompleteCustomSource.Clear()
+            Main.Main_Users_Command_ComboBox.Items.Clear()
             If My.Computer.FileSystem.FileExists(DIRCommons & "\CommandList.txt") Then
                 My.Computer.FileSystem.DeleteFile(DIRCommons & "\CommandList.txt")
             End If
             My.Computer.FileSystem.WriteAllText(DIRCommons & "\CommandList.txt", My.Resources.Comandos, False)
             For Each linea As String In IO.File.ReadLines(DIRCommons & "\CommandList.txt")
                 If linea.StartsWith("#") = False Then
-                    Main.ComboBox1.AutoCompleteCustomSource.Add(linea)
-                    Main.ComboBox1.Items.Add(linea)
+                    Main.Main_Users_Command_ComboBox.AutoCompleteCustomSource.Add(linea)
+                    Main.Main_Users_Command_ComboBox.Items.Add(linea)
                 End If
             Next
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("IndexTheCommands@StartUp", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("IndexTheCommands@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub ReadParameters(ByVal parametros As String)
@@ -237,35 +238,46 @@ Module StartUp
 
             End If
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("ReadParameters@StartUp", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("ReadParameters@StartUp", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module
 Module Network
-    Sub GetClientConfig()
+    Sub GetGlobalsConfig()
         Try
-            Dim LocalFilePath As String = DIRCommons & "\ClientConfig.ini"
-            Dim RemoteFilePath As String = HttpOwnerServer & "/Client.ini"
+            Dim LocalFilePath As String = DIRCommons & "\Globals.ini"
+            Dim RemoteFilePath As String = HttpOwnerServer & "/Globals.ini"
             If My.Computer.FileSystem.FileExists(LocalFilePath) Then
                 My.Computer.FileSystem.DeleteFile(LocalFilePath)
             End If
             My.Computer.Network.DownloadFile(RemoteFilePath, LocalFilePath)
-            Main.RichTextBox5.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
+            Main.Main_General_Globals_RichTextBox.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("GetClientConfig@Network", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("GetGlobalsConfig@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
-    Sub GetGlobalConfig()
+    Sub GetBoroGetConfig()
         Try
-            Dim LocalFilePath As String = DIRCommons & "\GlobalSettings.ini"
-            Dim RemoteFilePath As String = HttpOwnerServer & "/GlobalSettings.ini"
+            Dim LocalFilePath As String = DIRCommons & "\BoroGet_config.ini"
+            Dim RemoteFilePath As String = HttpOwnerServer & "/Boro-Get/config.ini"
             If My.Computer.FileSystem.FileExists(LocalFilePath) Then
                 My.Computer.FileSystem.DeleteFile(LocalFilePath)
             End If
             My.Computer.Network.DownloadFile(RemoteFilePath, LocalFilePath)
-            Main.RichTextBox4.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
+            Main.Main_General_BoroGet_Config_RichTextBox.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
         Catch ex As Exception
-            Main.Label_Status.Text = AddToLog("GetGlobalConfig@Network", "Error: " & ex.Message, True)
+            Main.Status_Label.Text = AddToLog("GetBoroGetConfig(config)@Network", "Error: " & ex.Message, True)
+        End Try
+        Try
+            Dim LocalFilePath As String = DIRCommons & "\BoroGet_Repositories.ini"
+            Dim RemoteFilePath As String = HttpOwnerServer & "/Boro-Get/Repositories.ini"
+            If My.Computer.FileSystem.FileExists(LocalFilePath) Then
+                My.Computer.FileSystem.DeleteFile(LocalFilePath)
+            End If
+            My.Computer.Network.DownloadFile(RemoteFilePath, LocalFilePath)
+            Main.Main_General_BoroGet_Repositories_RichTextBox.Text = My.Computer.FileSystem.ReadAllText(LocalFilePath)
+        Catch ex As Exception
+            Main.Status_Label.Text = AddToLog("GetBoroGetConfig(Repositories)@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
 End Module

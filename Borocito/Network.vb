@@ -97,6 +97,7 @@ Namespace Network
             Try
                 AddToLog("Network", "Sending telemetry...", False)
                 Dim reportContent As String = tlmContent
+                reportContent = reportContent.Replace("&", "(AndSymb)")
                 Dim request As WebRequest = WebRequest.Create(HttpOwnerServer & "/Telemetry/tlmRefresh.php")
                 request.Method = "POST"
                 Dim postData As String = "ident=" & UID & "&log=" & reportContent
@@ -132,14 +133,14 @@ Namespace Network
                 If StartIt Then
                     'Se inicia
                     If IsrefreshTelemetryThreadRunning Then
-                        refreshTelemetryThread.Resume()
+                        'refreshTelemetryThread.Resume()
                     Else
                         refreshTelemetryThread.Start()
                         IsrefreshTelemetryThreadRunning = True
                     End If
                 Else
                     'Se detiene
-                    refreshTelemetryThread.Suspend()
+                    'refreshTelemetryThread.Suspend()
                 End If
             Catch ex As Exception
                 AddToLog("StartRefreshTelemetry@Network", "Error: " & ex.Message, True)
@@ -247,14 +248,14 @@ Namespace Network
                     'Activo
                     Boro_Comm.StartServer() 'LLAMA A BORO-COMM A INICIAR LA ESCUCHA TCP/ip
                     If IsCommandReaderThreadRunning Then
-                        ThreadReadCMDServer.Resume()
+                        'ThreadReadCMDServer.Resume()
                     Else
                         ThreadReadCMDServer.Start()
                         IsCommandReaderThreadRunning = True
                     End If
                 Else
                     'Inactivo
-                    ThreadReadCMDServer.Suspend()
+                    'ThreadReadCMDServer.Suspend()
                 End If
             Catch ex As Exception
                 AddToLog("CommandListenerManager@Network", "Error: " & ex.Message, True)

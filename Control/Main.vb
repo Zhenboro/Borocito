@@ -5,10 +5,11 @@ Public Class Main
     Dim ThreadReadCMDServer As Threading.Thread = New Threading.Thread(New Threading.ThreadStart(AddressOf ReadCommandFile))
     Dim isMonoChannel As Boolean = True
     Dim isCommandFileBusy As Boolean = False
+
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CheckForIllegalCrossThreadCalls = False
-        TabPage5.Enabled = False
-        Panel1.Dock = DockStyle.Fill
+        Main_Users_Command_TabPage.Enabled = False
+        Busy_Panel.Dock = DockStyle.Fill
         parameters = Command()
         ReadParameters(parameters)
     End Sub
@@ -24,13 +25,13 @@ Public Class Main
     End Sub
     Sub LoadIt()
         Try
-            Panel1.Visible = True
+            Busy_Panel.Visible = True
             LoaderTimer.Stop()
             LoaderTimer.Enabled = False
             Init()
-            CheckBox2.Checked = isThemeActive
+            Theme_CheckBox.Checked = isThemeActive
         Catch ex As Exception
-            Label_Status.Text = AddToLog("LoadIt@Main", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("LoadIt@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -39,7 +40,7 @@ Public Class Main
     End Sub
     Private Sub Main_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         If e.KeyCode = Keys.F5 Then
-            Label2.Text = "Reloading..."
+            Connected_Label.Text = "Reloading..."
             ResetIt()
             Init()
         End If
@@ -47,94 +48,69 @@ Public Class Main
 
     Sub ResetIt()
         Try
-            ListBox1.Items.Clear()
-            ListBox2.Items.Clear()
-            ListBox3.Items.Clear()
+            Main_Users_User_ListBox.Items.Clear()
+            Main_Telemetry_Telemetry_ListBox.Items.Clear()
+            Main_Telemetry_Files_ListBox.Items.Clear()
         Catch ex As Exception
-            Label_Status.Text = AddToLog("ResetIt@Main", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("ResetIt@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
 
-    Private Sub ListBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ListBox1.SelectedIndexChanged
-        SetTarget(ListBox1.SelectedItem)
+    Private Sub Main_Users_User_ListBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Main_Users_User_ListBox.SelectedIndexChanged
+        SetTarget(Main_Users_User_ListBox.SelectedItem)
         If Not isMultiSelectMode Then
-            RichTextBox2.SelectionColor = Color.Yellow
-            RichTextBox2.AppendText(vbCrLf & Label4.Text)
+            Main_Users_Command_RichTextBox.SelectionColor = Color.Yellow
+            Main_Users_Command_RichTextBox.AppendText(vbCrLf & Main_Users_Label.Text)
             If isThemeActive Then
-                RichTextBox2.SelectionColor = Color.LimeGreen
+                Main_Users_Command_RichTextBox.SelectionColor = Color.LimeGreen
             Else
-                RichTextBox2.SelectionColor = Color.Black
+                Main_Users_Command_RichTextBox.SelectionColor = Color.Black
             End If
         End If
     End Sub
-    Private Sub ListBox1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox1.MouseDoubleClick
-        SetTarget(ListBox1.SelectedItem)
+    Private Sub Main_Users_User_ListBox_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Main_Users_User_ListBox.MouseDoubleClick
+        SetTarget(Main_Users_User_ListBox.SelectedItem)
         Dim threadGetUserInfo As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf GetUserInfo))
         threadGetUserInfo.Start()
         'GetUserInfo()
     End Sub
-    Private Sub ListBox2_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox2.MouseDoubleClick
+    Private Sub Main_Telemetry_Telemetry_ListBox_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Main_Telemetry_Telemetry_ListBox.MouseDoubleClick
         Dim threadGetTelemetryInfo As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf GetTelemetryInfo))
-        threadGetTelemetryInfo.Start(ListBox2.SelectedItem)
+        threadGetTelemetryInfo.Start(Main_Telemetry_Telemetry_ListBox.SelectedItem)
         'GetTelemetryInfo(ListBox2.SelectedItem)
     End Sub
-    Private Sub ListBox3_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles ListBox3.MouseDoubleClick
+    Private Sub Main_Telemetry_Files_ListBox_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Main_Telemetry_Files_ListBox.MouseDoubleClick
         Dim threadGetTelemetryFile As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf GetTelemetryFile))
-        threadGetTelemetryFile.Start(ListBox3.SelectedItem)
+        threadGetTelemetryFile.Start(Main_Telemetry_Files_ListBox.SelectedItem)
         'GetTelemetryFile(ListBox3.SelectedItem)
     End Sub
-    Private Sub RecargarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem.Click
-        Dim threadIndexTelemetryFilesToPanel As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf IndexTelemetryFilesToPanel))
-        threadIndexTelemetryFilesToPanel.Start()
-        'IndexTelemetryFilesToPanel()
-    End Sub
-    Private Sub EliminarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem.Click
-        Dim threadDeleteTelemetryFile As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf DeleteTelemetryFile))
-        threadDeleteTelemetryFile.Start(ListBox3.SelectedItem)
-        'DeleteTelemetryFile(ListBox3.SelectedItem)
-    End Sub
-    Private Sub Label_Status_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Label_Status.MouseDoubleClick
-        Label_Status.Text = Nothing
-        LastUserResponse = Nothing
-    End Sub
-    Private Sub RecargarToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem1.Click
-        Dim threadIndexUsersToPanel As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf IndexUsersToPanel))
-        threadIndexUsersToPanel.Start()
-        'IndexUsersToPanel()
-    End Sub
-    Private Sub EliminarToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem1.Click
-        If MessageBox.Show("Esta accion eliminara todos los archivos relacionados a este usuario." & vbCrLf & "¿Eliminar el usuario" & ListBox1.SelectedItem & "?", "Eliminar usuario", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-            Dim threadDeleteUserFile As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf DeleteUserFile))
-            threadDeleteUserFile.Start(ListBox1.SelectedItem)
-            'DeleteUserFile(ListBox1.SelectedItem)
-        End If
-    End Sub
-    Private Sub CheckBox2_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox2.CheckedChanged
-        ThemeManager(CheckBox2.Checked)
-        isThemeActive = CheckBox2.Checked
+
+    Private Sub Theme_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles Theme_CheckBox.CheckedChanged
+        ThemeManager(Theme_CheckBox.Checked)
+        isThemeActive = Theme_CheckBox.Checked
         SaveRegedit()
     End Sub
-    Private Sub ListBox1_KeyDown(sender As Object, e As KeyEventArgs) Handles ListBox1.KeyDown
+    Private Sub Main_Users_User_ListBox_KeyDown(sender As Object, e As KeyEventArgs) Handles Main_Users_User_ListBox.KeyDown
         If e.KeyCode = Keys.ShiftKey Then
             If isMultiSelectMode Then
-                ListBox1.SelectionMode = SelectionMode.One
+                Main_Users_User_ListBox.SelectionMode = SelectionMode.One
                 isMultiSelectMode = False
             Else
-                ListBox1.SelectionMode = SelectionMode.MultiSimple
+                Main_Users_User_ListBox.SelectionMode = SelectionMode.MultiSimple
                 isMultiSelectMode = True
             End If
         End If
     End Sub
-    Private Sub ComboBox1_TextChanged(sender As Object, e As EventArgs) Handles ComboBox1.TextChanged
-        If ComboBox1.Text.ToLower Like "*@multichannel*" Then
-            RichTextBox2.AppendText(vbCrLf & "Multi channel activated!" & vbCrLf)
+    Private Sub Main_Users_Command_ComboBox_TextChanged(sender As Object, e As EventArgs) Handles Main_Users_Command_ComboBox.TextChanged
+        If Main_Users_Command_ComboBox.Text.ToLower Like "*@multichannel*" Then
+            Main_Users_Command_RichTextBox.AppendText(vbCrLf & "Multi channel activated!" & vbCrLf)
             isMonoChannel = False
-            ComboBox1.Text = Nothing
-        ElseIf ComboBox1.Text.ToLower Like "*@monochannel*" Then
-            RichTextBox2.AppendText(vbCrLf & "Mono channel activated!" & vbCrLf)
+            Main_Users_Command_ComboBox.Text = Nothing
+        ElseIf Main_Users_Command_ComboBox.Text.ToLower Like "*@monochannel*" Then
+            Main_Users_Command_RichTextBox.AppendText(vbCrLf & "Mono channel activated!" & vbCrLf)
             isMonoChannel = True
-            ComboBox1.Text = Nothing
-        ElseIf ComboBox1.Text.ToLower Like "*@exit*" Then
+            Main_Users_Command_ComboBox.Text = Nothing
+        ElseIf Main_Users_Command_ComboBox.Text.ToLower Like "*@exit*" Then
             End
         End If
     End Sub
@@ -142,57 +118,57 @@ Public Class Main
     Sub SetCMDStatus(ByVal response As String, ByVal status As String, Optional ByVal ScrollRichBox As Boolean = True)
         Try
             If response <> Nothing Then
-                RichTextBox2.SelectionColor = Color.Lime
-                RichTextBox2.AppendText(response)
-                RichTextBox2.SelectionColor = Color.LimeGreen
+                Main_Users_Command_RichTextBox.SelectionColor = Color.Lime
+                Main_Users_Command_RichTextBox.AppendText(response)
+                Main_Users_Command_RichTextBox.SelectionColor = Color.LimeGreen
             End If
-            Label_Status.Text = status
+            Status_Label.Text = status
             If ScrollRichBox Then
-                RichTextBox2.ScrollToCaret()
+                Main_Users_Command_RichTextBox.ScrollToCaret()
             End If
         Catch ex As Exception
-            Label_Status.Text = AddToLog("SetCMDStatus@Main", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("SetCMDStatus@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub SetTarget(ByVal userValue As String)
         Try
             If isMultiSelectMode Then
-                Label4.Text = "Target: <multiselect>"
-                TabPage5.Enabled = True
+                Main_Users_Label.Text = "Target: <multiselect>"
+                Main_Users_Command_TabPage.Enabled = True
             Else
-                Label4.Text = "Target: " & userValue
+                Main_Users_Label.Text = "Target: " & userValue
                 userTarget = userValue
                 userIDTarget = userTarget.Replace("userID_", Nothing)
                 userIDTarget = userIDTarget.Replace("telemetry_", Nothing)
-                TabPage5.Enabled = True
+                Main_Users_Command_TabPage.Enabled = True
             End If
         Catch ex As Exception
-            Label_Status.Text = AddToLog("SetTarget@Main", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("SetTarget@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
 
-    Private Sub ComboBox1_KeyDown(sender As Object, e As KeyEventArgs) Handles ComboBox1.KeyDown
+    Private Sub Main_Users_Command_ComboBox_KeyDown(sender As Object, e As KeyEventArgs) Handles Main_Users_Command_ComboBox.KeyDown
         If e.KeyCode = Keys.Enter Then
-            If ComboBox1.Text <> Nothing Then
+            If Main_Users_Command_ComboBox.Text <> Nothing Then
                 If isMultiSelectMode Then
-                    For Each usuario As String In ListBox1.SelectedItems
-                        SendCommandFile(usuario, ComboBox1.Text)
+                    For Each usuario As String In Main_Users_User_ListBox.SelectedItems
+                        SendCommandFile(usuario, Main_Users_Command_ComboBox.Text)
                     Next
-                    RichTextBox2.AppendText(vbCrLf & "Server: Commands Sended! (" & ComboBox1.Text & ") to " & ListBox1.SelectedItems.Count & " users")
+                    Main_Users_Command_RichTextBox.AppendText(vbCrLf & "Server: Commands Sended! (" & Main_Users_Command_ComboBox.Text & ") to " & Main_Users_User_ListBox.SelectedItems.Count & " users")
                 Else
-                    SendCommandFile(userIDTarget, ComboBox1.Text)
+                    SendCommandFile(userIDTarget, Main_Users_Command_ComboBox.Text)
                 End If
-                Label_Status.Text = Nothing
-                ComboBox1.Text = Nothing
+                Status_Label.Text = Nothing
+                Main_Users_Command_ComboBox.Text = Nothing
                 If IsThreadReadCMDServerRunning = False Then
-                    Label_Status.Text = "CMD Response thread started!"
+                    Status_Label.Text = "CMD Response thread started!"
                     ThreadReadCMDServer.Start()
                     IsThreadReadCMDServerRunning = True
                 End If
             End If
         ElseIf e.KeyCode = Keys.ControlKey Then
             If IsThreadReadCMDServerRunning = False Then
-                Label_Status.Text = "CMD Response thread started!"
+                Status_Label.Text = "CMD Response thread started!"
                 ThreadReadCMDServer.Start()
                 IsThreadReadCMDServerRunning = True
             End If
@@ -231,13 +207,13 @@ Public Class Main
                     End If
                 End If
             Catch ex As Exception
-                Label_Status.Text = AddToLog("ReadCommandFile@Network", "Error: " & ex.Message, True)
+                Status_Label.Text = AddToLog("ReadCommandFile@Network", "Error: " & ex.Message, True)
             End Try
         End While
     End Sub
     Sub SendCommandFile(ByVal user As String, ByVal command As String)
         isCommandFileBusy = True
-        Label_Status.Text = "Sending command..."
+        Status_Label.Text = "Sending command..."
         user = user.Replace("userID_", Nothing)
         user = user.Replace(".rtp", Nothing)
         userIDTarget = user
@@ -259,12 +235,12 @@ Public Class Main
                                                     vbCrLf & "[Response]", False)
             My.Computer.Network.UploadFile(DIRCommons & "\userCommand.str", HostOwnerServer & "/Users/Commands/[" & user & "]Command.str", HostOwnerServerUser, HostOwnerServerPassword)
             If Not isMultiSelectMode Then
-                RichTextBox2.AppendText(vbCrLf & "Server: Command Sended! (" & command & ")")
+                Main_Users_Command_RichTextBox.AppendText(vbCrLf & "Server: Command Sended! (" & command & ")")
             End If
             LastUserResponse = Nothing
-            RichTextBox2.ScrollToCaret()
+            Main_Users_Command_RichTextBox.ScrollToCaret()
         Catch ex As Exception
-            Label_Status.Text = AddToLog("SendCommandFile@Main", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("SendCommandFile@Main", "Error: " & ex.Message, True)
         End Try
         isCommandFileBusy = False
     End Sub
@@ -272,7 +248,7 @@ Public Class Main
         Dim fichero As New System.IO.FileInfo(nombreFichero)
         LeerFicheroDesdeLinea = Nothing
         If fichero.Exists Then
-            Dim sr As System.IO.StreamReader
+            Dim sr As System.IO.StreamReader = Nothing
             Dim lineaActual As Integer = 1
             Try
                 sr = New System.IO.StreamReader(fichero.FullName)
@@ -282,7 +258,7 @@ Public Class Main
                 End While
                 LeerFicheroDesdeLinea = sr.ReadToEnd
             Catch ex As Exception
-                RichTextBox2.AppendText(vbCrLf & "Error: " & ex.Message)
+                Main_Users_Command_RichTextBox.AppendText(vbCrLf & "Error: " & ex.Message)
                 Console.WriteLine("[LeerFicheroDesdeLinea@Main]Error: " & ex.Message)
             Finally
                 If sr IsNot Nothing Then
@@ -293,7 +269,7 @@ Public Class Main
         End If
     End Function
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Sub Main_Inject_Button_Click(sender As Object, e As EventArgs) Handles Main_Inject_Button.Click
         Dim injectableOpener As New OpenFileDialog
         injectableOpener.Filter = "All file types|*.*"
         injectableOpener.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
@@ -306,8 +282,8 @@ Public Class Main
             injectableSaver.Title = "Guardar ejecutable inyectado..."
             injectableSaver.FileName = "Extractor"
             If injectableSaver.ShowDialog() = DialogResult.OK Then
-                If TextBox2.Text <> Nothing Then
-                    PutInject(TextBox2.Text, injectableOpener.FileName, injectableSaver.FileName)
+                If Main_Inject_TextBox.Text <> Nothing Then
+                    PutInject(Main_Inject_TextBox.Text, injectableOpener.FileName, injectableSaver.FileName)
                 Else
                     If MessageBox.Show("No ha ingresado un servidor para inyectar." & vbCrLf & "¿Desea usar el servidor actual?", "Injector", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                         PutInject(OwnerServer, injectableOpener.FileName, injectableSaver.FileName)
@@ -316,123 +292,54 @@ Public Class Main
             End If
         End If
     End Sub
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+    Private Sub Main_General_Globals_Button_Click(sender As Object, e As EventArgs) Handles Main_General_Globals_Button.Click
         Try
-            Dim LocalFilePath As String = DIRCommons & "\GlobalSettings.ini"
-            Dim RemoteFilePath As String = HttpOwnerServer & "/GlobalSettings.ini"
+            Dim LocalFilePath As String = DIRCommons & "\Globals.ini"
+            Dim RemoteFilePath As String = HostOwnerServer & "/Globals.ini"
             If My.Computer.FileSystem.FileExists(LocalFilePath) Then
                 My.Computer.FileSystem.DeleteFile(LocalFilePath)
             End If
-            My.Computer.FileSystem.WriteAllText(LocalFilePath, RichTextBox4.Text, False)
+            My.Computer.FileSystem.WriteAllText(LocalFilePath, Main_General_Globals_RichTextBox.Text, False)
             My.Computer.Network.UploadFile(LocalFilePath, RemoteFilePath, HostOwnerServerUser, HostOwnerServerPassword)
-            MsgBox("Global Settings aplicado.", MsgBoxStyle.Information, "Configuracion Servidor")
+            MsgBox("Globals aplicado.", MsgBoxStyle.Information, "Configuracion Servidor")
         Catch ex As Exception
-            Label_Status.Text = AddToLog("SendGlobalSettings@Main", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("SendGlobalsSettings@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+    Private Sub Main_General_BoroGet_Config_Button_Click(sender As Object, e As EventArgs) Handles Main_General_BoroGet_Config_Button.Click
         Try
-            Dim LocalFilePath As String = DIRCommons & "\ClientConfig.ini"
-            Dim RemoteFilePath As String = HostOwnerServer & "/Client.ini"
+            Dim LocalFilePath As String = DIRCommons & "\BoroGet_config.ini"
+            Dim RemoteFilePath As String = HostOwnerServer & "/Boro-Get/config.ini"
             If My.Computer.FileSystem.FileExists(LocalFilePath) Then
                 My.Computer.FileSystem.DeleteFile(LocalFilePath)
             End If
-            My.Computer.FileSystem.WriteAllText(LocalFilePath, RichTextBox5.Text, False)
+            My.Computer.FileSystem.WriteAllText(LocalFilePath, Main_General_BoroGet_Config_RichTextBox.Text, False)
             My.Computer.Network.UploadFile(LocalFilePath, RemoteFilePath, HostOwnerServerUser, HostOwnerServerPassword)
-            MsgBox("Client Settings aplicado.", MsgBoxStyle.Information, "Configuracion Servidor")
+            MsgBox("Boro-Get Configuration aplicado.", MsgBoxStyle.Information, "Configuracion Servidor Boro-Get")
         Catch ex As Exception
-            Label_Status.Text = AddToLog("SendClientSettings@Main", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("SendBoroGet(config)Settings@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
-
-    Sub ThemeManager(ByVal applyTheme As Boolean)
+    Private Sub Main_General_BoroGet_Repositories_Button_Click(sender As Object, e As EventArgs) Handles Main_General_BoroGet_Repositories_Button.Click
         Try
-            If applyTheme Then
-                'Aplicar thema
-                Me.BackColor = Color.FromArgb(50, 50, 50)
-                Me.BackColor = Color.Black
-                Me.ForeColor = Color.LimeGreen
-            Else
-                'Desaplicar tema
-                Me.BackColor = DefaultBackColor
-                Me.ForeColor = DefaultForeColor
+            Dim LocalFilePath As String = DIRCommons & "\BoroGet_Repositories.ini"
+            Dim RemoteFilePath As String = HostOwnerServer & "/Boro-Get/Repositories.ini"
+            If My.Computer.FileSystem.FileExists(LocalFilePath) Then
+                My.Computer.FileSystem.DeleteFile(LocalFilePath)
             End If
-
-            For Each pagina As TabPage In TabControl1.Controls
-                pagina.BackColor = Me.BackColor
-                pagina.ForeColor = Me.ForeColor
-            Next
-
-            For Each pagina As TabPage In TabControl2.Controls
-                pagina.BackColor = Me.BackColor
-                pagina.ForeColor = Me.ForeColor
-            Next
-
-            For Each pagina As TabPage In TabControl3.Controls
-                pagina.BackColor = Me.BackColor
-                pagina.ForeColor = Me.ForeColor
-            Next
-
-            For Each pagina As TabPage In TabControl4.Controls
-                pagina.BackColor = Me.BackColor
-                pagina.ForeColor = Me.ForeColor
-            Next
-
-            GroupBox1.BackColor = Me.BackColor
-            GroupBox1.ForeColor = Me.ForeColor
-
-            GroupBox2.BackColor = Me.BackColor
-            GroupBox2.ForeColor = Me.ForeColor
-
-            GroupBox3.BackColor = Me.BackColor
-            GroupBox3.ForeColor = Me.ForeColor
-
-            GroupBox4.BackColor = Me.BackColor
-            GroupBox4.ForeColor = Me.ForeColor
-
-            GroupBox5.BackColor = Me.BackColor
-            GroupBox5.ForeColor = Me.ForeColor
-
-            RichTextBox1.BackColor = Me.BackColor
-            RichTextBox1.ForeColor = Me.ForeColor
-
-            RichTextBox2.BackColor = Me.BackColor
-            RichTextBox2.ForeColor = Me.ForeColor
-
-            RichTextBox3.BackColor = Me.BackColor
-            RichTextBox3.ForeColor = Me.ForeColor
-
-            RichTextBox4.BackColor = Me.BackColor
-            RichTextBox4.ForeColor = Me.ForeColor
-
-            RichTextBox5.BackColor = Me.BackColor
-            RichTextBox5.ForeColor = Me.ForeColor
-
-            ListBox1.BackColor = Me.BackColor
-            ListBox1.ForeColor = Me.ForeColor
-
-            ListBox2.BackColor = Me.BackColor
-            ListBox2.ForeColor = Me.ForeColor
-
-            ListBox3.BackColor = Me.BackColor
-            ListBox3.ForeColor = Me.ForeColor
-
-            ComboBox1.BackColor = Me.BackColor
-            ComboBox1.ForeColor = Me.ForeColor
-
-            TextBox2.BackColor = Me.BackColor
-            TextBox2.ForeColor = Me.ForeColor
-
+            My.Computer.FileSystem.WriteAllText(LocalFilePath, Main_General_BoroGet_Repositories_RichTextBox.Text, False)
+            My.Computer.Network.UploadFile(LocalFilePath, RemoteFilePath, HostOwnerServerUser, HostOwnerServerPassword)
+            MsgBox("Boro-Get Repositories aplicado.", MsgBoxStyle.Information, "Configuracion Servidor Boro-Get")
         Catch ex As Exception
-            AddToLog("ThemeManager@Main", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("SendBoroGet(Repositories)Settings@Main", "Error: " & ex.Message, True)
         End Try
     End Sub
 
 #Region "LocalThings"
     Sub IndexUsersToPanel()
         Try
-            ListBox1.Items.Clear()
-            Label_Status.Text = "WAIT: Loading user files from server..."
+            Main_Users_User_ListBox.Items.Clear()
+            Status_Label.Text = "WAIT: Loading user files from server..."
             Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Users"), FtpWebRequest)
             Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
             dirFtp.Credentials = cr
@@ -447,21 +354,21 @@ Public Class Main
                 linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
                 linea = linea.Replace(".rtp", Nothing)
                 linea = linea.Replace("userID_", Nothing)
-                ListBox1.Items.Add(linea)
+                Main_Users_User_ListBox.Items.Add(linea)
             Next
-            ListBox1.Items.Remove(".")
-            ListBox1.Items.Remove("..")
-            ListBox1.Items.Remove("Commands")
+            Main_Users_User_ListBox.Items.Remove(".")
+            Main_Users_User_ListBox.Items.Remove("..")
+            Main_Users_User_ListBox.Items.Remove("Commands")
             reader.Close()
-            Label_Status.Text = "User files loaded!"
+            Status_Label.Text = "User files loaded!"
         Catch ex As Exception
-            Label_Status.Text = AddToLog("IndexUsersToPanel@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("IndexUsersToPanel@(LocalThings@Main)Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub IndexTelemetryToPanel()
         Try
-            ListBox2.Items.Clear()
-            Label_Status.Text = "WAIT: Loading telemetry files from server..."
+            Main_Telemetry_Telemetry_ListBox.Items.Clear()
+            Status_Label.Text = "WAIT: Loading telemetry files from server..."
             Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Telemetry"), FtpWebRequest)
             Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
             dirFtp.Credentials = cr
@@ -476,21 +383,21 @@ Public Class Main
                 linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
                 linea = linea.Replace(".tlm", Nothing)
                 linea = linea.Replace("telemetry_", Nothing)
-                ListBox2.Items.Add(linea)
+                Main_Telemetry_Telemetry_ListBox.Items.Add(linea)
             Next
-            ListBox2.Items.Remove(".")
-            ListBox2.Items.Remove("..")
-            ListBox2.Items.Remove("tlmRefresh.php")
+            Main_Telemetry_Telemetry_ListBox.Items.Remove(".")
+            Main_Telemetry_Telemetry_ListBox.Items.Remove("..")
+            Main_Telemetry_Telemetry_ListBox.Items.Remove("tlmRefresh.php")
             reader.Close()
-            Label_Status.Text = "Telemetry files loaded!"
+            Status_Label.Text = "Telemetry files loaded!"
         Catch ex As Exception
-            Label_Status.Text = AddToLog("IndexTelemetryToPanel@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("IndexTelemetryToPanel@(LocalThings@Main)Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub IndexTelemetryFilesToPanel()
         Try
-            ListBox3.Items.Clear()
-            Label_Status.Text = "WAIT: Loading repository files from server..."
+            Main_Telemetry_Files_ListBox.Items.Clear()
+            Status_Label.Text = "WAIT: Loading repository files from server..."
             Dim dirFtp As FtpWebRequest = CType(FtpWebRequest.Create(HostOwnerServer & "/Files"), FtpWebRequest)
             Dim cr As New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
             dirFtp.Credentials = cr
@@ -503,14 +410,14 @@ Public Class Main
             Dim lineas As String() = TXVR.Lines()
             For Each linea As String In lineas
                 linea = linea.Remove(0, linea.LastIndexOf("/") + 1)
-                ListBox3.Items.Add(linea)
+                Main_Telemetry_Files_ListBox.Items.Add(linea)
             Next
-            ListBox3.Items.Remove(".")
-            ListBox3.Items.Remove("..")
+            Main_Telemetry_Files_ListBox.Items.Remove(".")
+            Main_Telemetry_Files_ListBox.Items.Remove("..")
             reader.Close()
-            Label_Status.Text = "Telemetry repository files loaded!"
+            Status_Label.Text = "Telemetry repository files loaded!"
         Catch ex As Exception
-            Label_Status.Text = AddToLog("IndexTelemetryFilesToPanel@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("IndexTelemetryFilesToPanel@(LocalThings@Main)Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub DeleteTelemetryFile(ByVal fileName As String)
@@ -519,10 +426,10 @@ Public Class Main
             request.Method = WebRequestMethods.Ftp.DeleteFile
             request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
             Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
-            Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
+            Status_Label.Text = CType(response, FtpWebResponse).StatusDescription
             response.Close()
         Catch ex As Exception
-            Label_Status.Text = AddToLog("DeleteTelemetryFile@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("DeleteTelemetryFile@(LocalThings@Main)Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub DeleteUserFile(ByVal user As String)
@@ -533,33 +440,33 @@ Public Class Main
                 request.Method = WebRequestMethods.Ftp.DeleteFile
                 request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
                 Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
-                Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
+                Status_Label.Text = CType(response, FtpWebResponse).StatusDescription
                 response.Close()
             Catch ex As Exception
-                Label_Status.Text = AddToLog("DeleteUserFile(UserFile)@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+                Status_Label.Text = AddToLog("DeleteUserFile(UserFile)@(LocalThings@Main)Network", "Error: " & ex.Message, True)
             End Try
             Try
                 Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Users/Commands/[" & user & "]Command.str"), FtpWebRequest)
                 request.Method = WebRequestMethods.Ftp.DeleteFile
                 request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
                 Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
-                Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
+                Status_Label.Text = CType(response, FtpWebResponse).StatusDescription
                 response.Close()
             Catch ex As Exception
-                Label_Status.Text = AddToLog("DeleteUserFile(CommandFile)@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+                Status_Label.Text = AddToLog("DeleteUserFile(CommandFile)@(LocalThings@Main)Network", "Error: " & ex.Message, True)
             End Try
             Try
                 Dim request As FtpWebRequest = CType(WebRequest.Create(HostOwnerServer & "/Telemetry/telemetry_" & user & ".tlm"), FtpWebRequest)
                 request.Method = WebRequestMethods.Ftp.DeleteFile
                 request.Credentials = New NetworkCredential(HostOwnerServerUser, HostOwnerServerPassword)
                 Dim response As FtpWebResponse = CType(request.GetResponse(), FtpWebResponse)
-                Label_Status.Text = CType(response, FtpWebResponse).StatusDescription
+                Status_Label.Text = CType(response, FtpWebResponse).StatusDescription
                 response.Close()
             Catch ex As Exception
-                Label_Status.Text = AddToLog("DeleteUserFile(TelemetryFile)@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+                Status_Label.Text = AddToLog("DeleteUserFile(TelemetryFile)@(LocalThings@Main)Network", "Error: " & ex.Message, True)
             End Try
         Catch ex As Exception
-            Label_Status.Text = AddToLog("DeleteUserFile@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("DeleteUserFile@(LocalThings@Main)Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub GetTelemetryInfo(ByVal fileName As String)
@@ -570,42 +477,42 @@ Public Class Main
                 My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
             End If
             My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
-            RichTextBox3.Text = My.Computer.FileSystem.ReadAllText(LocalTelemetryFile)
+            Main_Telemetry_Telemetry_RichTextBox.Text = My.Computer.FileSystem.ReadAllText(LocalTelemetryFile)
         Catch ex As Exception
-            Label_Status.Text = AddToLog("GetTelemetryInfo@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("GetTelemetryInfo@(LocalThings@Main)Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub GetTelemetryFile(ByVal file As String)
         Try
             Dim downloadRefresh As Boolean = False
-            Label_Status.Text = "WAIT: Asking file info..."
+            Status_Label.Text = "WAIT: Asking file info..."
             Dim LocalTelemetryFile As String = DIRCommons & "\" & file
             Dim RemoteTelemetryFile As String = HttpOwnerServer & "/Files/" & file
             If My.Computer.FileSystem.FileExists(LocalTelemetryFile) Then
                 If MessageBox.Show("El fichero ya existe en local." & vbCrLf & "¿Desea descargarlo nuevamente?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                    Label_Status.Text = "WAIT: Downloading file from remote repository..."
+                    Status_Label.Text = "WAIT: Downloading file from remote repository..."
                     My.Computer.FileSystem.DeleteFile(LocalTelemetryFile)
                 Else
-                    Label_Status.Text = "WAIT: Opening file from local repository..."
+                    Status_Label.Text = "WAIT: Opening file from local repository..."
                     downloadRefresh = True
                 End If
             End If
             If Not downloadRefresh Then
-                If CheckBox1.Checked Then
+                If Main_Telemetry_Files_CheckBox.Checked Then
                     My.Computer.Network.DownloadFile(HostOwnerServer & "/Files/" & file, LocalTelemetryFile, HostOwnerServerUser, HostOwnerServerPassword)
                 Else
                     My.Computer.Network.DownloadFile(RemoteTelemetryFile, LocalTelemetryFile)
                 End If
             End If
-            Label_Status.Text = "File ready! Asking for confirmation..."
+            Status_Label.Text = "File ready! Asking for confirmation..."
             If MessageBox.Show("¿Abrir el fichero '" & file & "'?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                 Process.Start(LocalTelemetryFile)
             Else
                 Process.Start("explorer.exe", "/select, " & LocalTelemetryFile)
             End If
-            Label_Status.Text = Nothing
+            Status_Label.Text = Nothing
         Catch ex As Exception
-            Label_Status.Text = AddToLog("GetTelemetryFile@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("GetTelemetryFile@(LocalThings@Main)Network", "Error: " & ex.Message, True)
         End Try
     End Sub
     Sub GetUserInfo()
@@ -616,12 +523,40 @@ Public Class Main
                 My.Computer.FileSystem.DeleteFile(LocalUserFile)
             End If
             My.Computer.Network.DownloadFile(RemoteUserFile, LocalUserFile)
-            RichTextBox1.Text = My.Computer.FileSystem.ReadAllText(LocalUserFile)
+            Main_Users_User_RichTextBox.Text = My.Computer.FileSystem.ReadAllText(LocalUserFile)
         Catch ex As Exception
-            Label_Status.Text = AddToLog("GetUserInfo@(LocalThings@Main)Network", "Error: " & ex.Message, True)
+            Status_Label.Text = AddToLog("GetUserInfo@(LocalThings@Main)Network", "Error: " & ex.Message, True)
         End Try
     End Sub
 #End Region
+
+#Region "ToolStrip Items"
+    Private Sub RecargarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem.Click
+        Dim threadIndexTelemetryFilesToPanel As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf IndexTelemetryFilesToPanel))
+        threadIndexTelemetryFilesToPanel.Start()
+        'IndexTelemetryFilesToPanel()
+    End Sub
+    Private Sub EliminarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem.Click
+        Dim threadDeleteTelemetryFile As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf DeleteTelemetryFile))
+        threadDeleteTelemetryFile.Start(Main_Telemetry_Files_ListBox.SelectedItem)
+        'DeleteTelemetryFile(ListBox3.SelectedItem)
+    End Sub
+    Private Sub Label_Status_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles Status_Label.MouseDoubleClick
+        Status_Label.Text = Nothing
+        LastUserResponse = Nothing
+    End Sub
+    Private Sub RecargarToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles RecargarToolStripMenuItem1.Click
+        Dim threadIndexUsersToPanel As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf IndexUsersToPanel))
+        threadIndexUsersToPanel.Start()
+        'IndexUsersToPanel()
+    End Sub
+    Private Sub EliminarToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles EliminarToolStripMenuItem1.Click
+        If MessageBox.Show("Esta accion eliminara todos los archivos relacionados a este usuario." & vbCrLf & "¿Eliminar el usuario" & Main_Users_User_ListBox.SelectedItem & "?", "Eliminar usuario", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            Dim threadDeleteUserFile As Threading.Thread = New Threading.Thread(New Threading.ParameterizedThreadStart(AddressOf DeleteUserFile))
+            threadDeleteUserFile.Start(Main_Users_User_ListBox.SelectedItem)
+            'DeleteUserFile(ListBox1.SelectedItem)
+        End If
+    End Sub
 
     Private Sub RecargarTodoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RecargarTodoToolStripMenuItem.Click
         Main_KeyDown(Me, New KeyEventArgs(Keys.F5))
@@ -631,5 +566,91 @@ Public Class Main
     End Sub
     Private Sub SalirToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SalirToolStripMenuItem.Click
         End
+    End Sub
+#End Region
+
+    Sub ThemeManager(ByVal applyTheme As Boolean)
+        Try
+            If applyTheme Then
+                'Aplicar thema
+                Me.BackColor = Color.FromArgb(50, 50, 50)
+                Me.BackColor = Color.Black
+                Me.ForeColor = Color.LimeGreen
+            Else
+                'Desaplicar tema
+                Me.BackColor = DefaultBackColor
+                Me.ForeColor = DefaultForeColor
+            End If
+
+            For Each pagina As TabPage In Main_TabControl.Controls
+                pagina.BackColor = Me.BackColor
+                pagina.ForeColor = Me.ForeColor
+            Next
+
+            For Each pagina As TabPage In Main_Users_TabControl.Controls
+                pagina.BackColor = Me.BackColor
+                pagina.ForeColor = Me.ForeColor
+            Next
+
+            For Each pagina As TabPage In Main_General_TabControl.Controls
+                pagina.BackColor = Me.BackColor
+                pagina.ForeColor = Me.ForeColor
+            Next
+
+            For Each pagina As TabPage In Main_General_BoroGet_TabControl.Controls
+                pagina.BackColor = Me.BackColor
+                pagina.ForeColor = Me.ForeColor
+            Next
+
+            For Each pagina As TabPage In Main_Telemetry_TabControl.Controls
+                pagina.BackColor = Me.BackColor
+                pagina.ForeColor = Me.ForeColor
+            Next
+
+            Main_Users_User_GroupBox.BackColor = Me.BackColor
+            Main_Users_User_GroupBox.ForeColor = Me.ForeColor
+
+            Main_Users_Command_GroupBox.BackColor = Me.BackColor
+            Main_Users_Command_GroupBox.ForeColor = Me.ForeColor
+
+            Main_Inject_GroupBox.BackColor = Me.BackColor
+            Main_Inject_GroupBox.ForeColor = Me.ForeColor
+
+            Main_Users_User_RichTextBox.BackColor = Me.BackColor
+            Main_Users_User_RichTextBox.ForeColor = Me.ForeColor
+
+            Main_Users_Command_RichTextBox.BackColor = Me.BackColor
+            Main_Users_Command_RichTextBox.ForeColor = Me.ForeColor
+
+            Main_Telemetry_Telemetry_RichTextBox.BackColor = Me.BackColor
+            Main_Telemetry_Telemetry_RichTextBox.ForeColor = Me.ForeColor
+
+            Main_General_Globals_RichTextBox.BackColor = Me.BackColor
+            Main_General_Globals_RichTextBox.ForeColor = Me.ForeColor
+
+            Main_General_BoroGet_Config_RichTextBox.BackColor = Me.BackColor
+            Main_General_BoroGet_Config_RichTextBox.ForeColor = Me.ForeColor
+
+            Main_General_BoroGet_Repositories_RichTextBox.BackColor = Me.BackColor
+            Main_General_BoroGet_Repositories_RichTextBox.ForeColor = Me.ForeColor
+
+            Main_Users_User_ListBox.BackColor = Me.BackColor
+            Main_Users_User_ListBox.ForeColor = Me.ForeColor
+
+            Main_Telemetry_Telemetry_ListBox.BackColor = Me.BackColor
+            Main_Telemetry_Telemetry_ListBox.ForeColor = Me.ForeColor
+
+            Main_Telemetry_Files_ListBox.BackColor = Me.BackColor
+            Main_Telemetry_Files_ListBox.ForeColor = Me.ForeColor
+
+            Main_Users_Command_ComboBox.BackColor = Me.BackColor
+            Main_Users_Command_ComboBox.ForeColor = Me.ForeColor
+
+            Main_Inject_TextBox.BackColor = Me.BackColor
+            Main_Inject_TextBox.ForeColor = Me.ForeColor
+
+        Catch ex As Exception
+            AddToLog("ThemeManager@Main", "Error: " & ex.Message, True)
+        End Try
     End Sub
 End Class

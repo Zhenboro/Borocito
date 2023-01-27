@@ -1,6 +1,5 @@
 ﻿Imports System.ComponentModel
 Imports System.IO.Compression
-Imports System.Net
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports Microsoft.Win32
@@ -163,7 +162,7 @@ Module Updater
             Dim versionRemote = New Version(GetIniValue("Assembly", "Version", ClientLocalFile))
             Dim result = versionLocal.CompareTo(versionRemote)
             If (result < 0) Then 'Desactualizado
-                AddToLog("CheckForUpdates@Updater", "Actualizacion encontrada, inicando proceso...", False)
+                AddToLog("CheckForUpdates@Updater", "Actualizacion encontrada, iniciando proceso...", False)
                 StartDownload()
             Else
                 AddToLog("CheckForUpdates@Updater", "Sin actualizaciones", False)

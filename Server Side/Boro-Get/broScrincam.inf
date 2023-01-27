@@ -8,6 +8,6 @@ Executable=broScrincam.exe
 Version=0.1.0.0
 Web=https://github.com/Zhenboro/borocito-components/tree/main/broScrincam
 [INSTALLER]
-Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broScrincam.zip
+Binaries=http://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broScrincam.zip
 Installer=NULL
 InstallFolder=%temp%

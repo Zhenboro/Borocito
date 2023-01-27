@@ -8,6 +8,6 @@ Executable=broCiemdi.exe
 Version=0.3.0.0
 Web=https://github.com/Zhenboro/borocito-components/tree/main/broCiemdi
 [INSTALLER]
-Binaries=https://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broCiemdi.zip
+Binaries=http://chemic-jug.000webhostapp.com/Borocito/Boro-Get/REPO/broCiemdi.zip
 Installer=NULL
 InstallFolder=%temp%

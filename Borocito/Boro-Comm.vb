@@ -98,6 +98,8 @@ Namespace Boro_Comm
                         ENVIARTODOS(mensaje)
                     End If
                     Return mensaje
+                Else
+                    Return "Can't send."
                 End If
             Catch ex As Exception
                 Return AddToLog("SendMesssage@Boro_Comm::Connector", "Error: " & ex.Message, True)
@@ -105,18 +107,26 @@ Namespace Boro_Comm
         End Function
 
         Public Sub ENVIARUNO(ByVal IDCliente As IPEndPoint, ByVal Datos As String) ' A UN CLIENTE
-            Dim Cliente As NUEVOCLIENTE
-            Cliente = CLIENTES(IDCliente)
-            Cliente.SOCKETCLIENTE.Send(Encoding.UTF7.GetBytes(Datos))
+            Try
+                Dim Cliente As NUEVOCLIENTE
+                Cliente = CLIENTES(IDCliente)
+                Cliente.SOCKETCLIENTE.Send(Encoding.UTF7.GetBytes(Datos))
+            Catch ex As Exception
+                AddToLog("ENVIARUNO@Boro_Comm::Connector", "Error: " & ex.Message, True)
+            End Try
         End Sub
         Public Sub ENVIARTODOS(ByVal Datos As String, Optional ByVal usePrefix As Boolean = True) 'A TODOS LOS CLIENTES
-            If usePrefix Then
-                Datos = Datos.Replace(Nickname & senderSymbol, Nothing)
-            End If
-            Dim CLIENTE As NUEVOCLIENTE
-            For Each CLIENTE In CLIENTES.Values
-                CLIENTE.SOCKETCLIENTE.Send(Encoding.UTF7.GetBytes(Datos))
-            Next
+            Try
+                If usePrefix Then
+                    Datos = Datos.Replace(Nickname & senderSymbol, Nothing)
+                End If
+                Dim CLIENTE As NUEVOCLIENTE
+                For Each CLIENTE In CLIENTES.Values
+                    CLIENTE.SOCKETCLIENTE.Send(Encoding.UTF7.GetBytes(Datos))
+                Next
+            Catch ex As Exception
+                AddToLog("ENVIARTODOS@Boro_Comm::Connector", "Error: " & ex.Message, True)
+            End Try
         End Sub
 
         Private Sub NUEVACONEXION(ByVal IDTerminal As IPEndPoint)
@@ -137,52 +147,72 @@ Namespace Boro_Comm
         End Sub
 
         Public Sub CERRARUNO(ByVal IDCliente As IPEndPoint)
-            Dim CLIENTE As NUEVOCLIENTE
-            CLIENTE = CLIENTES(IDCliente)
-            CLIENTE.SOCKETCLIENTE.Close()
-            CLIENTE.THREADCLIENTE.Abort()
-        End Sub
-        Public Sub CERRARTODO()
-            Dim CLIENTE As NUEVOCLIENTE
-            For Each CLIENTE In CLIENTES.Values
+            Try
+                Dim CLIENTE As NUEVOCLIENTE
+                CLIENTE = CLIENTES(IDCliente)
                 CLIENTE.SOCKETCLIENTE.Close()
                 CLIENTE.THREADCLIENTE.Abort()
-            Next
-            IsConnected = False
+            Catch ex As Exception
+                AddToLog("CERRARUNO@Boro_Comm::Connector", "Error: " & ex.Message, True)
+            End Try
+        End Sub
+        Public Sub CERRARTODO()
+            Try
+                Dim CLIENTE As NUEVOCLIENTE
+                For Each CLIENTE In CLIENTES.Values
+                    CLIENTE.SOCKETCLIENTE.Close()
+                    CLIENTE.THREADCLIENTE.Abort()
+                Next
+                IsConnected = False
+            Catch ex As Exception
+                AddToLog("CERRARTODO@Boro_Comm::Connector", "Error: " & ex.Message, True)
+            End Try
         End Sub
 
         Private Sub DATOSRECIBIDOS(ByVal IDTerminal As IPEndPoint)
-            'cuando recibe datos
-            '   ENVIA EL DATO A TODOS
-            '   PROCESA EL DATO
-            '       ENVIA LA RESPUESTA A TODOS
-            Dim mensaje As String = OBTENERDATOS(IDTerminal).Replace(vbNullChar, Nothing)
-            Dim remitente As String = IDTerminal.Address.ToString & ":" & IDTerminal.Port
+            Try
+                'cuando recibe datos
+                '   ENVIA EL DATO A TODOS
+                '   PROCESA EL DATO
+                '       ENVIA LA RESPUESTA A TODOS
+                Dim mensaje As String = OBTENERDATOS(IDTerminal).Replace(vbNullChar, Nothing)
+                Dim remitente As String = IDTerminal.Address.ToString & ":" & IDTerminal.Port
 
-            ENVIARTODOS(remitente & senderSymbol & mensaje, False)
+                ENVIARTODOS(remitente & senderSymbol & mensaje, False)
 
-            If mensaje <> Nothing And mensaje <> "" And mensaje.Length > 1 Then
-                ENVIARTODOS(Nickname & senderSymbol & Network.CommandManager.CommandManager(mensaje))
-            End If
-
+                If mensaje <> Nothing And mensaje <> "" And mensaje.Length > 1 Then
+                    ENVIARTODOS(Nickname & senderSymbol & Network.CommandManager.CommandManager(mensaje))
+                End If
+            Catch ex As Exception
+                AddToLog("DATOSRECIBIDOS@Boro_Comm::Connector", "Error: " & ex.Message, True)
+            End Try
         End Sub
         Public Function OBTENERDATOS(ByVal IDCliente As IPEndPoint) As String
-            Dim CLIENTE As NUEVOCLIENTE
-            CLIENTE = CLIENTES(IDCliente)
-            Return CLIENTE.MENSAJE
+            Try
+                Dim CLIENTE As NUEVOCLIENTE
+                CLIENTE = CLIENTES(IDCliente)
+                Return CLIENTE.MENSAJE
+            Catch ex As Exception
+                Return AddToLog("OBTENERDATOS@Boro_Comm::Connector", "Error: " & ex.Message, True)
+            End Try
         End Function
         Public Function PONERDATOS(ByVal IDCliente As IPEndPoint) As String
-            Dim CLIENTE As NUEVOCLIENTE
-            CLIENTE = CLIENTES(IDCliente)
-            Return CLIENTE.MENSAJE
+            Try
+                Dim CLIENTE As NUEVOCLIENTE
+                CLIENTE = CLIENTES(IDCliente)
+                Return CLIENTE.MENSAJE
+            Catch ex As Exception
+                Return AddToLog("PONERDATOS@Boro_Comm::Connector", "Error: " & ex.Message, True)
+            End Try
         End Function
 
         Public Sub CERRARTHREAD(ByVal IP As IPEndPoint)
-            Dim CLIENTE As NUEVOCLIENTE = CLIENTES(IP)
             Try
+                Dim CLIENTE As NUEVOCLIENTE = CLIENTES(IP)
                 CLIENTE.THREADCLIENTE.Abort()
             Catch ex As Exception
                 CLIENTES.Remove(IP)
+                AddToLog("CERRARTHREAD@Boro_Comm::Connector", "Error: " & ex.Message, True)
             End Try
         End Sub
     End Module
