@@ -121,7 +121,10 @@ Module StartUp
         Try
             Dim regKey As RegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Borocito", True)
             OwnerServer = regKey.GetValue("OwnerServer")
-            BorocitoVersion = regKey.GetValue("Version").Split(" ")(0)
+            Try
+                BorocitoVersion = regKey.GetValue("Version").Split(" ")(0)
+            Catch
+            End Try
         Catch ex As Exception
             AddToLog("LoadSetting@StartUp", "Error: " & ex.Message, True)
             End
@@ -140,7 +143,7 @@ Module Updater
             If My.Computer.FileSystem.FileExists(ClientLocalFile) Then
                 My.Computer.FileSystem.DeleteFile(ClientLocalFile)
             End If
-            Dim ClientRemoteFile As String = "http://" & OwnerServer & "/Globals.ini" 'posible redireccion si es HTTPS
+            Dim ClientRemoteFile As String = OwnerServer & "/Globals.ini" 'posible redireccion si es HTTPS
             My.Computer.Network.DownloadFile(ClientRemoteFile, ClientLocalFile)
             If forceUpdate Then
                 AddToLog("PreSearch@Updater", "Forzando la descarga del binarios...", False)

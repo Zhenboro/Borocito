@@ -90,6 +90,7 @@ Partial Class Main
         Me.Busy_Label = New System.Windows.Forms.Label()
         Me.Busy_Panel = New System.Windows.Forms.Panel()
         Me.Theme_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.MyToolTip = New System.Windows.Forms.ToolTip(Me.components)
         Me.Main_TabControl.SuspendLayout()
         Me.Main_General_TabPage.SuspendLayout()
         Me.Main_General_TabControl.SuspendLayout()
@@ -667,7 +668,7 @@ Partial Class Main
         '
         Me.Logo_Picture.BackColor = System.Drawing.Color.Transparent
         Me.Logo_Picture.ContextMenuStrip = Me.ContextMenuPrincipal
-        Me.Logo_Picture.Image = Global.Control.My.Resources.Resources.Borocito
+        Me.Logo_Picture.Image = Global.Borocito_CMD.My.Resources.Resources.Borocito
         Me.Logo_Picture.Location = New System.Drawing.Point(12, 12)
         Me.Logo_Picture.Name = "Logo_Picture"
         Me.Logo_Picture.Size = New System.Drawing.Size(75, 75)
@@ -794,6 +795,10 @@ Partial Class Main
         Me.Theme_CheckBox.Text = "Modo oscuro"
         Me.Theme_CheckBox.UseVisualStyleBackColor = True
         '
+        'MyToolTip
+        '
+        Me.MyToolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -917,4 +922,5 @@ Partial Class Main
     Friend WithEvents Main_General_BoroGet_Repositories_Button As Button
     Friend WithEvents Main_General_BoroGet_Repositories_GroupBox As GroupBox
     Friend WithEvents Main_General_BoroGet_Repositories_RichTextBox As RichTextBox
+    Friend WithEvents MyToolTip As ToolTip
 End Class

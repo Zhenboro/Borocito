@@ -82,10 +82,16 @@ Module Settings
     Sub SetData()
         Try
             If Not isPortable Then
-                Dim OwnerServerInput = InputBox("Ingrese la direccion del servidor", "Servidor")
+                Dim OwnerServerInput = InputBox("Ingrese la direccion del servidor", "Servidor", "http://")
                 If OwnerServerInput <> Nothing Then
-                    OwnerServer = OwnerServerInput
-                    HttpOwnerServer = "http://" & OwnerServer
+                    Dim httpPrefix As String = Nothing
+                    If OwnerServerInput.StartsWith("https") Then
+                        httpPrefix = "https://"
+                    ElseIf OwnerServerInput.StartsWith("http") Then
+                        httpPrefix = "http://"
+                    End If
+                    OwnerServer = OwnerServerInput.Replace(httpPrefix, Nothing)
+                    HttpOwnerServer = OwnerServerInput
                 End If
                 Dim HostOwnerServerInput = InputBox("Ingrese la direccion host del servidor", "Servidor", "ftp://" & OwnerServerInput)
                 If HostOwnerServerInput <> Nothing Then
@@ -190,7 +196,7 @@ Module StartUp
             'Aplicando variables
             Main.Connected_Label.Text = "Conectado a: " & OwnerServer
             Main.Version_Label.Text = My.Application.Info.AssemblyName & " v" & My.Application.Info.Version.ToString & " for " & GetIniValue("Assembly", "Name", DIRCommons & "\Globals.ini") & " v" & My.Application.Info.Version.ToString & " (" & GetIniValue("Assembly", "Version", DIRCommons & "\Globals.ini") & ")"
-            Main.Main_Inject_TextBox.Text = OwnerServer
+            Main.Main_Inject_TextBox.Text = HttpOwnerServer
             Main.Busy_Panel.Visible = False
         Catch ex As Exception
             Main.Status_Label.Text = AddToLog("Init@StartUp", "Error: " & ex.Message, True)

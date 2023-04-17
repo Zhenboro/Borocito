@@ -1,4 +1,5 @@
 <?php
+    header('Access-Control-Allow-Origin: *');
     // CONSTS
     const STATUS = "status";
     const DESCRIPTION = "description";
@@ -26,87 +27,90 @@ $content = null;
 $headers = getallheaders();
 function VerifySession() {
     global $headers, $clase, $retorno, $ident;
-    if (!array_key_exists('Clase', $headers)) {
+    if (!array_key_exists('class', $headers)) {
         http_response_code(400);
         $retorno[STATUS] = "NO_CLASS_HEADER";
         die(json_encode($retorno));
-    } if ((!isset($headers['Clase'])) || $headers['Clase'] == "") {
+    } if ((!isset($headers['class'])) || $headers['class'] == "") {
         http_response_code(400);
         $retorno[STATUS] = "CLASS_IS_EMPTY";
         die(json_encode($retorno));
-    } if (!array_key_exists('Ident', $headers)) {
+    } if (!array_key_exists('ident', $headers)) {
         http_response_code(400);
         $retorno[STATUS] = "NO_UID_HEADER";
         die(json_encode($retorno));
-    } if ((!isset($headers['Ident'])) || $headers['Ident'] == "") {
+    } if ((!isset($headers['ident'])) || $headers['ident'] == "") {
         http_response_code(400);
         $retorno[STATUS] = "UID_IS_EMPTY";
         die(json_encode($retorno));
     }
 
-    $ident = $headers['Ident'];
-    $clase = $headers['Clase'];
-
-    if (!file_exists(USERS_DIR.REPORT_PREFIX.$ident.REPORT_EXTESION)) {
+    $ident = $headers['ident'];
+    $clase = $headers['class'];
+} function CheckAuth() {
+    global $retorno, $ident;
+     if (!file_exists(USERS_DIR.REPORT_PREFIX.$ident.REPORT_EXTESION)) {
         http_response_code(401);
         $retorno[STATUS] = "WHO_THE_FUCK_ARE_YOU";
         $retorno[DESCRIPTION] = "YOU FUCKING BITCH, WHO THE FUCKA RE U LMAOO";
         die(json_encode($retorno));
     }
-} VerifySession();
+} VerifySession(); AddSessionToLog();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json; charset=UTF-8');
-    if ((!isset($_POST['content'])) || $_POST['content'] == "") {
+    header('Content-Type: application/json; charset=UTF-8;');
+    if ((isset($_POST['content'])) && $_POST['content'] != "") {
+        $content = $_POST['content'];
+        switch ($clase) {
+            case "PING":
+                http_response_code(200);
+                $retorno[STATUS] = "PONG!";
+                $retorno[DESCRIPTION] = $clase;
+                die(json_encode($retorno));
+                break;
+            case "COMMAND":
+                CheckAuth();
+                $archivo = COMMANDS_DIR . COMMAND_PREFIX . $ident . COMMAND_EXTENSION;
+                if (file_exists($archivo)) {
+                    file_put_contents($archivo, $content);
+                } else {
+                    $myfile = fopen($archivo, "w");
+                    fwrite($myfile, $content);
+                    fclose($myfile);
+                }
+                break;
+            case "TELEMETRY":
+                CheckAuth();
+                $archivo = TELEMETRY_DIR . TELEMETRY_PREFIX . $ident . TELEMETRY_EXTESION;
+                if (file_exists($archivo)) {
+                    $fp = fopen($archivo, "a");
+                    fwrite($fp, "\n" . $content);
+                    fclose($fp);
+                } else {
+                    $myfile = fopen($archivo, "w");
+                    fwrite($myfile, $content);
+                    fclose($myfile);
+                }
+                break;
+            case "USER_REPORT":
+                $archivo = USERS_DIR . REPORT_PREFIX . $ident . REPORT_EXTESION;
+                $myfile = fopen($archivo, "w");
+                fwrite($myfile, $content);
+                fclose($myfile);
+                break;
+            default:
+                http_response_code(400);
+                $retorno[STATUS] = "SWITCH_DEFAULT";
+                die(json_encode($retorno));
+        }
+        http_response_code(200);
+        $retorno[STATUS] = "DONE";
+        $retorno[DESCRIPTION] = $clase;
+        die(json_encode($retorno));
+    } else {
         http_response_code(400);
         $retorno[STATUS] = "CONTENT_IS_EMPTY";
         die(json_encode($retorno));
     }
-    $content = $_POST['content'];
-    switch ($clase) {
-        case "PING":
-            http_response_code(200);
-            $retorno[STATUS] = "PONG!";
-            $retorno[DESCRIPTION] = $clase;
-            die(json_encode($retorno));
-            break;
-        case "COMMAND":
-            $archivo = COMMANDS_DIR . COMMAND_PREFIX . $ident . COMMAND_EXTENSION;
-            if (file_exists($archivo)) {
-                file_put_contents($archivo, $content);
-            } else {
-                $myfile = fopen($archivo, "w");
-                fwrite($myfile, $content);
-                fclose($myfile);
-            }
-            break;
-        case "TELEMETRY":
-            $archivo = TELEMETRY_DIR . TELEMETRY_PREFIX . $ident . TELEMETRY_EXTESION;
-            if (file_exists($archivo)) {
-                $fp = fopen($archivo, "a");
-                fwrite($fp, "\n" . $content);
-                fclose($fp);
-            } else {
-                $myfile = fopen($archivo, "w");
-                fwrite($myfile, $content);
-                fclose($myfile);
-            }
-            break;
-        case "USER_REPORT":
-            $archivo = USERS_DIR . REPORT_PREFIX . $ident . REPORT_EXTESION;
-            $myfile = fopen($archivo, "w");
-            fwrite($myfile, $content);
-            fclose($myfile);
-            break;
-            break;
-        default:
-            http_response_code(400);
-            $retorno[STATUS] = "SWITCH_DEFAULT";
-            die(json_encode($retorno));
-    }
-    http_response_code(200);
-    $retorno[STATUS] = "DONE";
-    $retorno[DESCRIPTION] = $clase;
-    die(json_encode($retorno));
 } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     header('Content-Type: application/json; charset=UTF-8');
     $retorno[DESCRIPTION] = array();
@@ -170,7 +174,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     die($retorno);
 } else {
     http_response_code(418);
-    $retorno[STATUS] = "METHOD NOT ALLOWED";
+    $retorno[STATUS] = "METHOD_NOT_ALLOWED";
     $retorno[DESCRIPTION] = "Get the fuck away from here.";
     die(json_encode($retorno));
+}
+function AddSessionToLog() {
+    global $clase, $ident;
+    $data = null;
+    $data = $_SERVER['REMOTE_ADDR']."\n"
+    ."    ".date('d/m/Y H:i:s')."\n"
+    ."    ".$_SERVER['REQUEST_METHOD'] . " : " . $_SERVER['PHP_SELF']."\n"
+    ."    ".$_SERVER['HTTP_USER_AGENT']."\n"
+    ."    ".$clase." : ".$ident."\n";
+    file_put_contents('api.log', $data.PHP_EOL , FILE_APPEND | LOCK_EX);
 }

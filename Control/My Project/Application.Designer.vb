@@ -32,7 +32,7 @@ Namespace My
         
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()>  _
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = Global.Control.Main
+            Me.MainForm = Global.Borocito_CMD.Main
         End Sub
     End Class
 End Namespace

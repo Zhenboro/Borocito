@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text Processing</title>
+
+  <!-- Import our css styles -->
+  <link rel="stylesheet" href="api_consumer.css">
+</head>
+<body>
+  <div class="main">
+      <h2 class="main-header">Comment text analysys</h2>
+      <section class="main-input-comment">
+          <label for="comment">Write your comment here:</label>
+          <textarea
+                  name="comment"
+                  id="comment"
+                  class="main-comment-area"
+                  placeholder="Your comment..."
+          >
+          </textarea>
+          <button class="main-analyze-button" onclick="userAction()">GET DATA</button>
+      </section>
+      <section class="main-result">
+          <p id="main-result-block">
+            <code>
+              <pre id="result"></pre>
+            </code>
+          </p>
+      </section>
+  </div>
+  <!-- Import our javascript file -->
+  <script src="api_consumer.js"></script>
+</body>

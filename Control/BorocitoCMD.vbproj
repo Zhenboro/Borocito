@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4CD334B7-EC4A-4098-B2CD-933095462845}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>Control.My.MyApplication</StartupObject>
-    <RootNamespace>Control</RootNamespace>
+    <StartupObject>Borocito_CMD.My.MyApplication</StartupObject>
+    <RootNamespace>Borocito_CMD</RootNamespace>
     <AssemblyName>BorocitoCMD</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
