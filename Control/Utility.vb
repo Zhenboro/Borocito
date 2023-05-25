@@ -19,6 +19,9 @@ Module GlobalUses
     Public isPortable As Boolean = False
     Public CommandRefreshDelay As Integer = 10000
     Public isMultiSelectMode As Boolean = False
+    Public compileVersion As String = My.Application.Info.Version.ToString &
+    " (" & Application.ProductVersion & ") " &
+    "[22/04/2023 12:18]" 'Indicacion exacta de la ultima compilacion
 End Module
 Module Utility
     Function AddToLog(ByVal from As String, ByVal content As String, Optional ByVal flag As Boolean = False) As String
@@ -249,6 +252,12 @@ Module StartUp
     End Sub
 End Module
 Module Network
+    Enum API_TYPES
+        PING
+        COMMAND
+        TELEMETRY
+        USER_REPORT
+    End Enum
     Sub GetGlobalsConfig()
         Try
             Dim LocalFilePath As String = DIRCommons & "\Globals.ini"
@@ -286,4 +295,54 @@ Module Network
             Main.Status_Label.Text = AddToLog("GetBoroGetConfig(Repositories)@Network", "Error: " & ex.Message, True)
         End Try
     End Sub
+
+    Function SendAPIRequest(ByVal clase As API_TYPES, ByVal UID As String, ByVal content As String) As Boolean
+        Try
+
+            Dim request As HttpWebRequest = CType(WebRequest.Create(HttpOwnerServer & "/api.php"), HttpWebRequest)
+            content = content.Replace("&", "{ampersand}")
+            content = content.Replace("?", "{questionmark}")
+            Dim postData As String = "content=" & content
+            request.ContentType = "application/x-www-form-urlencoded"
+            request.UserAgent = My.Application.Info.AssemblyName & " / " & compileVersion
+            request.Method = "POST"
+            request.Headers("ident") = UID
+            request.Headers("class") = clase.ToString
+
+            Dim dataStream As New StreamWriter(request.GetRequestStream())
+            dataStream.Write(postData)
+            dataStream.Close()
+            Dim response As WebResponse = request.GetResponse()
+            'AddToLog("Network", "Response for '" & CStr(clase.ToString) & "': " & CType(response, HttpWebResponse).StatusCode & " " & CType(response, HttpWebResponse).StatusDescription, False)
+            response.Close()
+
+            Return True
+        Catch ex As Exception
+            AddToLog("SendAPIRequest@Network", "Error: " & ex.Message, True)
+            Return False
+        End Try
+    End Function
+    Function ReceiveAPIRequest(ByVal clase As API_TYPES, ByVal UID As String) As String
+        Try
+
+            Dim request As HttpWebRequest = CType(WebRequest.Create(HttpOwnerServer & "/api.php"), HttpWebRequest)
+            request.ContentType = "application/x-www-form-urlencoded"
+            request.UserAgent = My.Application.Info.AssemblyName & " / " & compileVersion
+            request.Method = "GET"
+            request.Headers("ident") = UID
+            request.Headers("class") = clase.ToString
+
+            Dim response As WebResponse = request.GetResponse()
+            Dim dataReader As New StreamReader(response.GetResponseStream())
+            Dim respuesta As String = dataReader.ReadToEnd()
+
+            response.Close()
+            dataReader.Close()
+
+            Return respuesta
+        Catch ex As Exception
+            AddToLog("ReceiveAPIRequest@Network", "Error: " & ex.Message, True)
+            Return Nothing
+        End Try
+    End Function
 End Module

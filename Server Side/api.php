@@ -12,10 +12,10 @@
     const COMMAND_EXTENSION = "]Command.str";
 
     const REPORT_PREFIX = "userID_";
-    const REPORT_EXTESION = ".rtp";
+    const REPORT_EXTENSION = ".rtp";
 
     const TELEMETRY_PREFIX = "telemetry_";
-    const TELEMETRY_EXTESION = ".tlm";
+    const TELEMETRY_EXTENSION = ".tlm";
 
 $retorno = array(
     STATUS => "",
@@ -49,10 +49,10 @@ function VerifySession() {
     $clase = $headers['class'];
 } function CheckAuth() {
     global $retorno, $ident;
-     if (!file_exists(USERS_DIR.REPORT_PREFIX.$ident.REPORT_EXTESION)) {
+     if (!file_exists(USERS_DIR.REPORT_PREFIX.$ident.REPORT_EXTENSION)) {
         http_response_code(401);
         $retorno[STATUS] = "WHO_THE_FUCK_ARE_YOU";
-        $retorno[DESCRIPTION] = "YOU FUCKING BITCH, WHO THE FUCKA RE U LMAOO";
+        $retorno[DESCRIPTION] = "YOU FUCKING BITCH 👿, WHO THE FUCKA RE U LMAOO 😂";
         die(json_encode($retorno));
     }
 } VerifySession(); AddSessionToLog();
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             case "TELEMETRY":
                 CheckAuth();
-                $archivo = TELEMETRY_DIR . TELEMETRY_PREFIX . $ident . TELEMETRY_EXTESION;
+                $archivo = TELEMETRY_DIR . TELEMETRY_PREFIX . $ident . TELEMETRY_EXTENSION;
                 if (file_exists($archivo)) {
                     $fp = fopen($archivo, "a");
                     fwrite($fp, "\n" . $content);
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 break;
             case "USER_REPORT":
-                $archivo = USERS_DIR . REPORT_PREFIX . $ident . REPORT_EXTESION;
+                $archivo = USERS_DIR . REPORT_PREFIX . $ident . REPORT_EXTENSION;
                 $myfile = fopen($archivo, "w");
                 fwrite($myfile, $content);
                 fclose($myfile);
@@ -154,13 +154,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             break;
         case "TELEMETRY":
-            $archivo = TELEMETRY_DIR . TELEMETRY_PREFIX . $ident . TELEMETRY_EXTESION;
+            $archivo = TELEMETRY_DIR . TELEMETRY_PREFIX . $ident . TELEMETRY_EXTENSION;
             if (file_exists($archivo)) {
                 $retorno = file_get_contents($archivo);
             }
             break;
         case "USER_REPORT":
-            $archivo = USERS_DIR . REPORT_PREFIX . $ident . REPORT_EXTESION;
+            $archivo = USERS_DIR . REPORT_PREFIX . $ident . REPORT_EXTENSION;
             if (file_exists($archivo)) {
                 $retorno = file_get_contents($archivo);
             }
